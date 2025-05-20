@@ -1,0 +1,35 @@
+{
+  "test": "Kiểm tra",
+  "appName": "RAG",
+  "logout": "Đăng xuất",
+  "see": "Xem",
+  "update": "Cập nhật",
+  "delete": "Xóa",
+  "createAt": "Ngày tạo",
+  "updateAt": "Ngày cập nhật",
+  "actions": "Hành động",
+  "search": "Tìm kiếm",
+  "cancel": "Hủy",
+  "confirm": "Xác nhận",
+  "enter": "Nhập",
+  "hyperTextMedium": "Nhập tối đa 100 ký tự",
+  "hyperTextLong": "Nhập tối đa 150 ký tự",
+  "hyperTextVeryLong": "Nhập tối đa 255 ký tự",
+
+  "agentManagement": "Quản lý AI Agent",
+  "trainingDataManagement": "Quản lý dữ liệu huấn luyện",
+  "trainingMonitoring": "Giám sát huấn luyện",
+
+  "agentName": "Tên Agent",
+  "agentDescription": "Mô tả Agent",
+  "agentList": "Danh sách Agent",
+  "agentDetailInformation": "Thông tin chi tiết Agent",
+  "createAgent": "Tạo Agent",
+  "updateAgent": "Cập nhật Agent",
+  "deleteAgent": "Xóa Agent",
+
+  "training": "Huấn luyện",
+  "trainingData": "Dữ liệu huấn luyện",
+  "trainingDataList": "Danh sách dữ liệu huấn luyện",
+  "trainingDataDetail": "Chi tiết dữ liệu huấn luyện"
+}
