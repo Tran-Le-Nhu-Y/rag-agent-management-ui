@@ -16,20 +16,31 @@
   "hyperTextLong": "Nhập tối đa 150 ký tự",
   "hyperTextVeryLong": "Nhập tối đa 255 ký tự",
 
-  "agentManagement": "Quản lý AI Agent",
-  "trainingDataManagement": "Quản lý dữ liệu huấn luyện",
-  "trainingMonitoring": "Giám sát huấn luyện",
+  "dataEvaluation": "Đánh giá dữ liệu",
 
-  "agentName": "Tên Agent",
-  "agentDescription": "Mô tả Agent",
-  "agentList": "Danh sách Agent",
-  "agentDetailInformation": "Thông tin chi tiết Agent",
-  "createAgent": "Tạo Agent",
-  "updateAgent": "Cập nhật Agent",
-  "deleteAgent": "Xóa Agent",
+  "dataRecommendation": "Đề xuất dữ liệu",
 
-  "training": "Huấn luyện",
-  "trainingData": "Dữ liệu huấn luyện",
-  "trainingDataList": "Danh sách dữ liệu huấn luyện",
-  "trainingDataDetail": "Chi tiết dữ liệu huấn luyện"
+  "imageRecommendation": "Đề xuất dữ liệu hình ảnh",
+  "imageSizeLimit": "Kích thước hình ảnh tối đa",
+  "dragAndDrop": "Kéo và thả các hình ảnh ở đây",
+
+  "textRecommendation": "Đề xuất dữ liệu văn bản",
+  "textRecommendationName": "Tên bộ dữ liệu văn bản",
+  "textRecommendationDescription": "Mô tả bộ dữ liệu văn bản",
+  "recommendation": "Đề xuất",
+  "addDataField": "Trường dữ liệu",
+  "fieldName": "Tên trường",
+  "fieldContent": "Nội dung",
+
+  "imageTagging": "Gán nhãn hình ảnh",
+  "ImageTaggingList": "Danh sách hình ảnh cần gán nhãn",
+  "untaggedImage": "Hình ảnh chưa được gán nhãn",
+  "taggedImage": "Hình ảnh đã được gán nhãn",
+  "image": "Hình ảnh",
+  "tag": "Nhãn",
+  "selectTag": "Chọn nhãn thích hợp",
+  "selectAgent": "Chọn Agent",
+  "tagSearch": "Tìm kiếm theo nhãn",
+  "downloadImages": "Tải toàn bộ",
+  "tagList": "Danh sách nhãn"
 }

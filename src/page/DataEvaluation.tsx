@@ -1,13 +1,13 @@
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 
-const AgentDetailPage = () => {
+const DataEvaluationPage = () => {
   const { t } = useTranslation();
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
-      <h1>{t('agentDetailInformation')}</h1>
+      <Typography>{t('dataEvaluation')}</Typography>
     </Stack>
   );
 };
 
-export default AgentDetailPage;
+export default DataEvaluationPage;

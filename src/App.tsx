@@ -6,14 +6,14 @@ import './App.css';
 
 import { BrowserRouter, Route, Routes } from 'react-router';
 import { RootLayout } from './layout';
-import { AgentManagementPage } from './page';
+import { ImageTaggingPage } from './page';
 
 function App() {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<RootLayout />}>
-          <Route index element={<AgentManagementPage />} />
+          <Route index element={<ImageTaggingPage />} />
         </Route>
       </Routes>
     </BrowserRouter>

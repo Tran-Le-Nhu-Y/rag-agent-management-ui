@@ -190,52 +190,69 @@ const RootLayout = () => {
         <Divider />
 
         <List>
-          <ListItem key={t('agentManagement')} disablePadding>
+          <ListItem key={t('imageTagging')} disablePadding>
             <ListItemButton
               selected={selectedIndex === 0}
               onClick={(event) => {
-                handleListItemClick(event, 1);
+                handleListItemClick(event, 0);
                 navigate('/');
               }}
             >
               <ListItemIcon>
                 <InboxIcon />
               </ListItemIcon>
-              <ListItemText primary={t('agentManagement')} />
+              <ListItemText primary={t('imageTagging')} />
             </ListItemButton>
           </ListItem>
         </List>
         <Divider />
         <List>
-          <ListItem key={t('trainingDataManagement')} disablePadding>
+          <ListItem key={t('dataEvaluation')} disablePadding>
             <ListItemButton
               selected={selectedIndex === 1}
               onClick={(event) => {
                 handleListItemClick(event, 1);
-                navigate('/training-data-management');
+                navigate('/data-evaluation');
               }}
             >
               <ListItemIcon>
                 <InboxIcon />
               </ListItemIcon>
-              <ListItemText primary={t('trainingDataManagement')} />
+              <ListItemText primary={t('dataEvaluation')} />
             </ListItemButton>
           </ListItem>
         </List>
         <Divider />
         <List>
-          <ListItem key={t('trainingMonitoring')} disablePadding>
+          <ListItem key={t('imageRecommendation')} disablePadding>
             <ListItemButton
               selected={selectedIndex === 2}
               onClick={(event) => {
-                handleListItemClick(event, 1);
-                navigate('/trainting-monitoring');
+                handleListItemClick(event, 2);
+                navigate('/image-data-recommendation');
               }}
             >
               <ListItemIcon>
                 <InboxIcon />
               </ListItemIcon>
-              <ListItemText primary={t('trainingMonitoring')} />
+              <ListItemText primary={t('imageRecommendation')} />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem key={t('textRecommendation')} disablePadding>
+            <ListItemButton
+              selected={selectedIndex === 3}
+              onClick={(event) => {
+                handleListItemClick(event, 3);
+                navigate('/text-data-recommendation');
+              }}
+            >
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('textRecommendation')} />
             </ListItemButton>
           </ListItem>
         </List>
