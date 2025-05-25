@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Box, Pagination, Paper, Typography } from '@mui/material';
+import { Box, IconButton, Pagination, Paper, Typography } from '@mui/material';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export type ImageItem = {
   url: string;
@@ -11,11 +12,13 @@ export type ImageItem = {
 type Props = {
   images: ImageItem[];
   itemsPerPage?: number;
+  onDelete?: (index: number) => void;
 };
 
 export default function ImagePaginationViewer({
   images,
   itemsPerPage = 1,
+  onDelete,
 }: Props) {
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(images.length / itemsPerPage);
@@ -78,6 +81,24 @@ export default function ImagePaginationViewer({
             >
               {img.title}
             </Typography>
+          )}
+          {onDelete && (
+            <IconButton
+              size="small"
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+                backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                  color: 'white',
+                },
+              }}
+              onClick={() => onDelete(startIndex + idx)} // xác định index thực tế
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
           )}
         </Paper>
       ))}

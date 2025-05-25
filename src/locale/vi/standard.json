@@ -21,6 +21,8 @@
   "dataRecommendation": "Đề xuất dữ liệu",
 
   "imageRecommendation": "Đề xuất dữ liệu hình ảnh",
+  "recommentImageMore": "Đề xuất thêm hình ảnh",
+  "uploadImage": "Tải lên hình ảnh",
   "imageSizeLimit": "Kích thước hình ảnh tối đa",
   "dragAndDrop": "Kéo và thả các hình ảnh ở đây",
 
@@ -33,6 +35,7 @@
   "fieldContent": "Nội dung",
 
   "imageTagging": "Gán nhãn hình ảnh",
+  "tagging": "Gán nhãn",
   "ImageTaggingList": "Danh sách hình ảnh cần gán nhãn",
   "untaggedImage": "Hình ảnh chưa được gán nhãn",
   "taggedImage": "Hình ảnh đã được gán nhãn",
@@ -42,5 +45,7 @@
   "selectAgent": "Chọn Agent",
   "tagSearch": "Tìm kiếm theo nhãn",
   "downloadImages": "Tải toàn bộ",
-  "tagList": "Danh sách nhãn"
+  "tagList": "Danh sách nhãn",
+  "deleteImageConfirm": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
+  "deleteImageSuccess": "Xóa hình ảnh thành công"
 }
