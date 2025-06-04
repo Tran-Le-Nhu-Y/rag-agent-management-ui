@@ -1,6 +1,5 @@
-declare interface GetAllAgentQuery {
-  userId: string;
-  agentName?: string?;
-  pageNumber?: number?;
-  pageSize?: number?;
+declare interface GetUnlabeledImagesQuery {
+  offset?: number?;
+  limit?: number?;
+  orderBy: OrderByType;
 }

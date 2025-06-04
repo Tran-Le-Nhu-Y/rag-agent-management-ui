@@ -8,3 +8,15 @@ declare interface PagingWrapper<T> {
   totalElements: number;
   totalPages?: number;
 }
+
+declare interface ImageResponse {
+  id: string;
+  name: string;
+  mime_type: string;
+}
+
+declare interface LabelResponse {
+  id: string;
+  name: string;
+  description: string;
+}

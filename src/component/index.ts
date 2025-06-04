@@ -7,12 +7,13 @@ import {
   type FileAttachment,
   type DragAndDropFormProps,
 } from './DragAndDropForm';
-
+import { InputFileUpload } from './InputFileUpload';
 export {
   DataGridTable,
   Tags,
   TaggedImageList,
   ImagePaginationViewer,
   DragAndDropForm,
+  InputFileUpload,
 };
 export type { FileAttachment, DragAndDropFormProps };

@@ -3,33 +3,29 @@ import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
 import CircularProgress from '@mui/material/CircularProgress';
 
-export interface Tag {
-  name: string;
-}
-
 type Props = {
   label?: string;
-  tags: Tag[];
-  onChange?: (value: Tag | null) => void;
+  labelList: Label[];
+  onChange?: (value: Label | null) => void;
   loading?: boolean;
 };
 
 export default function Tags({
   label,
-  tags,
+  labelList,
   onChange,
   loading = false,
 }: Props) {
   const [open, setOpen] = React.useState(false);
-  const [options, setOptions] = React.useState<Tag[]>([]);
+  const [options, setOptions] = React.useState<Label[]>([]);
 
   React.useEffect(() => {
     if (open) {
-      setOptions(tags);
+      setOptions(labelList);
     } else {
       setOptions([]);
     }
-  }, [open, tags]);
+  }, [open, labelList]);
 
   return (
     <Autocomplete
@@ -46,16 +42,18 @@ export default function Tags({
         <TextField
           {...params}
           label={label}
-          InputProps={{
-            ...params.InputProps,
-            endAdornment: (
-              <>
-                {loading ? (
-                  <CircularProgress color="inherit" size={20} />
-                ) : null}
-                {params.InputProps.endAdornment}
-              </>
-            ),
+          slotProps={{
+            input: {
+              ...params.InputProps,
+              endAdornment: (
+                <>
+                  {loading ? (
+                    <CircularProgress color="inherit" size={20} />
+                  ) : null}
+                  {params.InputProps.endAdornment}
+                </>
+              ),
+            },
           }}
         />
       )}

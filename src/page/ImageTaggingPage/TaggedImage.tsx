@@ -2,12 +2,11 @@ import { Button, Stack } from '@mui/material';
 import { TaggedImageList, Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo } from 'react';
-import type { Tag } from '../../component/Tags';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 
 const TaggedImagePage = () => {
   const { t } = useTranslation();
-  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+  const [selectedTag, setSelectedTag] = useState<Label | null>(null);
 
   const imageDataFromBackend = useMemo(
     () => [
@@ -103,10 +102,22 @@ const TaggedImagePage = () => {
     []
   );
 
-  const tagData: Tag[] = [
-    { name: 'White Spot' },
-    { name: 'Early Mortality Syndrome' },
-    { name: 'Healthy' },
+  const tagData: Label[] = [
+    {
+      name: 'White Spot',
+      id: '1',
+      description: 'A',
+    },
+    {
+      name: 'Early Mortality Syndrome',
+      id: '2',
+      description: 'B',
+    },
+    {
+      name: 'Healthy',
+      id: '3',
+      description: 'C',
+    },
   ];
   const filteredImages = useMemo(() => {
     if (selectedTag) {
@@ -143,7 +154,11 @@ const TaggedImagePage = () => {
   return (
     <Stack justifyContent="center" alignItems="center" spacing={4}>
       <Stack direction="row" spacing={4} alignItems="center" width="80%">
-        <Tags tags={tagData} label={t('tagSearch')} onChange={setSelectedTag} />
+        <Tags
+          labelList={tagData}
+          label={t('tagSearch')}
+          onChange={setSelectedTag}
+        />
         <Button
           variant="contained"
           endIcon={<FileDownloadIcon />}

@@ -1,17 +1,11 @@
 import { Box, Button, Stack, Typography } from '@mui/material';
-import { DragAndDropForm, Tags } from '../../component';
+import { DragAndDropForm } from '../../component';
 import { useTranslation } from 'react-i18next';
-import type { Tag } from '../../component/Tags';
 
 const ImageRecommendationPage = () => {
   const { t } = useTranslation();
   //const navigate = useNavigate();
 
-  const agentData: Tag[] = [
-    { name: 'Agent A' },
-    { name: 'Agent B' },
-    { name: 'Agent C' },
-  ];
   return (
     <Stack
       justifyContent={'center'}
@@ -20,9 +14,6 @@ const ImageRecommendationPage = () => {
       sx={{ width: '100%' }}
     >
       <Typography variant="h4">{t('imageRecommendation')}</Typography>
-      <Stack sx={{ width: '70%' }}>
-        <Tags tags={agentData} label={t('selectAgent')} />
-      </Stack>
 
       <Box sx={{ width: '70%' }}>
         <DragAndDropForm

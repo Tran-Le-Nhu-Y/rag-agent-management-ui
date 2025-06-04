@@ -1,20 +1,12 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  Stack,
-  styled,
-  Typography,
-} from '@mui/material';
-import { ImagePaginationViewer, Tags } from '../../component';
+import { Alert, Box, Button, Snackbar, Stack, Typography } from '@mui/material';
+import { DragAndDropForm, ImagePaginationViewer, Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
-import type { Tag } from '../../component/Tags';
 import { useState } from 'react';
-import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { useGetAllLabel } from '../../service';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
+
   //const navigate = useNavigate();
   const imageDataFromBackend = [
     {
@@ -60,22 +52,7 @@ const UntaggedImagePage = () => {
       url: 'https://images.unsplash.com/photo-1567306301408-9b74779a11af',
     },
   ];
-  const tagData: Tag[] = [
-    { name: 'White Spot' },
-    { name: 'Early Mortality Syndrome' },
-    { name: 'Healthy' },
-  ];
-  const VisuallyHiddenInput = styled('input')({
-    clip: 'rect(0 0 0 0)',
-    clipPath: 'inset(50%)',
-    height: 1,
-    overflow: 'hidden',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    whiteSpace: 'nowrap',
-    width: 1,
-  });
+  const labels = useGetAllLabel();
 
   const [images, setImages] = useState(imageDataFromBackend);
   const [openSnackbar, setOpenSnackbar] = useState(false);
@@ -97,7 +74,8 @@ const UntaggedImagePage = () => {
   // 		await deleteSoftwareTrigger(productId);
   // 	};
 
-  const [selectedTag, setSelectedTag] = useState<Tag | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<Label | null>(null);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
 
   return (
     <Stack justifyContent={'center'} alignItems="center">
@@ -113,32 +91,36 @@ const UntaggedImagePage = () => {
           onDelete={handleDeleteImage}
         />
         <Stack alignItems="center" spacing={8} width={'50%'}>
-          <Stack direction={'row'} spacing={2} width={'100%'}>
+          <Stack spacing={1} width={'100%'}>
             <Typography variant="h6">{t('recommentImageMore')}:</Typography>
-            <Button
-              component="label"
-              role={undefined}
-              variant="contained"
-              tabIndex={-1}
-              startIcon={<CloudUploadIcon />}
-            >
-              {t('uploadImage')}
-              <VisuallyHiddenInput
-                type="file"
-                onChange={(event) => console.log(event.target.files)}
-                multiple
-              />
-            </Button>
+            <DragAndDropForm
+              onFilesChange={(files: File[]) => {
+                setUploadedFiles(files);
+              }}
+            />
+            <Box display="flex" justifyContent="center">
+              <Button variant="contained" disabled={uploadedFiles.length === 0}>
+                {t('recommendation')}
+              </Button>
+            </Box>
           </Stack>
           <Stack width={'100%'} spacing={1}>
             <Typography variant="h6">{t('imageTagging')}:</Typography>
-            <Tags
-              tags={tagData}
-              label={t('selectTag')}
-              onChange={(tag) => setSelectedTag(tag)}
-            />
+            {labels.isLoading ? (
+              <Typography>Đang tải nhãn...</Typography>
+            ) : labels.error ? (
+              <Typography color="error">
+                Không thể tải danh sách nhãn
+              </Typography>
+            ) : (
+              <Tags
+                labelList={labels.data ?? []}
+                label={t('selectTag')}
+                onChange={(tag) => setSelectedLabel(tag)}
+              />
+            )}
             <Box display="flex" justifyContent="center">
-              <Button variant="contained" disabled={!selectedTag}>
+              <Button variant="contained" disabled={!selectedLabel}>
                 {t('tagging')}
               </Button>
             </Box>

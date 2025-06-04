@@ -1,63 +1,44 @@
-import {
-  Box,
-  Button,
-  IconButton,
-  Stack,
-  TextField,
-  Typography,
-} from '@mui/material';
-import { Tags } from '../../component';
+import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import type { Tag } from '../../component/Tags';
 import { isValidLength, TextLength } from '../../util';
-import DeleteIcon from '@mui/icons-material/Delete';
-import AddIcon from '@mui/icons-material/Add';
+// import DeleteIcon from '@mui/icons-material/Delete';
+// import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
+import { InputFileUpload } from '../../component';
 
-type DynamicField = {
-  fieldName: string;
-  fieldValue: string;
-};
+// type DynamicField = {
+//   fieldName: string;
+//   fieldValue: string;
+// };
 
 const TextRecommendationPage = () => {
   const { t } = useTranslation();
   const [description, setDescription] = useState('');
   const [name, setName] = useState('');
-  const [, setSelectedAgent] = useState<Tag | null>(null);
-  const [dynamicFields, setDynamicFields] = useState<DynamicField[]>([]);
+  //   const [dynamicFields, setDynamicFields] = useState<DynamicField[]>([]);
 
-  const agentData: Tag[] = [
-    { name: 'Agent A' },
-    { name: 'Agent B' },
-    { name: 'Agent C' },
-  ];
-
-  const handleAddField = () => {
-    setDynamicFields((prev) => [...prev, { fieldName: '', fieldValue: '' }]);
-  };
-  const handleRemoveField = (index: number) => {
-    setDynamicFields((prev) => prev.filter((_, i) => i !== index));
-  };
-  const handleFieldChange = (
-    index: number,
-    key: 'fieldName' | 'fieldValue',
-    value: string
-  ) => {
-    const updatedFields = [...dynamicFields];
-    updatedFields[index][key] = value;
-    setDynamicFields(updatedFields);
-  };
+  //   const handleAddField = () => {
+  //     setDynamicFields((prev) => [...prev, { fieldName: '', fieldValue: '' }]);
+  //   };
+  //   const handleRemoveField = (index: number) => {
+  //     setDynamicFields((prev) => prev.filter((_, i) => i !== index));
+  //   };
+  //   const handleFieldChange = (
+  //     index: number,
+  //     key: 'fieldName' | 'fieldValue',
+  //     value: string
+  //   ) => {
+  //     const updatedFields = [...dynamicFields];
+  //     updatedFields[index][key] = value;
+  //     setDynamicFields(updatedFields);
+  //   };
+  const [, setUploadedFiles] = useState<File[]>([]);
 
   return (
-    <Stack justifyContent={'center'} alignItems="center" spacing={1}>
+    <Stack justifyContent={'center'} alignItems="center" spacing={3}>
       <Typography variant="h4">{t('textRecommendation')}</Typography>
-      <Stack spacing={1} sx={{ width: '80%' }}>
+      <Stack spacing={2} sx={{ width: '80%' }}>
         <Stack alignItems={'center'} spacing={1} sx={{ width: '100%' }}>
-          <Tags
-            tags={agentData}
-            label={t('selectAgent')}
-            onChange={(tag) => setSelectedAgent(tag)}
-          />
           <TextField
             fullWidth
             helperText={t('hyperTextMedium')}
@@ -89,7 +70,7 @@ const TextRecommendationPage = () => {
             }}
           />
         </Stack>
-        <Stack alignItems={'center'} spacing={2} sx={{ width: '100%' }}>
+        {/* <Stack alignItems={'center'} spacing={2} sx={{ width: '100%' }}>
           <Box
             display="flex"
             justifyContent={'flex-end'}
@@ -140,11 +121,23 @@ const TextRecommendationPage = () => {
               </Stack>
             ))}
           </Stack>
-        </Stack>
+        </Stack> */}
+        <Box display="flex" flexWrap="wrap" alignItems="center" gap={2}>
+          <Typography variant="body1">
+            {t('addTextRecommendationFile')}:
+          </Typography>
+          <InputFileUpload
+            onFilesChange={(files: File[]) => {
+              setUploadedFiles(files);
+            }}
+            acceptedFileTypes={['.pdf', '.txt']}
+          />
+        </Box>
       </Stack>
 
-      <Box display="flex" justifyContent="center">
+      <Box display="flex" justifyContent="center" gap={2}>
         <Button variant="contained">{t('confirm')}</Button>
+        <Button variant="outlined">{t('cancel')}</Button>
       </Box>
     </Stack>
   );
