@@ -1,17 +1,14 @@
-declare interface Pokemon {
-  id: number;
-  name: string;
-  height: number;
-  weight: number;
-  base_experience: number;
-  abilities: Ability[];
-  types: Type[];
-}
 declare interface Image {
   id: string;
   name: string;
   mime_type: string;
+  created_at: string;
 }
+
+export type ImageItem = {
+  id: string;
+  url: string;
+};
 
 declare interface Label {
   id: string;
@@ -20,3 +17,10 @@ declare interface Label {
 }
 
 declare type OrderByType = 'CREATED_AT' | 'UPDATED_AT';
+
+declare interface Document {
+  id: string;
+  name: string;
+  mime_type: string;
+  created_at: string;
+}

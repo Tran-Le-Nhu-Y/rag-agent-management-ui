@@ -12,9 +12,11 @@
   "cancel": "Hủy",
   "confirm": "Xác nhận",
   "enter": "Nhập",
+  "error": "Lỗi",
   "hyperTextMedium": "Nhập tối đa 100 ký tự",
   "hyperTextLong": "Nhập tối đa 150 ký tự",
   "hyperTextVeryLong": "Nhập tối đa 255 ký tự",
+  "noImage": "Không có dữ liệu ảnh",
 
   "dataEvaluation": "Đánh giá dữ liệu",
 
@@ -41,6 +43,9 @@
   "untaggedImage": "Hình ảnh chưa được gán nhãn",
   "taggedImage": "Hình ảnh đã được gán nhãn",
   "image": "Hình ảnh",
+  "imageLoadingError": "Lỗi trong việc tải hình ảnh",
+  "loadingLabels": "Đang tải nhãn",
+  "loadingLabelError": "Lỗi tải danh sách nhãn",
   "tag": "Nhãn",
   "selectTag": "Chọn nhãn thích hợp",
   "selectAgent": "Chọn Agent",
@@ -48,5 +53,6 @@
   "downloadImages": "Tải toàn bộ",
   "tagList": "Danh sách nhãn",
   "deleteImageConfirm": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
-  "deleteImageSuccess": "Xóa hình ảnh thành công"
+  "deleteImageSuccess": "Xóa hình ảnh thành công",
+  "deleteImageFailed": "Xóa hình ảnh thất bại"
 }

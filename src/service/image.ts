@@ -2,16 +2,17 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { agentManagementInstance } from './instance';
 import { axiosBaseQuery } from '../util';
 import { toEntity } from './mapper/image-mapper';
+import type { Image } from '../@types/entities';
 
-const EXTENSION_URL = 'v1/images';
+const EXTENSION_URL = 'api/v1/images';
 export const imageApi = createApi({
   reducerPath: 'imageApi',
   baseQuery: axiosBaseQuery(agentManagementInstance),
-  tagTypes: ['Image'],
+  tagTypes: ['PagingImage', 'Image'],
   endpoints: (builder) => ({
-    getgetImageDownloadToken: builder.query<string, string>({
+    showImageById: builder.query<string, string>({
       query: (imageId: string) => ({
-        url: `/${EXTENSION_URL}/${imageId}/token`,
+        url: `/${EXTENSION_URL}/${imageId}/show`,
         method: 'GET',
       }),
       transformResponse: (response: string) => response,
@@ -43,8 +44,11 @@ export const imageApi = createApi({
       },
     }),
 
-    getUnlabeledImages: builder.query<Image[], GetUnlabeledImagesQuery>({
-      query: ({ offset = 0, limit = 100, orderBy = 'CREATED_AT' }) => ({
+    getUnlabeledImages: builder.query<
+      PagingWrapper<Image>,
+      GetUnlabeledImagesQuery
+    >({
+      query: ({ offset = 0, limit = 100, orderBy = 'created_at' }) => ({
         url: `/${EXTENSION_URL}/unlabeled`,
         method: 'GET',
         params: {
@@ -54,9 +58,30 @@ export const imageApi = createApi({
         },
       }),
 
-      transformResponse: (response: ImageResponse[]) => response.map(toEntity),
+      providesTags(result) {
+        const pagingTag = {
+          type: 'PagingImage',
+          id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
+        } as const;
+
+        return result
+          ? [
+              ...result.content.map(
+                ({ id }) => ({ type: 'Image', id } as const)
+              ),
+              pagingTag,
+            ]
+          : [pagingTag];
+      },
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;
+      },
+      transformResponse(rawResult: PagingWrapper<ImageResponse>) {
+        const content = rawResult.content.map(toEntity);
+        return {
+          ...rawResult,
+          content,
+        };
       },
     }),
 
@@ -112,7 +137,7 @@ export const {
   useGetImageInfoByIdQuery,
   useDeleteImageMutation,
   useGetUnlabeledImagesQuery,
-  useLazyGetgetImageDownloadTokenQuery,
   useUploadImageMutation,
   useAssignLabelToImageMutation,
+  useShowImageByIdQuery,
 } = imageApi;

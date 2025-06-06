@@ -206,40 +206,7 @@ const RootLayout = () => {
           </ListItem>
         </List>
         <Divider />
-        {/* <List>
-          <ListItem key={t('dataEvaluation')} disablePadding>
-            <ListItemButton
-              selected={selectedIndex === 1}
-              onClick={(event) => {
-                handleListItemClick(event, 1);
-                navigate('/data-evaluation');
-              }}
-            >
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('dataEvaluation')} />
-            </ListItemButton>
-          </ListItem>
-        </List>
-        <Divider /> */}
-        {/* <List>
-          <ListItem key={t('imageRecommendation')} disablePadding>
-            <ListItemButton
-              selected={selectedIndex === 2}
-              onClick={(event) => {
-                handleListItemClick(event, 2);
-                navigate('/image-data-recommendation');
-              }}
-            >
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('imageRecommendation')} />
-            </ListItemButton>
-          </ListItem>
-        </List>
-        <Divider /> */}
+
         <List>
           <ListItem key={t('textRecommendation')} disablePadding>
             <ListItemButton

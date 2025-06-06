@@ -8,6 +8,7 @@ import {
   type DragAndDropFormProps,
 } from './DragAndDropForm';
 import { InputFileUpload } from './InputFileUpload';
+import AppSnackbar from './AppSnackbar';
 export {
   DataGridTable,
   Tags,
@@ -15,5 +16,6 @@ export {
   ImagePaginationViewer,
   DragAndDropForm,
   InputFileUpload,
+  AppSnackbar,
 };
 export type { FileAttachment, DragAndDropFormProps };

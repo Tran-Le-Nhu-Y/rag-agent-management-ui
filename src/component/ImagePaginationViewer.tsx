@@ -3,28 +3,49 @@ import { Box, IconButton, Pagination, Paper, Typography } from '@mui/material';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import DeleteIcon from '@mui/icons-material/Delete';
+import { useTranslation } from 'react-i18next';
 
-export type ImageItem = {
+type ImageItem = {
+  id: string;
   url: string;
-  title?: string;
 };
 
 type Props = {
   images: ImageItem[];
   itemsPerPage?: number;
-  onDelete?: (index: number) => void;
+  onDelete?: (imageId: string) => void;
+  onPageChange?: (page: number) => void;
+  onImageDeleted?: () => void;
 };
 
 export default function ImagePaginationViewer({
   images,
   itemsPerPage = 1,
   onDelete,
+  onPageChange,
+  onImageDeleted,
 }: Props) {
+  const { t } = useTranslation('standard');
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(images.length / itemsPerPage);
 
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
+    onPageChange?.(value);
+  };
+  const handleDelete = (imageId: string) => {
+    // Gọi callback onDelete để truyền imageId ra ngoài
+    onDelete?.(imageId);
+
+    // Gọi callback onImageDeleted nếu có
+    onImageDeleted?.();
+
+    // Điều chỉnh trang hiện tại nếu cần thiết
+    const newTotalPages = Math.ceil((images.length - 1) / itemsPerPage);
+    if (page > newTotalPages && newTotalPages > 0) {
+      setPage(newTotalPages);
+      onPageChange?.(newTotalPages);
+    }
   };
 
   const startIndex = (page - 1) * itemsPerPage;
@@ -38,9 +59,8 @@ export default function ImagePaginationViewer({
       gap={2}
       p={2}
     >
-      {currentImages.map((img, idx) => (
+      {images.length === 0 ? (
         <Paper
-          key={idx}
           elevation={3}
           sx={{
             overflow: 'hidden',
@@ -51,65 +71,94 @@ export default function ImagePaginationViewer({
             alignItems: 'center',
             justifyContent: 'center',
             position: 'relative',
+            bgcolor: '#f5f5f5',
           }}
         >
-          <Zoom zoomMargin={15}>
-            <img
-              src={img.url}
-              alt={img.title || `image-${idx}`}
-              style={{
-                width: '100%',
-                height: 480,
-                objectFit: 'cover',
-                borderRadius: 12,
-                cursor: 'zoom-in',
-              }}
-            />
-          </Zoom>
-          {img.title && (
-            <Typography
-              variant="caption"
-              sx={{
-                position: 'absolute',
-                bottom: 8,
-                left: 12,
-                color: 'white',
-                background: 'rgba(0, 0, 0, 0.4)',
-                borderRadius: 1,
-                px: 1,
-              }}
-            >
-              {img.title}
-            </Typography>
-          )}
-          {onDelete && (
-            <IconButton
-              size="small"
-              sx={{
-                position: 'absolute',
-                top: 8,
-                right: 8,
-                backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                '&:hover': {
-                  backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                  color: 'white',
-                },
-              }}
-              onClick={() => onDelete(startIndex + idx)} // xác định index thực tế
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          )}
+          <Typography
+            variant="h6"
+            color="textSecondary"
+            sx={{
+              position: 'absolute',
+              zIndex: 2,
+              textAlign: 'center',
+              px: 2,
+            }}
+          >
+            {t('noImage')}
+          </Typography>
+          <img
+            src="/image.jpg"
+            alt="No data"
+            style={{
+              width: '100%',
+              height: 480,
+              objectFit: 'cover',
+              borderRadius: 12,
+              opacity: 0.2,
+            }}
+          />
         </Paper>
-      ))}
+      ) : (
+        currentImages.map((img) => (
+          <Paper
+            key={img.id}
+            elevation={3}
+            sx={{
+              overflow: 'hidden',
+              borderRadius: 3,
+              width: '100%',
+              height: 440,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              position: 'relative',
+            }}
+          >
+            <Zoom zoomMargin={15}>
+              <img
+                src={img.url}
+                alt={`image-${img.id}`}
+                style={{
+                  width: '100%',
+                  height: 480,
+                  objectFit: 'cover',
+                  borderRadius: 12,
+                  cursor: 'zoom-in',
+                }}
+              />
+            </Zoom>
 
-      <Pagination
-        count={totalPages}
-        page={page}
-        onChange={handleChange}
-        color="primary"
-        shape="rounded"
-      />
+            {onDelete && (
+              <IconButton
+                size="small"
+                sx={{
+                  position: 'absolute',
+                  top: 8,
+                  right: 8,
+                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                    color: 'white',
+                  },
+                }}
+                onClick={() => handleDelete(img.id)}
+              >
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            )}
+          </Paper>
+        ))
+      )}
+
+      {images.length > 0 && (
+        <Pagination
+          count={totalPages}
+          page={page}
+          onChange={handleChange}
+          color="primary"
+          shape="rounded"
+        />
+      )}
     </Box>
   );
 }

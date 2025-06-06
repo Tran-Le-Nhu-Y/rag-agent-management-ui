@@ -112,21 +112,33 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
       <List
         sx={{
           width: '100%',
-          maxHeight: 340,
-          overflow: 'auto',
-          display: 'flex',
-          flexDirection: 'column',
+          maxHeight: 270,
+          overflowY: 'auto',
+
+          //   display: 'flex',
+          //   flexDirection: 'column',
         }}
       >
         {files.map((file) => (
-          <ListItem key={file.id} sx={{ width: 'fit-content' }}>
+          <ListItem
+            key={file.id}
+            disableGutters
+            sx={{
+              display: 'flex',
+              justifyContent: 'flex-start',
+              px: 1,
+              py: 1,
+              //   width: 'fit-content',
+            }}
+          >
             <Paper
               elevation={1}
               sx={{
+                width: '100%',
                 padding: 2,
                 display: 'flex',
                 alignItems: 'center',
-                minWidth: 200,
+                minWidth: 250,
                 position: 'relative',
                 backgroundColor: file.status === 'failed' ? '#ffe6e6' : 'white',
                 border: file.status === 'failed' ? '1px solid #ff4d4d' : 'none',
@@ -150,12 +162,12 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
                 </Typography>
 
                 {/* {file.status === 'loading' && (
-										<LinearProgress
-											variant="determinate"
-											value={file.progress}
-											sx={{ mt: 1 }}
-										/>
-									)} */}
+                  <LinearProgress
+                    variant="determinate"
+                    value={file.progress}
+                    sx={{ mt: 1 }}
+                  />
+                )} */}
 
                 {file.status === 'failed' && (
                   <LinearProgress

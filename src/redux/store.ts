@@ -1,16 +1,16 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { pokemonService } from '../service';
 import { labelApi } from '../service/label';
+import { imageApi } from '../service/image';
 
 export const store = configureStore({
   reducer: {
-    [pokemonService.reducerPath]: pokemonService.reducer,
     [labelApi.reducerPath]: labelApi.reducer,
+    [imageApi.reducerPath]: imageApi.reducer,
   },
   middleware(getDefaultMiddleware) {
     return getDefaultMiddleware().concat(
-      pokemonService.middleware,
-      labelApi.middleware
+      labelApi.middleware,
+      imageApi.middleware
     );
   },
 });

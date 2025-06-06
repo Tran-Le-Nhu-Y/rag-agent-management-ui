@@ -3,6 +3,7 @@ function toEntity(response: ImageResponse): Image {
     id: response.id,
     name: response.name,
     mime_type: response.mime_type,
+    created_at: response.created_at,
   };
   return image;
 }

@@ -1,12 +1,18 @@
 import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import CircularProgress from '@mui/material/CircularProgress';
+import type { Label } from '../@types/entities';
+import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
+import CheckBoxIcon from '@mui/icons-material/CheckBox';
+import { Checkbox } from '@mui/material';
+
+const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
+const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 type Props = {
   label?: string;
   labelList: Label[];
-  onChange?: (value: Label | null) => void;
+  onChange?: (value: Label[] | null) => void;
   loading?: boolean;
 };
 
@@ -29,34 +35,33 @@ export default function Tags({
 
   return (
     <Autocomplete
-      sx={{ width: '100%' }}
       open={open}
+      multiple
+      limitTags={2}
+      id="checkboxes-tags-demo"
+      options={options}
       onOpen={() => setOpen(true)}
       onClose={() => setOpen(false)}
-      isOptionEqualToValue={(option, value) => option.name === value.name}
-      getOptionLabel={(option) => option.name}
-      options={options}
       onChange={(_, value) => onChange?.(value)}
+      disableCloseOnSelect
       loading={loading}
-      renderInput={(params) => (
-        <TextField
-          {...params}
-          label={label}
-          slotProps={{
-            input: {
-              ...params.InputProps,
-              endAdornment: (
-                <>
-                  {loading ? (
-                    <CircularProgress color="inherit" size={20} />
-                  ) : null}
-                  {params.InputProps.endAdornment}
-                </>
-              ),
-            },
-          }}
-        />
-      )}
+      getOptionLabel={(option) => option.name}
+      renderOption={(props, option, { selected }) => {
+        const { key, ...optionProps } = props;
+        return (
+          <li key={key} {...optionProps}>
+            <Checkbox
+              icon={icon}
+              checkedIcon={checkedIcon}
+              style={{ marginRight: 8 }}
+              checked={selected}
+            />
+            {option.name}
+          </li>
+        );
+      }}
+      style={{ width: '100%' }}
+      renderInput={(params) => <TextField {...params} label={label} />}
     />
   );
 }

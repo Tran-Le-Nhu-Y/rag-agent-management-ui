@@ -1,81 +1,59 @@
-import { Alert, Box, Button, Snackbar, Stack, Typography } from '@mui/material';
+import {
+  Alert,
+  AlertTitle,
+  Box,
+  Button,
+  CircularProgress,
+  Stack,
+  Typography,
+} from '@mui/material';
 import { DragAndDropForm, ImagePaginationViewer, Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
-import { useState } from 'react';
-import { useGetAllLabel } from '../../service';
+import { useEffect, useMemo, useState } from 'react';
+import { useGetAllLabel, useGetUnlabeledImages } from '../../service';
+import type { Label } from '../../@types/entities';
+import { getImageUrl } from '../../service/api';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
-
-  //const navigate = useNavigate();
-  const imageDataFromBackend = [
-    {
-      url: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1522770179533-24471fcdba45',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1551963831-b3b1ca40c98e',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1522770179533-24471fcdba45',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1444418776041-9c7e33cc5a9c',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1533827432537-70133748f5c8',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1558642452-9d2a7deb7f62',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1516802273409-68526ee1bdd6',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1518756131217-31eb79b20e8f',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1597645587822-e99fa5d45d25',
-    },
-    {
-      url: 'https://images.unsplash.com/photo-1567306301408-9b74779a11af',
-    },
-  ];
   const labels = useGetAllLabel();
-
-  const [images, setImages] = useState(imageDataFromBackend);
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const handleDeleteImage = (index: number) => {
-    const confirmed = window.confirm(t('deleteImageConfirm'));
-    if (!confirmed) return;
-    setOpenSnackbar(true);
-    setImages((prev) => prev.filter((_, i) => i !== index));
-  };
-  //   const handleDelete = async (productId: string) => {
-  // 		const confirmed = await dialogs.confirm(t('deleteProductConfirm'), {
-  // 			title: t('deleteConfirm'),
-  // 			okText: t('yes'),
-  // 			cancelText: t('cancel'),
-  // 			severity: 'error',
-  // 		});
-  // 		if (!confirmed) return;
-
-  // 		await deleteSoftwareTrigger(productId);
-  // 	};
-
-  const [selectedLabel, setSelectedLabel] = useState<Label | null>(null);
+  const [selectedLabel, setSelectedLabel] = useState<Label[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
+  const [unlabeledImagesQuery] = useState<GetUnlabeledImagesQuery>({
+    offset: 0,
+    limit: 100,
+    orderBy: 'created_at',
+  });
+  const unlabeledImages = useGetUnlabeledImages(unlabeledImagesQuery!, {
+    skip: !unlabeledImagesQuery,
+  });
+
+  useEffect(() => {
+    if (unlabeledImages.isError)
+      <Alert severity="error">
+        <AlertTitle>{t('error')}</AlertTitle>
+        {t('imageLoadingError')}
+      </Alert>;
+  }, [unlabeledImages.isError, t]);
+
+  const imageUrls = useMemo(() => {
+    if (
+      !unlabeledImages.data ||
+      unlabeledImages.isLoading ||
+      unlabeledImages.isError
+    )
+      return [];
+
+    return unlabeledImages.data.content.map((img) => ({
+      id: img.id,
+      url: getImageUrl(img.id),
+    }));
+  }, [
+    unlabeledImages.data,
+    unlabeledImages.isError,
+    unlabeledImages.isLoading,
+  ]);
 
   return (
     <Stack justifyContent={'center'} alignItems="center">
@@ -84,13 +62,22 @@ const UntaggedImagePage = () => {
         justifyContent="center"
         alignItems="center"
         spacing={5}
+        width={'100%'}
+        height={'100%'}
       >
-        <ImagePaginationViewer
-          images={images}
-          itemsPerPage={1}
-          onDelete={handleDeleteImage}
-        />
-        <Stack alignItems="center" spacing={8} width={'50%'}>
+        {unlabeledImages.isLoading ? (
+          <CircularProgress />
+        ) : (
+          <Stack width={'50%'} height={'50%'}>
+            <ImagePaginationViewer
+              images={imageUrls}
+              itemsPerPage={1}
+              //   onDelete={handleDeleteImage}
+            />
+          </Stack>
+        )}
+
+        <Stack alignItems="center" width={'50%'} height={'50%'}>
           <Stack spacing={1} width={'100%'}>
             <Typography variant="h6">{t('recommentImageMore')}:</Typography>
             <DragAndDropForm
@@ -107,40 +94,26 @@ const UntaggedImagePage = () => {
           <Stack width={'100%'} spacing={1}>
             <Typography variant="h6">{t('imageTagging')}:</Typography>
             {labels.isLoading ? (
-              <Typography>Đang tải nhãn...</Typography>
+              <Typography>{t('loadingLabels')}</Typography>
             ) : labels.error ? (
-              <Typography color="error">
-                Không thể tải danh sách nhãn
-              </Typography>
+              <Typography color="error">{t('loadingLabelError')}</Typography>
             ) : (
               <Tags
                 labelList={labels.data ?? []}
                 label={t('selectTag')}
-                onChange={(tag) => setSelectedLabel(tag)}
+                onChange={(tags: Label[] | null) => {
+                  setSelectedLabel(tags || []);
+                }}
               />
             )}
             <Box display="flex" justifyContent="center">
-              <Button variant="contained" disabled={!selectedLabel}>
+              <Button variant="contained" disabled={selectedLabel.length === 0}>
                 {t('tagging')}
               </Button>
             </Box>
           </Stack>
         </Stack>
       </Stack>
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity="success"
-          sx={{ width: '100%' }}
-        >
-          {t('deleteImageSuccess')}
-        </Alert>
-      </Snackbar>
     </Stack>
   );
 };

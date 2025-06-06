@@ -1,9 +1,10 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { agentManagementInstance } from './instance';
 import { axiosBaseQuery } from '../util';
+import type { Label } from '../@types/entities';
 // import { toEntity } from './mapper/label-mapper';
 
-const EXTENSION_URL = 'v1/labels';
+const EXTENSION_URL = 'api/v1/labels';
 export const labelApi = createApi({
   reducerPath: 'labelApi',
   baseQuery: axiosBaseQuery(agentManagementInstance),
