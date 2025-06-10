@@ -1,3 +1,5 @@
+import type { Image } from '../../@types/entities';
+
 function toEntity(response: ImageResponse): Image {
   const image: Image = {
     id: response.id,

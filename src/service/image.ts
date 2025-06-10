@@ -44,12 +44,99 @@ export const imageApi = createApi({
       },
     }),
 
+    getImagesByLabelId: builder.query<
+      PagingWrapper<Image>,
+      GetImagesByLabelIdQuery
+    >({
+      query: ({
+        labelId,
+        offset = 0,
+        limit = 100,
+        orderBy = 'created_at',
+      }) => ({
+        url: `/${EXTENSION_URL}/${labelId}/label`,
+        method: 'GET',
+        params: {
+          offset: offset,
+          limit: limit,
+          order_by: orderBy,
+        },
+      }),
+
+      providesTags(result) {
+        const pagingTag = {
+          type: 'PagingImage',
+          id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
+        } as const;
+
+        return result
+          ? [
+              ...result.content.map(
+                ({ id }) => ({ type: 'Image', id } as const)
+              ),
+              pagingTag,
+            ]
+          : [pagingTag];
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return baseQueryReturnValue.status;
+      },
+      transformResponse(rawResult: PagingWrapper<ImageResponse>) {
+        const content = rawResult.content.map(toEntity);
+        return {
+          ...rawResult,
+          content,
+        };
+      },
+    }),
+
     getUnlabeledImages: builder.query<
       PagingWrapper<Image>,
       GetUnlabeledImagesQuery
     >({
       query: ({ offset = 0, limit = 100, orderBy = 'created_at' }) => ({
         url: `/${EXTENSION_URL}/unlabeled`,
+        method: 'GET',
+        params: {
+          offset: offset,
+          limit: limit,
+          order_by: orderBy,
+        },
+      }),
+
+      providesTags(result) {
+        const pagingTag = {
+          type: 'PagingImage',
+          id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
+        } as const;
+
+        return result
+          ? [
+              ...result.content.map(
+                ({ id }) => ({ type: 'Image', id } as const)
+              ),
+              pagingTag,
+            ]
+          : [pagingTag];
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return baseQueryReturnValue.status;
+      },
+      transformResponse(rawResult: PagingWrapper<ImageResponse>) {
+        const content = rawResult.content.map(toEntity);
+        return {
+          ...rawResult,
+          content,
+        };
+      },
+    }),
+
+    getLabeledImages: builder.query<
+      PagingWrapper<Image>,
+      GetLabeledImagesQuery
+    >({
+      query: ({ offset = 0, limit = 100, orderBy = 'created_at' }) => ({
+        url: `/${EXTENSION_URL}/labeled`,
         method: 'GET',
         params: {
           offset: offset,
@@ -140,4 +227,6 @@ export const {
   useUploadImageMutation,
   useAssignLabelToImageMutation,
   useShowImageByIdQuery,
+  useGetImagesByLabelIdQuery,
+  useGetLabeledImagesQuery,
 } = imageApi;

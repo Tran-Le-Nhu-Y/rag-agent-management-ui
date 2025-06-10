@@ -1,3 +1,5 @@
+import type { Label } from '../../@types/entities';
+
 function toEntity(response: LabelResponse): Label {
   const label: Label = {
     id: response.id,

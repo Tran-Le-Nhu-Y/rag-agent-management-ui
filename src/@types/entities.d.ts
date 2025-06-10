@@ -5,6 +5,14 @@ declare interface Image {
   created_at: string;
 }
 
+declare interface ImageHasLabels {
+  id: string;
+  name: string;
+  mime_type: string;
+  created_at: string;
+  labels: Label[];
+}
+
 export type ImageItem = {
   id: string;
   url: string;

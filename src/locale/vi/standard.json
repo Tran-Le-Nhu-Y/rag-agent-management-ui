@@ -44,6 +44,7 @@
   "taggedImage": "Hình ảnh đã được gán nhãn",
   "image": "Hình ảnh",
   "imageLoadingError": "Lỗi trong việc tải hình ảnh",
+  "labelLoadingError": "Lỗi trong việc tải nhãn",
   "loadingLabels": "Đang tải nhãn",
   "loadingLabelError": "Lỗi tải danh sách nhãn",
   "tag": "Nhãn",

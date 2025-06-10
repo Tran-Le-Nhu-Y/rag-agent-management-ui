@@ -1,24 +1,29 @@
 import {
-  Alert,
-  AlertTitle,
   Box,
   Button,
   CircularProgress,
   Stack,
   Typography,
 } from '@mui/material';
-import { DragAndDropForm, ImagePaginationViewer, Tags } from '../../component';
+import {
+  AppSnackbar,
+  DragAndDropForm,
+  ImagePaginationViewer,
+  Tags,
+} from '../../component';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import { useGetAllLabel, useGetUnlabeledImages } from '../../service';
 import type { Label } from '../../@types/entities';
 import { getImageUrl } from '../../service/api';
+import { HideDuration } from '../../util';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
-  const labels = useGetAllLabel();
   const [selectedLabel, setSelectedLabel] = useState<Label[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const [unlabeledImagesQuery] = useState<GetUnlabeledImagesQuery>({
     offset: 0,
@@ -30,12 +35,19 @@ const UntaggedImagePage = () => {
   });
 
   useEffect(() => {
-    if (unlabeledImages.isError)
-      <Alert severity="error">
-        <AlertTitle>{t('error')}</AlertTitle>
-        {t('imageLoadingError')}
-      </Alert>;
+    if (unlabeledImages.isError) {
+      setSnackbarMessage(t('imageLoadingError'));
+      setSnackbarOpen(true);
+    }
   }, [unlabeledImages.isError, t]);
+
+  const labels = useGetAllLabel();
+  useEffect(() => {
+    if (labels.isError) {
+      setSnackbarMessage(t('labelLoadingError'));
+      setSnackbarOpen(true);
+    }
+  }, [labels.isError, t]);
 
   const imageUrls = useMemo(() => {
     if (
@@ -57,6 +69,13 @@ const UntaggedImagePage = () => {
 
   return (
     <Stack justifyContent={'center'} alignItems="center">
+      <AppSnackbar
+        open={snackbarOpen}
+        message={snackbarMessage}
+        severity="error"
+        autoHideDuration={HideDuration.FAST}
+        onClose={() => setSnackbarOpen(false)}
+      />
       <Stack
         direction={'row'}
         justifyContent="center"
@@ -94,7 +113,10 @@ const UntaggedImagePage = () => {
           <Stack width={'100%'} spacing={1}>
             <Typography variant="h6">{t('imageTagging')}:</Typography>
             {labels.isLoading ? (
-              <Typography>{t('loadingLabels')}</Typography>
+              <Stack alignItems="center" spacing={2}>
+                <Typography>{t('loadingLabels')}</Typography>
+                <CircularProgress />
+              </Stack>
             ) : labels.error ? (
               <Typography color="error">{t('loadingLabelError')}</Typography>
             ) : (

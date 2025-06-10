@@ -38,6 +38,7 @@ export default function Tags({
       open={open}
       multiple
       limitTags={2}
+      size="small"
       id="checkboxes-tags-demo"
       options={options}
       onOpen={() => setOpen(true)}
