@@ -1,8 +1,8 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import { agentManagementInstance } from './instance';
-import { axiosBaseQuery } from '../util';
-import { toEntity } from './mapper/image-mapper';
-import type { Image } from '../@types/entities';
+import { axiosBaseQuery, axiosQueryHandler } from '../util';
+import { toEntity, toImageHasLabelsEntity } from './mapper/image-mapper';
+import type { Image, ImageHasLabels, Label } from '../@types/entities';
 
 const EXTENSION_URL = 'api/v1/images';
 export const imageApi = createApi({
@@ -132,18 +132,51 @@ export const imageApi = createApi({
     }),
 
     getLabeledImages: builder.query<
-      PagingWrapper<Image>,
+      PagingWrapper<ImageHasLabels>,
       GetLabeledImagesQuery
     >({
-      query: ({ offset = 0, limit = 100, orderBy = 'created_at' }) => ({
-        url: `/${EXTENSION_URL}/labeled`,
-        method: 'GET',
-        params: {
-          offset: offset,
-          limit: limit,
-          order_by: orderBy,
-        },
-      }),
+      async queryFn(arg) {
+        const { offset = 0, limit = 100, orderBy = 'created_at' } = arg;
+        const func = async () => {
+          const response = await agentManagementInstance.get(
+            `/${EXTENSION_URL}/labeled`,
+            {
+              params: {
+                offset: offset,
+                limit: limit,
+                order_by: orderBy,
+              },
+            }
+          );
+          const labeledImage: PagingWrapper<ImageResponse> = response.data;
+          const imageIds = labeledImage.content.map((image) => image.id);
+
+          //Call the label for each imageId and merge them together.
+          const labelResults = await Promise.all(
+            imageIds.map((id) =>
+              agentManagementInstance
+                .get(`/api/v1/labels/${id}/image`)
+                .then((res) => ({
+                  id,
+                  labels: (res.data as Label[]) || [],
+                }))
+            )
+          );
+
+          // Create a mapping  imageId -> Label[]
+          const labelsByImageId: Record<string, Label[]> = {};
+          labelResults.forEach(({ id, labels }) => {
+            labelsByImageId[id] = labels;
+          });
+
+          const content = toImageHasLabelsEntity(
+            labeledImage.content,
+            labelsByImageId
+          );
+          return { ...labeledImage, content };
+        };
+        return axiosQueryHandler(func);
+      },
 
       providesTags(result) {
         const pagingTag = {
@@ -160,16 +193,9 @@ export const imageApi = createApi({
             ]
           : [pagingTag];
       },
-      transformErrorResponse(baseQueryReturnValue) {
-        return baseQueryReturnValue.status;
-      },
-      transformResponse(rawResult: PagingWrapper<ImageResponse>) {
-        const content = rawResult.content.map(toEntity);
-        return {
-          ...rawResult,
-          content,
-        };
-      },
+      //   transformErrorResponse(baseQueryReturnValue: { status: number }) {
+      //     return baseQueryReturnValue.status;
+      //   },
     }),
 
     uploadImage: builder.mutation<string, UploadImageRequest>({

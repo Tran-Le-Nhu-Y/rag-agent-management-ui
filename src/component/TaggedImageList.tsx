@@ -34,7 +34,7 @@ export default function TaggedImageList({ items, cols, onItemClick }: Props) {
             flexDirection: 'column',
             '&:hover': {
               transform: 'scale(1.01)',
-              boxShadow: 6,
+              boxShadow: 4,
             },
           }}
         >
@@ -70,7 +70,6 @@ export default function TaggedImageList({ items, cols, onItemClick }: Props) {
           <Box
             sx={{
               padding: 1,
-              minHeight: 50, // ensure same height
               display: 'flex',
               flexDirection: 'column',
               justifyContent: 'space-between',

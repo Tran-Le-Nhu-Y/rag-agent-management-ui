@@ -108,7 +108,7 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
         onClose={handleClose}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
-        maxWidth="sm"
+        maxWidth="xs"
         fullWidth
       >
         <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
@@ -118,7 +118,12 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose} disabled={loading} variant="outlined">
+          <Button
+            onClick={handleClose}
+            disabled={loading}
+            variant="outlined"
+            size="small"
+          >
             {cancelText}
           </Button>
           <Button
@@ -127,6 +132,7 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
             disabled={loading}
             variant="contained"
             color="error"
+            size="small"
           >
             {loading ? 'Đang xóa...' : confirmText}
           </Button>

@@ -1,8 +1,7 @@
 // component/AppSnackbar.tsx
 import { Alert, Snackbar } from '@mui/material';
 import React from 'react';
-
-type SnackbarSeverity = 'success' | 'error' | 'warning' | 'info';
+import type { SnackbarSeverity } from '../util';
 
 interface AppSnackbarProps {
   open: boolean;
@@ -15,7 +14,7 @@ interface AppSnackbarProps {
 const AppSnackbar: React.FC<AppSnackbarProps> = ({
   open,
   message,
-  severity = 'success',
+  severity,
   onClose,
   autoHideDuration = 3000,
 }) => {

@@ -1,3 +1,4 @@
+import type { AlertColor } from '@mui/material';
 import type { BaseQueryFn, FetchBaseQueryError } from '@reduxjs/toolkit/query';
 import axios, {
   AxiosError,
@@ -26,6 +27,15 @@ export const HideDuration = {
   NORMAL: 5000,
   SLOW: 7000,
 };
+
+// export type SnackbarSeverity = 'error' | 'warning' | 'info' | 'success';
+export const SnackbarSeverity = {
+  ERROR: 'error',
+  WARNING: 'warning',
+  INFO: 'info',
+  SUCCESS: 'success',
+} as const;
+export type SnackbarSeverity = AlertColor;
 
 export const axiosQueryHandler = async <T>(func: () => Promise<T>) => {
   try {

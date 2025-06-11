@@ -17,6 +17,7 @@
   "hyperTextLong": "Nhập tối đa 150 ký tự",
   "hyperTextVeryLong": "Nhập tối đa 255 ký tự",
   "noImage": "Không có dữ liệu ảnh",
+  "loading": "Đang tải",
 
   "dataEvaluation": "Đánh giá dữ liệu",
 
@@ -53,7 +54,11 @@
   "tagSearch": "Tìm kiếm theo nhãn",
   "downloadImages": "Tải toàn bộ",
   "tagList": "Danh sách nhãn",
+  "confirmDeleteTitle": "Xác nhận xóa",
   "deleteImageConfirm": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
   "deleteImageSuccess": "Xóa hình ảnh thành công",
-  "deleteImageFailed": "Xóa hình ảnh thất bại"
+  "deleteImageFailed": "Xóa hình ảnh thất bại",
+
+  "imageUploadError": "Lỗi tải lên hình ảnh",
+  "imageUploadSuccess": "Tải lên hình ảnh thành công"
 }

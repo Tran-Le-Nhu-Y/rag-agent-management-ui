@@ -4,11 +4,8 @@ import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
-
-type ImageItem = {
-  id: string;
-  url: string;
-};
+import type { ImageItem } from '../@types/entities';
+import ConfirmDeleteDialog from './ConfirmDeleteDialog';
 
 type Props = {
   images: ImageItem[];
@@ -129,22 +126,53 @@ export default function ImagePaginationViewer({
             </Zoom>
 
             {onDelete && (
-              <IconButton
-                size="small"
+              //   <IconButton
+              //     size="small"
+              //     sx={{
+              //       position: 'absolute',
+              //       top: 8,
+              //       right: 8,
+              //       backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              //       '&:hover': {
+              //         backgroundColor: 'rgba(255, 0, 0, 0.8)',
+              //         color: 'white',
+              //       },
+              //     }}
+              //     onClick={() => handleDelete(img.id)}
+              //   >
+              //     <DeleteIcon fontSize="small" />
+              //   </IconButton>
+              <Box
                 sx={{
                   position: 'absolute',
                   top: 8,
                   right: 8,
-                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                  '&:hover': {
-                    backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                    color: 'white',
-                  },
                 }}
-                onClick={() => handleDelete(img.id)}
               >
-                <DeleteIcon fontSize="small" />
-              </IconButton>
+                <ConfirmDeleteDialog
+                  title={t('confirmDeleteTitle')}
+                  message={t('deleteImageConfirm')}
+                  confirmText={t('confirm')}
+                  cancelText={t('cancel')}
+                  successMessage={t('deleteImageSuccess')}
+                  errorMessage={t('deleteImageFailed')}
+                  onDelete={() => handleDelete(img.id)}
+                  triggerButton={
+                    <IconButton
+                      size="small"
+                      sx={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                        '&:hover': {
+                          backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                          color: 'white',
+                        },
+                      }}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  }
+                />
+              </Box>
             )}
           </Paper>
         ))

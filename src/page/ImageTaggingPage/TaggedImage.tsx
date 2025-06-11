@@ -3,7 +3,7 @@ import { AppSnackbar, TaggedImageList, Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect } from 'react';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
-import type { Label } from '../../@types/entities';
+import type { ImageHasLabels, Label } from '../../@types/entities';
 import {
   useGetAllLabel,
   useGetImagesByLabelId,
@@ -71,11 +71,16 @@ const TaggedImagePage = () => {
     if (!sourceImages.data || sourceImages.isLoading || sourceImages.isError)
       return [];
 
-    return sourceImages.data.content.map((img) => ({
-      id: img.id,
-      url: getImageUrl(img.id),
-      labels: selectedLabel ? [selectedLabel.name] : [],
-    }));
+    return sourceImages.data.content.map((img) => {
+      const image = img as ImageHasLabels;
+      return {
+        id: image.id,
+        url: getImageUrl(image.id),
+        labels: selectedLabel
+          ? [selectedLabel.name]
+          : image.labels?.map((label) => label.name) ?? [],
+      };
+    });
   }, [selectedLabel, imagesByLabelId, allLabeledImages]);
 
   return (
