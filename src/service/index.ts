@@ -1,5 +1,4 @@
 import {
-  useShowImageByIdQuery as useShowImageById,
   useGetImageInfoByIdQuery as useGetImageInfoById,
   useDeleteImageMutation as useDeleteImage,
   useGetUnlabeledImagesQuery as useGetUnlabeledImages,
@@ -7,10 +6,10 @@ import {
   useAssignLabelToImageMutation as useAssignLabelToImage,
   useGetImagesByLabelIdQuery as useGetImagesByLabelId,
   useGetLabeledImagesQuery as useGetLabeledImages,
+  useGetImagesByLabelIdsQuery as useGetImagesByLabelIds,
 } from './image';
 
 export {
-  useShowImageById,
   useGetImageInfoById,
   useGetUnlabeledImages,
   useGetLabeledImages,
@@ -18,6 +17,7 @@ export {
   useUploadImage,
   useAssignLabelToImage,
   useGetImagesByLabelId,
+  useGetImagesByLabelIds,
 };
 
 import {

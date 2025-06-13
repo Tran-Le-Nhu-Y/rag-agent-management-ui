@@ -1,7 +1,5 @@
-import * as React from 'react';
 import TextField from '@mui/material/TextField';
 import Autocomplete from '@mui/material/Autocomplete';
-import type { Label } from '../@types/entities';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import { Checkbox } from '@mui/material';
@@ -9,44 +7,35 @@ import { Checkbox } from '@mui/material';
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-type Props = {
+type Props<T> = {
   label?: string;
-  labelList: Label[];
-  onChange?: (value: Label[] | null) => void;
+  limitTags?: number;
+  options: T[];
+  onChange?: (value: T[] | null) => void;
   loading?: boolean;
+  getOptionLabel?: (option: T) => string;
 };
 
-export default function Tags({
+export default function Tags<T>({
   label,
-  labelList,
+  limitTags,
+  options,
   onChange,
   loading = false,
-}: Props) {
-  const [open, setOpen] = React.useState(false);
-  const [options, setOptions] = React.useState<Label[]>([]);
-
-  React.useEffect(() => {
-    if (open) {
-      setOptions(labelList);
-    } else {
-      setOptions([]);
-    }
-  }, [open, labelList]);
-
+  getOptionLabel,
+}: Props<T>) {
   return (
     <Autocomplete
-      open={open}
       multiple
-      limitTags={2}
+      limitTags={limitTags}
       size="small"
-      id="checkboxes-tags-demo"
       options={options}
-      onOpen={() => setOpen(true)}
-      onClose={() => setOpen(false)}
-      onChange={(_, value) => onChange?.(value)}
+      onChange={(_, value) => {
+        onChange?.(value);
+      }}
       disableCloseOnSelect
       loading={loading}
-      getOptionLabel={(option) => option.name}
+      getOptionLabel={getOptionLabel}
       renderOption={(props, option, { selected }) => {
         const { key, ...optionProps } = props;
         return (
@@ -57,7 +46,7 @@ export default function Tags({
               style={{ marginRight: 8 }}
               checked={selected}
             />
-            {option.name}
+            {getOptionLabel?.(option) ?? 'Unknown Option'}
           </li>
         );
       }}

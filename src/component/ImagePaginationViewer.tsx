@@ -5,7 +5,7 @@ import 'react-medium-image-zoom/dist/styles.css';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
 import type { ImageItem } from '../@types/entities';
-import ConfirmDeleteDialog from './ConfirmDeleteDialog';
+import ConfirmDialog from './ConfirmDialog';
 
 type Props = {
   images: ImageItem[];
@@ -126,22 +126,6 @@ export default function ImagePaginationViewer({
             </Zoom>
 
             {onDelete && (
-              //   <IconButton
-              //     size="small"
-              //     sx={{
-              //       position: 'absolute',
-              //       top: 8,
-              //       right: 8,
-              //       backgroundColor: 'rgba(255, 255, 255, 0.7)',
-              //       '&:hover': {
-              //         backgroundColor: 'rgba(255, 0, 0, 0.8)',
-              //         color: 'white',
-              //       },
-              //     }}
-              //     onClick={() => handleDelete(img.id)}
-              //   >
-              //     <DeleteIcon fontSize="small" />
-              //   </IconButton>
               <Box
                 sx={{
                   position: 'absolute',
@@ -149,7 +133,7 @@ export default function ImagePaginationViewer({
                   right: 8,
                 }}
               >
-                <ConfirmDeleteDialog
+                <ConfirmDialog
                   title={t('confirmDeleteTitle')}
                   message={t('deleteImageConfirm')}
                   confirmText={t('confirm')}

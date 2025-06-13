@@ -12,7 +12,7 @@ import {
 import { Delete } from '@mui/icons-material';
 import AppSnackbar from './AppSnackbar';
 
-interface ConfirmDeleteDialogProps {
+interface ConfirmDialogProps {
   title?: string;
   message?: string;
   confirmText?: string;
@@ -36,7 +36,7 @@ interface ConfirmDeleteDialogProps {
   errorMessage?: string;
 }
 
-const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
+const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   title,
   message,
   confirmText,
@@ -150,4 +150,4 @@ const ConfirmDeleteDialog: React.FC<ConfirmDeleteDialogProps> = ({
   );
 };
 
-export default ConfirmDeleteDialog;
+export default ConfirmDialog;

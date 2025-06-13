@@ -1,19 +1,15 @@
-import {
-  Box,
-  Button,
-  CircularProgress,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import {
   AppSnackbar,
   DragAndDropForm,
   ImagePaginationViewer,
+  Loading,
   Tags,
 } from '../../component';
 import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import {
+  useAssignLabelToImage,
   useDeleteImage,
   useGetAllLabel,
   useGetUnlabeledImages,
@@ -26,12 +22,13 @@ import { HideDuration, SnackbarSeverity } from '../../util';
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
   const userId = 'a3e6a251-89c3-4b18-9a80-640b2cd24dc2';
-  const [selectedLabel, setSelectedLabel] = useState<Label[]>([]);
+  const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Fetch unlabeled images
   const [unlabeledImagesQuery] = useState<GetUnlabeledImagesQuery>({
@@ -126,8 +123,50 @@ const UntaggedImagePage = () => {
       setSnackbarSeverity(SnackbarSeverity.SUCCESS);
       setSnackbarOpen(true);
     } catch (error) {
-      console.error('Lỗi upload:', error);
+      console.error('Uploading images have error:', error);
       setSnackbarMessage(t('imageUploadError'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+      return;
+    }
+  };
+
+  // Assign labels to images
+  const [assignLabelsTrigger, assignLabels] = useAssignLabelToImage();
+  useEffect(() => {
+    if (assignLabels.isError) {
+      setSnackbarMessage(t('assignLabelsError'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    } else if (assignLabels.isSuccess) {
+      setSnackbarMessage(t('assignLabelsSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+      setSelectedLabels([]); // Clear selected labels after successful asignment
+    }
+  }, [assignLabels.isError, assignLabels.isSuccess, t, unlabeledImages]);
+
+  const handleAssignLabels = async () => {
+    if (selectedLabels.length === 0 || !imageUrls[currentImageIndex]) return;
+
+    const imageId = imageUrls[currentImageIndex].id;
+    const labelIds = selectedLabels.map((label) => label.id);
+
+    try {
+      await assignLabelsTrigger({
+        imageId: imageId,
+        labelIds: labelIds,
+      }).unwrap(); // Wait for all labels to be assigned
+
+      unlabeledImages.refetch(); // Refresh the list of unlabeled images
+      setSelectedLabels([]); // Clear selected labels after successful assignment
+
+      setSnackbarMessage(t('assignLabelsSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error('Assigning label have error:', error);
+      setSnackbarMessage(t('assignLabelsError'));
       setSnackbarSeverity(SnackbarSeverity.ERROR);
       setSnackbarOpen(true);
       return;
@@ -146,18 +185,7 @@ const UntaggedImagePage = () => {
       {uploadImage.isLoading ||
       labels.isLoading ||
       unlabeledImages.isLoading ? (
-        <Box
-          display={'flex'}
-          justifyContent="center"
-          alignItems="center"
-          height="50vh"
-          width="100%"
-        >
-          <CircularProgress />
-          <Typography variant="h6" color="primary">
-            {t('loading')}...
-          </Typography>
-        </Box>
+        <Loading />
       ) : (
         <Stack
           direction={'row'}
@@ -172,6 +200,7 @@ const UntaggedImagePage = () => {
               images={imageUrls}
               itemsPerPage={1}
               onDelete={handleDeleteImage}
+              onPageChange={(index) => setCurrentImageIndex(index)}
             />
           </Stack>
 
@@ -197,16 +226,22 @@ const UntaggedImagePage = () => {
             <Stack width={'100%'} spacing={1}>
               <Typography variant="h6">{t('imageTagging')}:</Typography>
               <Tags
-                labelList={labels.data ?? []}
+                options={labels.data ?? []}
+                getOptionLabel={(option) => option.name}
+                loading={labels.isLoading}
+                limitTags={3}
                 label={t('selectTag')}
                 onChange={(tags: Label[] | null) => {
-                  setSelectedLabel(tags || []);
+                  setSelectedLabels(tags || []);
                 }}
               />
               <Box display="flex" justifyContent="center">
                 <Button
                   variant="contained"
-                  disabled={selectedLabel.length === 0}
+                  disabled={
+                    selectedLabels.length === 0 || imageUrls.length === 0
+                  }
+                  onClick={handleAssignLabels}
                 >
                   {t('tagging')}
                 </Button>

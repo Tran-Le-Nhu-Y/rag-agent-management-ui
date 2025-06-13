@@ -15,3 +15,9 @@ declare interface GetImagesByLabelIdQuery {
   limit?: number?;
   orderBy: OrderByType;
 }
+
+declare interface GetImagesByLabelIdsQuery {
+  labelIds: string[];
+  offset?: number?;
+  limit?: number?;
+}

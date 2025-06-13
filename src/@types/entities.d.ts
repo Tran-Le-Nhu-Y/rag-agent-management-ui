@@ -19,12 +19,12 @@ export type ImageItem = {
 };
 
 declare interface Label {
-  id: string;
+  id: int;
   name: string;
   description: string;
 }
 
-declare type OrderByType = 'CREATED_AT' | 'UPDATED_AT';
+declare type OrderByType = 'created_at';
 
 declare interface Document {
   id: string;

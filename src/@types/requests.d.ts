@@ -5,5 +5,5 @@ declare interface UploadImageRequest {
 
 declare interface AssignLabelRequest {
   imageId: string;
-  labelId: number;
+  labelIds: string[];
 }

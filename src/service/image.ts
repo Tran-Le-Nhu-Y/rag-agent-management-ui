@@ -10,17 +10,6 @@ export const imageApi = createApi({
   baseQuery: axiosBaseQuery(agentManagementInstance),
   tagTypes: ['PagingImage', 'Image'],
   endpoints: (builder) => ({
-    showImageById: builder.query<string, string>({
-      query: (imageId: string) => ({
-        url: `/${EXTENSION_URL}/${imageId}/show`,
-        method: 'GET',
-      }),
-      transformResponse: (response: string) => response,
-      transformErrorResponse(baseQueryReturnValue) {
-        return baseQueryReturnValue.status;
-      },
-    }),
-
     getImageInfoById: builder.query<Image, string>({
       query: (imageId: string) => ({
         url: `/${EXTENSION_URL}/${imageId}/info`,
@@ -90,6 +79,71 @@ export const imageApi = createApi({
       },
     }),
 
+    getImagesByLabelIds: builder.query<
+      PagingWrapper<ImageHasLabels>,
+      GetImagesByLabelIdsQuery
+    >({
+      async queryFn(arg) {
+        const { labelIds, offset = 0, limit = 50 } = arg;
+        const func = async () => {
+          const params = new URLSearchParams();
+          params.append('offset', `${offset}`);
+          params.append('limit', `${limit}`);
+          labelIds.forEach((labelId) => {
+            params.append('label_ids', labelId);
+          });
+          const response = await agentManagementInstance.get(
+            `/${EXTENSION_URL}/labels`,
+            {
+              params: params,
+            }
+          );
+          const labeledImage: PagingWrapper<ImageResponse> = response.data;
+          const imageIds = labeledImage.content.map((image) => image.id);
+
+          //Call the label for each imageId and merge them together.
+          const labelResults = await Promise.all(
+            imageIds.map((id) =>
+              agentManagementInstance
+                .get(`/api/v1/labels/${id}/image`)
+                .then((res) => ({
+                  id,
+                  labels: (res.data as Label[]) ?? [],
+                }))
+            )
+          );
+
+          // Create a mapping  imageId -> Label[]
+          const labelsByImageId: Record<string, Label[]> = {};
+          labelResults.forEach(({ id, labels }) => {
+            labelsByImageId[id] = labels;
+          });
+
+          const content = toImageHasLabelsEntity(
+            labeledImage.content,
+            labelsByImageId
+          );
+          return { ...labeledImage, content };
+        };
+        return axiosQueryHandler(func);
+      },
+      providesTags(result) {
+        const pagingTag = {
+          type: 'PagingImage',
+          id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
+        } as const;
+
+        return result
+          ? [
+              ...result.content.map(
+                ({ id }) => ({ type: 'Image', id } as const)
+              ),
+              pagingTag,
+            ]
+          : [pagingTag];
+      },
+    }),
+
     getUnlabeledImages: builder.query<
       PagingWrapper<Image>,
       GetUnlabeledImagesQuery
@@ -136,7 +190,7 @@ export const imageApi = createApi({
       GetLabeledImagesQuery
     >({
       async queryFn(arg) {
-        const { offset = 0, limit = 100, orderBy = 'created_at' } = arg;
+        const { offset = 0, limit = 50, orderBy = 'created_at' } = arg;
         const func = async () => {
           const response = await agentManagementInstance.get(
             `/${EXTENSION_URL}/labeled`,
@@ -193,9 +247,6 @@ export const imageApi = createApi({
             ]
           : [pagingTag];
       },
-      //   transformErrorResponse(baseQueryReturnValue: { status: number }) {
-      //     return baseQueryReturnValue.status;
-      //   },
     }),
 
     uploadImage: builder.mutation<string, UploadImageRequest>({
@@ -217,11 +268,14 @@ export const imageApi = createApi({
     }),
 
     assignLabelToImage: builder.mutation<string, AssignLabelRequest>({
-      query: ({ imageId, labelId }) => ({
-        url: `/${EXTENSION_URL}/${imageId}/assign/${labelId}`,
+      query: ({ imageId, labelIds }) => ({
+        url: `/${EXTENSION_URL}/${imageId}/assign`,
         method: 'POST',
+        body: labelIds,
       }),
-
+      invalidatesTags() {
+        return [{ type: 'PagingImage' } as const];
+      },
       transformResponse: (response: string) => response,
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;
@@ -252,7 +306,7 @@ export const {
   useGetUnlabeledImagesQuery,
   useUploadImageMutation,
   useAssignLabelToImageMutation,
-  useShowImageByIdQuery,
   useGetImagesByLabelIdQuery,
   useGetLabeledImagesQuery,
+  useGetImagesByLabelIdsQuery,
 } = imageApi;

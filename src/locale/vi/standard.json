@@ -45,6 +45,7 @@
   "taggedImage": "Hình ảnh đã được gán nhãn",
   "image": "Hình ảnh",
   "imageLoadingError": "Lỗi trong việc tải hình ảnh",
+  "imageLoadingSuccess": "Tải hình ảnh thành công",
   "labelLoadingError": "Lỗi trong việc tải nhãn",
   "loadingLabels": "Đang tải nhãn",
   "loadingLabelError": "Lỗi tải danh sách nhãn",
@@ -60,5 +61,7 @@
   "deleteImageFailed": "Xóa hình ảnh thất bại",
 
   "imageUploadError": "Lỗi tải lên hình ảnh",
-  "imageUploadSuccess": "Tải lên hình ảnh thành công"
+  "imageUploadSuccess": "Tải lên hình ảnh thành công",
+  "assignLabelsError": "Lỗi trong việc gán nhãn hình ảnh",
+  "assignLabelsSuccess": "Gán nhãn hình ảnh thành công"
 }
