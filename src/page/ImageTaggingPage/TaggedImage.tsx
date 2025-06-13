@@ -1,8 +1,7 @@
 import { Button, Stack } from '@mui/material';
 import { AppSnackbar, Loading, TaggedImageList, Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
-import { useState, useMemo, useEffect } from 'react';
-import FileDownloadIcon from '@mui/icons-material/FileDownload';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import type { ImageHasLabels, Label } from '../../@types/entities';
 import {
   useGetAllLabel,
@@ -10,7 +9,13 @@ import {
   useGetLabeledImages,
 } from '../../service';
 import { HideDuration, SnackbarSeverity } from '../../util';
-import { getImageUrl } from '../../service/api';
+
+import SelectLabelToExportDialog from './SelectLabelToExportDialog';
+import {
+  createExportLabeledImagesUrl,
+  getExportingAllToken,
+  getImageUrl,
+} from '../../service/api';
 
 const TaggedImagePage = () => {
   const { t } = useTranslation();
@@ -19,6 +24,7 @@ const TaggedImagePage = () => {
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [openExportDialog, setOpenExportDialog] = useState(false);
   const pageSize = 10;
 
   // Query to get all labels
@@ -26,6 +32,7 @@ const TaggedImagePage = () => {
   useEffect(() => {
     if (labels.isError) {
       setSnackbarMessage(t('labelLoadingError'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
       setSnackbarOpen(true);
     }
   }, [labels.isError, t]);
@@ -108,6 +115,27 @@ const TaggedImagePage = () => {
     selectedLabelIds.length,
   ]);
 
+  const handleExportAll = useCallback(async () => {
+    try {
+      const path = await getExportingAllToken();
+
+      // create "a" HTML element with href to file & click
+      const link = document.createElement('a');
+      link.href = createExportLabeledImagesUrl(path);
+      link.setAttribute('target', '_blank');
+      document.body.appendChild(link);
+      link.click();
+
+      // clean up "a" element
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error(error);
+      setSnackbarMessage(t('imageExportError'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    }
+  }, [t]);
+
   return (
     <Stack justifyContent="center" alignItems="center">
       <AppSnackbar
@@ -117,14 +145,20 @@ const TaggedImagePage = () => {
         autoHideDuration={HideDuration.FAST}
         onClose={() => setSnackbarOpen(false)}
       />
-      <Stack direction="row" spacing={4} alignItems="center" width="80%">
+      <SelectLabelToExportDialog
+        open={openExportDialog}
+        onClose={() => setOpenExportDialog(false)}
+      />
+      <Stack direction="row" spacing={2} alignItems="center" width="80%">
         <Tags
+          multiple
           options={labels.data ?? []}
           getOptionLabel={(option) => option.name}
           loading={labels.isLoading}
           limitTags={5}
           label={t('tagSearch')}
-          onChange={(tags: Label[] | null) => {
+          onChange={(value) => {
+            const tags = value as Label[];
             const labelIds = tags?.map((label) => label.id) || [];
             setSelectedLabelIds(labelIds);
             setImagesByLabelIdsQuery((pre) => ({
@@ -135,12 +169,18 @@ const TaggedImagePage = () => {
         />
         <Button
           variant="contained"
-          endIcon={<FileDownloadIcon />}
-          onClick={() => {}}
+          onClick={handleExportAll}
           disabled={imagesByLabelIds.data?.content.length === 0}
-          sx={{ width: '200px' }}
+          sx={{ width: '250px' }}
         >
           {t('downloadImages')}
+        </Button>
+        <Button
+          variant="contained"
+          onClick={() => setOpenExportDialog(true)}
+          sx={{ width: '250px' }}
+        >
+          {t('downloadImagesByLabel')}
         </Button>
       </Stack>
       {allLabeledImages.isLoading ||

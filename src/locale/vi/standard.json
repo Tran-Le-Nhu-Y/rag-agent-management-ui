@@ -54,6 +54,8 @@
   "selectAgent": "Chọn Agent",
   "tagSearch": "Tìm kiếm theo nhãn",
   "downloadImages": "Tải toàn bộ",
+  "downloadImagesByLabel": "Tải theo nhãn",
+  "selectLabelToExport": "Chọn nhãn để tải ảnh",
   "tagList": "Danh sách nhãn",
   "confirmDeleteTitle": "Xác nhận xóa",
   "deleteImageConfirm": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
@@ -63,5 +65,6 @@
   "imageUploadError": "Lỗi tải lên hình ảnh",
   "imageUploadSuccess": "Tải lên hình ảnh thành công",
   "assignLabelsError": "Lỗi trong việc gán nhãn hình ảnh",
-  "assignLabelsSuccess": "Gán nhãn hình ảnh thành công"
+  "assignLabelsSuccess": "Gán nhãn hình ảnh thành công",
+  "imageExportError": "Lỗi trong việc tải xuống hình ảnh"
 }

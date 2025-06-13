@@ -226,12 +226,14 @@ const UntaggedImagePage = () => {
             <Stack width={'100%'} spacing={1}>
               <Typography variant="h6">{t('imageTagging')}:</Typography>
               <Tags
+                multiple
                 options={labels.data ?? []}
                 getOptionLabel={(option) => option.name}
                 loading={labels.isLoading}
                 limitTags={3}
                 label={t('selectTag')}
-                onChange={(tags: Label[] | null) => {
+                onChange={(value) => {
+                  const tags = value as Label[];
                   setSelectedLabels(tags || []);
                 }}
               />

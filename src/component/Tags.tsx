@@ -10,8 +10,9 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 type Props<T> = {
   label?: string;
   limitTags?: number;
+  multiple?: boolean;
   options: T[];
-  onChange?: (value: T[] | null) => void;
+  onChange?: (value: T | T[] | null) => void;
   loading?: boolean;
   getOptionLabel?: (option: T) => string;
 };
@@ -19,6 +20,7 @@ type Props<T> = {
 export default function Tags<T>({
   label,
   limitTags,
+  multiple,
   options,
   onChange,
   loading = false,
@@ -26,7 +28,7 @@ export default function Tags<T>({
 }: Props<T>) {
   return (
     <Autocomplete
-      multiple
+      multiple={multiple}
       limitTags={limitTags}
       size="small"
       options={options}
