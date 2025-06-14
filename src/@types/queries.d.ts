@@ -21,3 +21,13 @@ declare interface GetImagesByLabelIdsQuery {
   offset?: number?;
   limit?: number?;
 }
+
+declare interface GetUnembeddedDocumentsQuery {
+  offset?: number?;
+  limit?: number?;
+}
+
+declare interface GetEmbeddedDocumentsQuery {
+  offset?: number?;
+  limit?: number?;
+}

@@ -26,4 +26,5 @@ declare interface DocumentResponse {
   name: string;
   mime_type: string;
   created_at: string;
+  source: string;
 }

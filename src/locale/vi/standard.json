@@ -13,6 +13,7 @@
   "confirm": "Xác nhận",
   "enter": "Nhập",
   "error": "Lỗi",
+  "usedStatus": "Trạng thái sử dụng",
   "hyperTextMedium": "Nhập tối đa 100 ký tự",
   "hyperTextLong": "Nhập tối đa 150 ký tự",
   "hyperTextVeryLong": "Nhập tối đa 255 ký tự",
@@ -28,15 +29,6 @@
   "uploadImage": "Tải lên hình ảnh",
   "imageSizeLimit": "Kích thước hình ảnh tối đa",
   "dragAndDrop": "Kéo và thả các hình ảnh ở đây",
-
-  "textRecommendation": "Đề xuất dữ liệu văn bản",
-  "textRecommendationName": "Tên bộ dữ liệu văn bản",
-  "textRecommendationDescription": "Mô tả bộ dữ liệu văn bản",
-  "recommendation": "Đề xuất",
-  "addDataField": "Trường dữ liệu",
-  "fieldName": "Tên trường",
-  "fieldContent": "Nội dung",
-  "addTextRecommendationFile": "Tập tin dữ liệu đề xuất",
 
   "imageTagging": "Gán nhãn hình ảnh",
   "tagging": "Gán nhãn",
@@ -66,5 +58,18 @@
   "imageUploadSuccess": "Tải lên hình ảnh thành công",
   "assignLabelsError": "Lỗi trong việc gán nhãn hình ảnh",
   "assignLabelsSuccess": "Gán nhãn hình ảnh thành công",
-  "imageExportError": "Lỗi trong việc tải xuống hình ảnh"
+  "imageExportError": "Lỗi trong việc tải xuống hình ảnh",
+
+  "createTextRecommendation": "Tạo bộ dữ liệu",
+  "textRecommendation": "Đề xuất dữ liệu văn bản",
+  "textRecommendationName": "Tên bộ dữ liệu văn bản",
+  "textRecommendationDescription": "Mô tả bộ dữ liệu văn bản",
+  "recommendation": "Đề xuất",
+  "addDataField": "Trường dữ liệu",
+  "fieldName": "Tên trường",
+  "fieldContent": "Nội dung",
+  "addTextRecommendationFile": "Tập tin dữ liệu đề xuất",
+  "updateKnowledgeBase": "Cập nhật cơ sở tri thức",
+  "updateKnowledgeForAgent": "Cập nhật tri thức cho Agent",
+  "embeddingIntoAgent": "Nhúng vào Agent"
 }

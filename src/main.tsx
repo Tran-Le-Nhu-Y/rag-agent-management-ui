@@ -15,10 +15,9 @@ import {
 import RootLayout from './layout/RootLayout.tsx';
 
 import {
-  DataEvaluationPage,
-  ImageRecommendationPage,
   ImageTaggingPage,
   TextRecommendationPage,
+  UpdateKnowledgeManagementPage,
 } from './page/index.ts';
 
 const router = createBrowserRouter(
@@ -26,14 +25,13 @@ const router = createBrowserRouter(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<ImageTaggingPage />} />
       <Route
-        path="image-data-recommendation"
-        element={<ImageRecommendationPage />}
-      />
-      <Route
         path="text-data-recommendation"
         element={<TextRecommendationPage />}
       />
-      <Route path="data-evaluation" element={<DataEvaluationPage />} />
+      <Route
+        path="update-knowledge-management"
+        element={<UpdateKnowledgeManagementPage />}
+      />
     </Route>
   )
 );

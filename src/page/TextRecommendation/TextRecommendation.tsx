@@ -5,6 +5,7 @@ import { isValidLength, TextLength } from '../../util';
 // import AddIcon from '@mui/icons-material/Add';
 import { useState } from 'react';
 import { InputFileUpload } from '../../component';
+import { useNavigate } from 'react-router';
 
 // type DynamicField = {
 //   fieldName: string;
@@ -13,6 +14,7 @@ import { InputFileUpload } from '../../component';
 
 const TextRecommendationPage = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [description, setDescription] = useState('');
   const [name, setName] = useState('');
   //   const [dynamicFields, setDynamicFields] = useState<DynamicField[]>([]);
@@ -137,7 +139,9 @@ const TextRecommendationPage = () => {
 
       <Box display="flex" justifyContent="center" gap={2}>
         <Button variant="contained">{t('confirm')}</Button>
-        <Button variant="outlined">{t('cancel')}</Button>
+        <Button variant="outlined" onClick={() => navigate(-1)}>
+          {t('cancel')}
+        </Button>
       </Box>
     </Stack>
   );

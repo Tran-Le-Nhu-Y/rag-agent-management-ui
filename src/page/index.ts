@@ -1,15 +1,13 @@
 import UntaggedImagePage from './ImageTaggingPage/UntaggedImage';
-import DataEvaluationPage from './DataEvaluation';
 import TaggedImagePage from './ImageTaggingPage/TaggedImage';
 import ImageTaggingPage from './ImageTaggingPage/ImageTagging';
 import TextRecommendationPage from './TextRecommendation/TextRecommendation';
-import ImageRecommendationPage from './ImageRecommendation/ImageRecommendation';
+import UpdateKnowledgeManagementPage from './TextRecommendation/UpdateKnowledgeManagement';
 
 export {
-  DataEvaluationPage,
   UntaggedImagePage,
   TaggedImagePage,
   ImageTaggingPage,
   TextRecommendationPage,
-  ImageRecommendationPage,
+  UpdateKnowledgeManagementPage,
 };

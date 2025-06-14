@@ -31,4 +31,5 @@ declare interface Document {
   name: string;
   mime_type: string;
   created_at: string;
+  source: string;
 }

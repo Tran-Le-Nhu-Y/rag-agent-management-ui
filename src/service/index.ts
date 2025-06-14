@@ -1,4 +1,10 @@
 import {
+  useGetDocumentInfoByIdQuery as useGetDocumentInfoById,
+  useDeleteDocumentMutation as useDeleteDocument,
+} from './document';
+export { useGetDocumentInfoById, useDeleteDocument };
+
+import {
   useGetImageInfoByIdQuery as useGetImageInfoById,
   useDeleteImageMutation as useDeleteImage,
   useGetUnlabeledImagesQuery as useGetUnlabeledImages,

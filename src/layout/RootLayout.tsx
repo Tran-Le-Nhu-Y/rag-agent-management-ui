@@ -206,23 +206,23 @@ const RootLayout = () => {
           </ListItem>
         </List>
         <Divider />
-
         <List>
-          <ListItem key={t('textRecommendation')} disablePadding>
+          <ListItem key={t('updateKnowledgeBase')} disablePadding>
             <ListItemButton
-              selected={selectedIndex === 3}
+              selected={selectedIndex === 1}
               onClick={(event) => {
-                handleListItemClick(event, 3);
-                navigate('/text-data-recommendation');
+                handleListItemClick(event, 1);
+                navigate('/update-knowledge-management');
               }}
             >
               <ListItemIcon>
                 <InboxIcon />
               </ListItemIcon>
-              <ListItemText primary={t('textRecommendation')} />
+              <ListItemText primary={t('updateKnowledgeBase')} />
             </ListItemButton>
           </ListItem>
         </List>
+        <Divider />
       </Drawer>
       <Main open={open}>
         <DrawerHeader />

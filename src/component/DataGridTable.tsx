@@ -31,6 +31,9 @@ const DataGridTable: React.FC<DataGridTableProps> = ({
         sx={{
           '& .MuiDataGrid-columnHeaders': {
             fontWeight: 'bold',
+            fontSize: '1rem',
+          },
+          '& .MuiDataGrid-cell': {
             fontSize: '16px',
           },
         }}
