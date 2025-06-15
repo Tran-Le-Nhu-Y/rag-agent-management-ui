@@ -23,7 +23,7 @@ import InboxIcon from '@mui/icons-material/MoveToInbox';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import { Outlet, useNavigate } from 'react-router';
+import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Stack } from '@mui/material';
 
 const drawerWidth = 240;
@@ -93,8 +93,24 @@ const RootLayout = () => {
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [selectedIndex, setSelectedIndex] = React.useState(0);
 
+  const location = useLocation();
+  const getSelectedIndexFromPath = (pathname: string) => {
+    if (pathname === '/') return 0;
+    if (
+      pathname === '/update-knowledge-management' ||
+      pathname === '/create-document'
+    )
+      return 1;
+    return 0; // fallback
+  };
+  React.useEffect(() => {
+    setSelectedIndex(getSelectedIndexFromPath(location.pathname));
+  }, [location.pathname]);
+
+  const [selectedIndex, setSelectedIndex] = React.useState(() =>
+    getSelectedIndexFromPath(location.pathname)
+  );
   const handleListItemClick = (
     _event: React.MouseEvent<HTMLDivElement, MouseEvent>,
     index: number

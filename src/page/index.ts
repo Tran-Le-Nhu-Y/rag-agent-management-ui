@@ -1,13 +1,17 @@
 import UntaggedImagePage from './ImageTaggingPage/UntaggedImage';
 import TaggedImagePage from './ImageTaggingPage/TaggedImage';
 import ImageTaggingPage from './ImageTaggingPage/ImageTagging';
-import TextRecommendationPage from './TextRecommendation/TextRecommendation';
-import UpdateKnowledgeManagementPage from './TextRecommendation/UpdateKnowledgeManagement';
+import EmbedDocumentPage from './UpdateKnowledge/EmbedDocument';
+import UnembeddedDocumentPage from './UpdateKnowledge/UnembedeedDocument';
+import UpdateKnowledgePage from './UpdateKnowledge/UpdateKnowledge';
+import CreateDocumentPage from './UpdateKnowledge/CreateDocument';
 
 export {
   UntaggedImagePage,
   TaggedImagePage,
   ImageTaggingPage,
-  TextRecommendationPage,
-  UpdateKnowledgeManagementPage,
+  EmbedDocumentPage,
+  UnembeddedDocumentPage,
+  UpdateKnowledgePage,
+  CreateDocumentPage,
 };

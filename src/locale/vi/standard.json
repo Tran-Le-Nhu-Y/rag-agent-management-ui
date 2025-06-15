@@ -10,6 +10,7 @@
   "actions": "Hành động",
   "search": "Tìm kiếm",
   "cancel": "Hủy",
+  "close": "Đóng",
   "confirm": "Xác nhận",
   "enter": "Nhập",
   "error": "Lỗi",
@@ -60,10 +61,11 @@
   "assignLabelsSuccess": "Gán nhãn hình ảnh thành công",
   "imageExportError": "Lỗi trong việc tải xuống hình ảnh",
 
-  "createTextRecommendation": "Tạo bộ dữ liệu",
-  "textRecommendation": "Đề xuất dữ liệu văn bản",
-  "textRecommendationName": "Tên bộ dữ liệu văn bản",
-  "textRecommendationDescription": "Mô tả bộ dữ liệu văn bản",
+  "createDocument": "Tạo tài liệu",
+  "updateDocument": "Cập nhật tài liệu",
+  "documentDetail": "Chi tiết tài liệu",
+  "documentName": "Tên tài liệu",
+  "documentDescription": "Mô tả tài liệu",
   "recommendation": "Đề xuất",
   "addDataField": "Trường dữ liệu",
   "fieldName": "Tên trường",
@@ -71,5 +73,8 @@
   "addTextRecommendationFile": "Tập tin dữ liệu đề xuất",
   "updateKnowledgeBase": "Cập nhật cơ sở tri thức",
   "updateKnowledgeForAgent": "Cập nhật tri thức cho Agent",
-  "embeddingIntoAgent": "Nhúng vào Agent"
+  "embeddingIntoAgent": "Nhúng vào Agent",
+  "unembeddedAgent": "Gỡ khỏi Agent",
+  "using": "Đang được sử dụng",
+  "unused": "Chưa được sử dụng"
 }

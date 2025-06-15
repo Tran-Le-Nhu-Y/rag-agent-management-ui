@@ -9,18 +9,49 @@ import { useNavigate } from 'react-router';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
+import { useState } from 'react';
+import UpdateDocumentDialog from './UpdateDocumentDialog';
+import DocumentDetailDialog from './DocumentDetailDialog';
 
-const UpdateKnowledgeManagementPage = () => {
+type DocumentRow = {
+  id: number;
+  documentName: string;
+  documentDescription: string;
+  createdAt: string;
+  updatedAt: string;
+  status: string;
+};
+
+const UnembeddedDocumentPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
+  const [selectedDocument, setSelectedDocument] = useState<{
+    id: number;
+    documentName: string;
+    documentDescription: string;
+  } | null>(null);
+  const [openDetailDialog, setOpenDetailDialog] = useState(false);
+  const [viewedDocument, setViewedDocument] = useState<{
+    documentName: string;
+    documentDescription: string;
+    createdAt: string;
+    updatedAt: string;
+    status: string;
+  } | null>(null);
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
-    { field: 'id', headerName: 'ID', width: 50 },
     {
-      field: 'agentName',
-      headerName: t('textRecommendationName'),
+      field: 'documentName',
+      headerName: t('documentName'),
       width: 250,
-      editable: true,
+      align: 'center',
+      headerAlign: 'center',
+    },
+    {
+      field: 'documentDescription',
+      headerName: t('documentDescription'),
+      width: 250,
       align: 'center',
       headerAlign: 'center',
     },
@@ -29,8 +60,7 @@ const UpdateKnowledgeManagementPage = () => {
       field: 'createdAt',
       headerName: t('createAt'),
       type: 'string',
-      width: 150,
-      editable: true,
+      width: 130,
       align: 'center',
       headerAlign: 'center',
     },
@@ -39,15 +69,14 @@ const UpdateKnowledgeManagementPage = () => {
       field: 'updatedAt',
       headerName: t('updateAt'),
       type: 'string',
-      width: 150,
-      editable: true,
+      width: 120,
       headerAlign: 'center',
       align: 'center',
     },
     {
       field: 'status',
       headerName: t('usedStatus'),
-      width: 180,
+      width: 160,
       headerAlign: 'center',
       renderCell: (params) => {
         let content;
@@ -77,8 +106,8 @@ const UpdateKnowledgeManagementPage = () => {
       field: 'actions',
       headerName: t('actions'),
       type: 'actions',
-      width: 180,
-      getActions: () => [
+      width: 160,
+      getActions: (params) => [
         <GridActionsCellItem
           icon={
             <Tooltip title={t('see')}>
@@ -87,7 +116,10 @@ const UpdateKnowledgeManagementPage = () => {
           }
           color="primary"
           label={t('see')}
-          onClick={() => {}}
+          onClick={() => {
+            setViewedDocument(params.row);
+            setOpenDetailDialog(true);
+          }}
         />,
         <GridActionsCellItem
           icon={
@@ -97,7 +129,9 @@ const UpdateKnowledgeManagementPage = () => {
           }
           color="primary"
           label={t('update')}
-          onClick={() => {}}
+          onClick={() => {
+            handleUpdateClick(params.row);
+          }}
         />,
         <GridActionsCellItem
           icon={
@@ -114,99 +148,128 @@ const UpdateKnowledgeManagementPage = () => {
       field: 'updateKnowledge',
       headerName: t('updateKnowledgeForAgent'),
       type: 'actions',
-      width: 250,
-      getActions: (params) => {
-        // Chỉ hiển thị action nếu status KHÁC 'done'
-        if (params.row.status === 'done') {
-          return []; // không hiển thị gì cả
-        }
-
-        return [
-          <GridActionsCellItem
-            icon={
-              <Tooltip title={t('embeddingIntoAgent')}>
-                <FileOpenIcon />
-              </Tooltip>
-            }
-            color="primary"
-            label={t('embeddingIntoAgent')}
-            onClick={() => {
-              // TODO: your handler here
-            }}
-          />,
-        ];
-      },
+      width: 230,
+      getActions: () => [
+        <GridActionsCellItem
+          icon={
+            <Tooltip title={t('embeddingIntoAgent')}>
+              <FileOpenIcon />
+            </Tooltip>
+          }
+          color="primary"
+          label={t('embeddingIntoAgent')}
+          onClick={() => {
+            // TODO: your handler here
+          }}
+        />,
+      ],
     },
   ];
 
-  const rows = [
+  const [rows, setRows] = useState<DocumentRow[]>([
     {
       id: 1,
-      agentName: 'A',
+      documentName: 'A',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-01',
-      status: 'done',
+      status: 'pending',
     },
     {
       id: 2,
-      agentName: 'B',
+      documentName: 'B',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-01',
       status: 'pending',
     },
     {
       id: 3,
-      agentName: 'C',
+      documentName: 'C',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-05',
       status: 'pending',
     },
     {
       id: 4,
-      agentName: 'D',
+      documentName: 'D',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-01',
-      status: 'done',
+      status: 'pending',
     },
     {
       id: 5,
-      agentName: 'E',
+      documentName: 'E',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-02',
       status: 'pending',
     },
     {
       id: 6,
-      agentName: 'F',
+      documentName: 'F',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-01',
-      status: 'done',
+      status: 'pending',
     },
     {
       id: 7,
-      agentName: 'G',
+      documentName: 'G',
+      documentDescription: 'A',
       createdAt: '2024-05-01',
       updatedAt: '2024-05-09',
       status: 'pending',
     },
-  ];
+  ]);
+
+  const handleUpdateClick = (params: DocumentRow) => {
+    setSelectedDocument(params);
+    setOpenUpdateDialog(true);
+  };
+
+  const handleUpdateSubmit = (newDescription: string) => {
+    if (selectedDocument) {
+      setRows((prev) =>
+        prev.map((row) =>
+          row.id === selectedDocument.id
+            ? { ...row, description: newDescription }
+            : row
+        )
+      );
+    }
+    setOpenUpdateDialog(false);
+    setSelectedDocument(null);
+  };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
-      <Typography variant="h4">{t('updateKnowledgeBase')}</Typography>
+      <UpdateDocumentDialog
+        open={openUpdateDialog}
+        onClose={() => setOpenUpdateDialog(false)}
+        onSubmit={handleUpdateSubmit}
+        document={selectedDocument}
+      />
+      <DocumentDetailDialog
+        open={openDetailDialog}
+        onClose={() => setOpenDetailDialog(false)}
+        document={viewedDocument}
+      />
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '90%' }}>
         <Button
           variant="contained"
-          onClick={() => navigate('/text-data-recommendation')}
+          onClick={() => navigate('/create-document')}
         >
-          {t('createTextRecommendation')}
+          {t('createDocument')}
         </Button>
       </Box>
-      <Box sx={{ height: 400, width: '90%' }}>
+      <Box sx={{ height: 400, width: '100%' }}>
         <DataGridTable rows={rows} columns={columns} />
       </Box>
     </Stack>
   );
 };
 
-export default UpdateKnowledgeManagementPage;
+export default UnembeddedDocumentPage;

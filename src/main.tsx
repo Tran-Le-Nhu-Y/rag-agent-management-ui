@@ -15,22 +15,19 @@ import {
 import RootLayout from './layout/RootLayout.tsx';
 
 import {
+  CreateDocumentPage,
   ImageTaggingPage,
-  TextRecommendationPage,
-  UpdateKnowledgeManagementPage,
+  UpdateKnowledgePage,
 } from './page/index.ts';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<ImageTaggingPage />} />
-      <Route
-        path="text-data-recommendation"
-        element={<TextRecommendationPage />}
-      />
+      <Route path="create-document" element={<CreateDocumentPage />} />
       <Route
         path="update-knowledge-management"
-        element={<UpdateKnowledgeManagementPage />}
+        element={<UpdateKnowledgePage />}
       />
     </Route>
   )
