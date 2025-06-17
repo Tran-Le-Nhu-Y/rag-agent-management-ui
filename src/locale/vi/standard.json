@@ -10,6 +10,7 @@
   "actions": "Hành động",
   "search": "Tìm kiếm",
   "cancel": "Hủy",
+  "back": "Quay lại",
   "close": "Đóng",
   "confirm": "Xác nhận",
   "enter": "Nhập",
@@ -20,6 +21,8 @@
   "hyperTextVeryLong": "Nhập tối đa 255 ký tự",
   "noImage": "Không có dữ liệu ảnh",
   "loading": "Đang tải",
+  "source": "Nguồn",
+  "uploaded": "Được tải lên",
 
   "dataEvaluation": "Đánh giá dữ liệu",
 
@@ -62,6 +65,8 @@
   "imageExportError": "Lỗi trong việc tải xuống hình ảnh",
 
   "createDocument": "Tạo tài liệu",
+  "createDocumentSuccess": "Tạo tài liệu thành công",
+  "createDocumentError": "Lỗi trong việc tạo tài liệu",
   "updateDocument": "Cập nhật tài liệu",
   "documentDetail": "Chi tiết tài liệu",
   "documentName": "Tên tài liệu",

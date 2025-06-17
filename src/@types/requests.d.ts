@@ -5,6 +5,7 @@ declare interface UploadImageRequest {
 
 declare interface UploadDocumentRequest {
   file: File;
+  description?: string;
 }
 
 declare interface AssignLabelRequest {

@@ -29,6 +29,7 @@ declare type OrderByType = 'created_at';
 declare interface Document {
   id: string;
   name: string;
+  description: string;
   mime_type: string;
   created_at: string;
   source: string;

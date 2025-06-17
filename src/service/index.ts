@@ -1,8 +1,19 @@
 import {
   useGetDocumentInfoByIdQuery as useGetDocumentInfoById,
   useDeleteDocumentMutation as useDeleteDocument,
+  useEmbedDocumentMutation as useEmbedDocument,
+  useGetEmbeddedDocumentsQuery as useGetEmbeddedDocuments,
+  useGetUnembeddedDocumentsQuery as useGetUnembeddedDocuments,
+  useUploadDocumentMutation as useUploadDocument,
 } from './document';
-export { useGetDocumentInfoById, useDeleteDocument };
+export {
+  useGetDocumentInfoById,
+  useDeleteDocument,
+  useEmbedDocument,
+  useGetEmbeddedDocuments,
+  useGetUnembeddedDocuments,
+  useUploadDocument,
+};
 
 import {
   useGetImageInfoByIdQuery as useGetImageInfoById,

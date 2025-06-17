@@ -16,8 +16,7 @@ interface DocumentDetailDialogProps {
     documentName: string;
     documentDescription: string;
     createdAt: string;
-    updatedAt: string;
-    status: string;
+    source: string;
   } | null;
 }
 
@@ -59,15 +58,11 @@ const DocumentDetailDialog = ({
           </Stack>
           <Stack direction={'row'} spacing={1}>
             <Typography variant="body1" color="textSecondary">
-              {t('updateAt')}:
+              {t('source')}:
             </Typography>
-            <Typography variant="body1">{document.updatedAt}</Typography>
-          </Stack>
-          <Stack direction={'row'} spacing={1}>
-            <Typography variant="body1" color="textSecondary">
-              {t('usedStatus')}:
+            <Typography variant="body1">
+              {document.source === 'UPLOADED' ? t('uploaded') : 'VectorDB'}
             </Typography>
-            <Typography variant="body1">{document.status}</Typography>
           </Stack>
         </Stack>
       </DialogContent>

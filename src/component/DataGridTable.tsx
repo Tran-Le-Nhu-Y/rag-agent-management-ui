@@ -6,13 +6,15 @@ interface DataGridTableProps {
   columns: GridColDef[];
   height?: number;
   pageSize?: number;
+  onPageChange?: (newPage: number) => void;
 }
 
 const DataGridTable: React.FC<DataGridTableProps> = ({
   rows,
   columns,
-  height = 400,
-  pageSize = 5,
+  height = 450,
+  pageSize = 6,
+  onPageChange,
 }) => {
   return (
     <Box sx={{ height: height, width: '100%' }}>
@@ -26,7 +28,10 @@ const DataGridTable: React.FC<DataGridTableProps> = ({
             },
           },
         }}
-        pageSizeOptions={[5]}
+        onPaginationModelChange={(model) => {
+          onPageChange?.(model.page);
+        }}
+        pageSizeOptions={[6]}
         disableRowSelectionOnClick
         sx={{
           '& .MuiDataGrid-columnHeaders': {

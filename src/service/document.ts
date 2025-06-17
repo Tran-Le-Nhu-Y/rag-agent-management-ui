@@ -114,9 +114,10 @@ export const documentApi = createApi({
     }),
 
     uploadDocument: builder.mutation<string, UploadDocumentRequest>({
-      query: ({ file }) => {
+      query: ({ file, description }) => {
         const formData = new FormData();
         formData.append('file', file);
+        formData.append('description', description ?? '');
 
         return {
           url: `/${EXTENSION_URL}/upload`,
@@ -163,5 +164,11 @@ export const documentApi = createApi({
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetDocumentInfoByIdQuery, useDeleteDocumentMutation } =
-  documentApi;
+export const {
+  useGetDocumentInfoByIdQuery,
+  useDeleteDocumentMutation,
+  useEmbedDocumentMutation,
+  useGetEmbeddedDocumentsQuery,
+  useGetUnembeddedDocumentsQuery,
+  useUploadDocumentMutation,
+} = documentApi;

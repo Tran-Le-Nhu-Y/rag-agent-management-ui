@@ -1,33 +1,37 @@
 import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
-import { DataGridTable } from '../../component';
+import { AppSnackbar, DataGridTable, Loading } from '../../component';
 import { GridActionsCellItem, type GridColDef } from '@mui/x-data-grid';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
+import { useLocation, useNavigate } from 'react-router';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import UpdateDocumentDialog from './UpdateDocumentDialog';
 import DocumentDetailDialog from './DocumentDetailDialog';
+import { useGetUnembeddedDocuments } from '../../service';
+import { HideDuration, SnackbarSeverity } from '../../util';
 
 type DocumentRow = {
-  id: number;
+  id: string;
   documentName: string;
   documentDescription: string;
   createdAt: string;
-  updatedAt: string;
-  status: string;
+  mimeType: string;
+  source: string;
 };
 
 const UnembeddedDocumentPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] =
+    useState<SnackbarSeverity>('success');
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<{
-    id: number;
+    id: string;
     documentName: string;
     documentDescription: string;
   } | null>(null);
@@ -36,8 +40,7 @@ const UnembeddedDocumentPage = () => {
     documentName: string;
     documentDescription: string;
     createdAt: string;
-    updatedAt: string;
-    status: string;
+    source: string;
   } | null>(null);
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
@@ -51,7 +54,7 @@ const UnembeddedDocumentPage = () => {
     {
       field: 'documentDescription',
       headerName: t('documentDescription'),
-      width: 250,
+      width: 300,
       align: 'center',
       headerAlign: 'center',
     },
@@ -60,44 +63,30 @@ const UnembeddedDocumentPage = () => {
       field: 'createdAt',
       headerName: t('createAt'),
       type: 'string',
+      width: 250,
+      align: 'center',
+      headerAlign: 'center',
+    },
+    {
+      field: 'source',
+      headerName: t('source'),
+      type: 'string',
       width: 130,
       align: 'center',
       headerAlign: 'center',
-    },
-
-    {
-      field: 'updatedAt',
-      headerName: t('updateAt'),
-      type: 'string',
-      width: 120,
-      headerAlign: 'center',
-      align: 'center',
-    },
-    {
-      field: 'status',
-      headerName: t('usedStatus'),
-      width: 160,
-      headerAlign: 'center',
       renderCell: (params) => {
-        let content;
-        if (params.value === 'done') {
-          content = <CheckBoxIcon color="primary" />;
-        } else if (params.value === 'pending') {
-          content = <DisabledByDefaultIcon color="warning" />;
-        } else {
-          content = <Typography color="textSecondary">-</Typography>;
-        }
         return (
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'center',
               alignItems: 'center',
-              width: '100%',
+              justifyContent: 'center',
               height: '100%',
             }}
           >
-            {content}
+            <Typography>
+              {params.value === 'UPLOADED' ? t('uploaded') : 'VectorDB'}
+            </Typography>
           </Box>
         );
       },
@@ -106,7 +95,7 @@ const UnembeddedDocumentPage = () => {
       field: 'actions',
       headerName: t('actions'),
       type: 'actions',
-      width: 160,
+      width: 130,
       getActions: (params) => [
         <GridActionsCellItem
           icon={
@@ -117,7 +106,12 @@ const UnembeddedDocumentPage = () => {
           color="primary"
           label={t('see')}
           onClick={() => {
-            setViewedDocument(params.row);
+            setViewedDocument({
+              documentName: params.row.documentName,
+              documentDescription: params.row.documentDescription,
+              createdAt: params.row.createdAt,
+              source: params.row.source,
+            });
             setOpenDetailDialog(true);
           }}
         />,
@@ -165,65 +159,46 @@ const UnembeddedDocumentPage = () => {
       ],
     },
   ];
+  const [rows, setRows] = useState<DocumentRow[]>([]);
 
-  const [rows, setRows] = useState<DocumentRow[]>([
-    {
-      id: 1,
-      documentName: 'A',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'pending',
-    },
-    {
-      id: 2,
-      documentName: 'B',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'pending',
-    },
-    {
-      id: 3,
-      documentName: 'C',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-05',
-      status: 'pending',
-    },
-    {
-      id: 4,
-      documentName: 'D',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'pending',
-    },
-    {
-      id: 5,
-      documentName: 'E',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-02',
-      status: 'pending',
-    },
-    {
-      id: 6,
-      documentName: 'F',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'pending',
-    },
-    {
-      id: 7,
-      documentName: 'G',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-09',
-      status: 'pending',
-    },
-  ]);
+  const [documentQuery, setDocumentQuery] =
+    useState<GetUnembeddedDocumentsQuery>({
+      offset: 0,
+      limit: 10,
+    });
+
+  const document = useGetUnembeddedDocuments(documentQuery, {
+    skip: !documentQuery,
+  });
+
+  useEffect(() => {
+    if (document.isError) {
+      setSnackbarMessage(t('createDocumentError'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    }
+  }, [document.isError, t]);
+
+  useEffect(() => {
+    if (document.data) {
+      const mappedRows: DocumentRow[] = document.data.content.map((doc) => ({
+        id: doc.id,
+        documentName: doc.name,
+        documentDescription: doc.description,
+        createdAt: doc.created_at,
+        mimeType: doc.mime_type,
+        source: doc.source,
+      }));
+      setRows(mappedRows);
+    }
+  }, [document.data, t]);
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state?.reload) {
+      setDocumentQuery((prev) => ({ ...prev })); // Reactivate fetch hook
+    }
+  }, [location.state]);
 
   const handleUpdateClick = (params: DocumentRow) => {
     setSelectedDocument(params);
@@ -235,7 +210,7 @@ const UnembeddedDocumentPage = () => {
       setRows((prev) =>
         prev.map((row) =>
           row.id === selectedDocument.id
-            ? { ...row, description: newDescription }
+            ? { ...row, documentDescription: newDescription }
             : row
         )
       );
@@ -246,6 +221,13 @@ const UnembeddedDocumentPage = () => {
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
+      <AppSnackbar
+        open={snackbarOpen}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+        autoHideDuration={HideDuration.FAST}
+        onClose={() => setSnackbarOpen(false)}
+      />
       <UpdateDocumentDialog
         open={openUpdateDialog}
         onClose={() => setOpenUpdateDialog(false)}
@@ -257,6 +239,7 @@ const UnembeddedDocumentPage = () => {
         onClose={() => setOpenDetailDialog(false)}
         document={viewedDocument}
       />
+
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '90%' }}>
         <Button
           variant="contained"
@@ -265,9 +248,22 @@ const UnembeddedDocumentPage = () => {
           {t('createDocument')}
         </Button>
       </Box>
-      <Box sx={{ height: 400, width: '100%' }}>
-        <DataGridTable rows={rows} columns={columns} />
-      </Box>
+      {document.isLoading || document.isFetching ? (
+        <Loading />
+      ) : (
+        <Box sx={{ height: 400, width: '90%' }}>
+          <DataGridTable
+            rows={rows}
+            columns={columns}
+            pageSize={documentQuery?.limit ?? 6}
+            onPageChange={(newPage) =>
+              setDocumentQuery((prev) => {
+                return { ...prev, offset: newPage - 1 };
+              })
+            }
+          />
+        </Box>
+      )}
     </Stack>
   );
 };

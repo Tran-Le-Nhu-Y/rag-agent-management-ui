@@ -24,6 +24,7 @@ declare interface LabelResponse {
 declare interface DocumentResponse {
   id: string;
   name: string;
+  description: string;
   mime_type: string;
   created_at: string;
   source: string;

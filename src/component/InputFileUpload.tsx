@@ -14,7 +14,7 @@ import {
 import { AttachFile, ErrorOutline } from '@mui/icons-material';
 import { ClearIcon } from '@mui/x-date-pickers';
 import { getFileSize } from '../util';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -39,6 +39,7 @@ export interface FileAttachment {
 export interface InputFileUploadProps {
   onFilesChange: (files: File[]) => void;
   acceptedFileTypes: string[];
+  resetSignal?: boolean;
 }
 
 const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
@@ -46,6 +47,7 @@ const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
 export const InputFileUpload: React.FC<InputFileUploadProps> = ({
   onFilesChange,
   acceptedFileTypes,
+  resetSignal,
 }) => {
   const [files, setFiles] = useState<FileAttachment[]>([]);
 
@@ -88,6 +90,13 @@ export const InputFileUpload: React.FC<InputFileUploadProps> = ({
     setFiles(newFiles);
     onFilesChange(newFiles.map((f) => f.file));
   };
+
+  useEffect(() => {
+    if (resetSignal) {
+      setFiles([]);
+    }
+  }, [resetSignal]);
+
   return (
     <Box display={'flex'}>
       {files.length === 0 && (
@@ -195,3 +204,189 @@ export const InputFileUpload: React.FC<InputFileUploadProps> = ({
     </Box>
   );
 };
+
+// import { styled } from '@mui/material/styles';
+// import Button from '@mui/material/Button';
+// import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+// import type React from 'react';
+// import {
+//   Box,
+//   IconButton,
+//   LinearProgress,
+//   List,
+//   ListItem,
+//   Paper,
+//   Typography,
+// } from '@mui/material';
+// import { AttachFile, ErrorOutline } from '@mui/icons-material';
+// import { ClearIcon } from '@mui/x-date-pickers';
+// import { getFileSize } from '../util';
+// import { useState } from 'react';
+
+// const VisuallyHiddenInput = styled('input')({
+//   clip: 'rect(0 0 0 0)',
+//   clipPath: 'inset(50%)',
+//   height: 1,
+//   overflow: 'hidden',
+//   position: 'absolute',
+//   bottom: 0,
+//   left: 0,
+//   whiteSpace: 'nowrap',
+//   width: 1,
+// });
+
+// export interface FileAttachment {
+//   id: number;
+//   status: 'loading' | 'failed' | 'complete';
+//   progress: number;
+//   error?: string;
+//   file: File;
+// }
+
+// export interface InputFileUploadProps {
+//   onFilesChange: (files: File[]) => void;
+//   acceptedFileTypes: string[];
+// }
+
+// const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
+
+// export const InputFileUpload: React.FC<InputFileUploadProps> = ({
+//   onFilesChange,
+//   acceptedFileTypes,
+// }) => {
+//   const [file, setFile] = useState<FileAttachment | null>(null);
+
+//   const isAcceptedFile = (file: File, accepted: string[]) => {
+//     const fileName = file.name.toLowerCase();
+//     return accepted.some(
+//       (type) => fileName.endsWith(type) || file.type === type
+//     );
+//   };
+
+//   const selectFileHandler = (selectedFiles: File[]) => {
+//     const validFiles = selectedFiles.filter((file) =>
+//       isAcceptedFile(file, acceptedFileTypes)
+//     );
+
+//     if (validFiles.length === 0) {
+//       alert(`Only files of type: ${acceptedFileTypes.join(', ')} are allowed.`);
+//       return;
+//     }
+
+//     const selected = validFiles[0];
+//     const size = selected.size;
+
+//     const newFile: FileAttachment = {
+//       id: Date.now() + Math.random(),
+//       status: size > FILE_MAX_BYTES ? 'failed' : 'loading',
+//       progress: size > FILE_MAX_BYTES ? 0 : 0,
+//       error: size > FILE_MAX_BYTES ? 'File too large' : undefined,
+//       file: selected,
+//     };
+
+//     setFile(newFile);
+//     onFilesChange([selected]);
+//   };
+
+//   const removeFileHandler = () => {
+//     setFile(null);
+//     onFilesChange([]);
+//   };
+
+//   return (
+//     <Box display="flex" flexDirection="column" gap={2}>
+//       <Button
+//         component="label"
+//         variant="contained"
+//         startIcon={<CloudUploadIcon />}
+//       >
+//         {file ? 'Replace File' : 'Upload File'}
+//         <VisuallyHiddenInput
+//           type="file"
+//           accept={acceptedFileTypes.join(',')}
+//           onChange={(e) => {
+//             if (e.target.files) {
+//               selectFileHandler(Array.from(e.target.files));
+//               e.target.value = '';
+//             }
+//           }}
+//         />
+//       </Button>
+
+//       {file && (
+//         <List
+//           sx={{
+//             width: '100%',
+//             maxHeight: 340,
+//             overflow: 'auto',
+//             display: 'flex',
+//             flexDirection: 'column',
+//           }}
+//         >
+//           <ListItem sx={{ width: 'fit-content' }}>
+//             <Paper
+//               elevation={1}
+//               sx={{
+//                 padding: 2,
+//                 display: 'flex',
+//                 alignItems: 'center',
+//                 minWidth: 200,
+//                 position: 'relative',
+//                 backgroundColor: file.status === 'failed' ? '#ffe6e6' : 'white',
+//                 border: file.status === 'failed' ? '1px solid #ff4d4d' : 'none',
+//               }}
+//             >
+//               {file.status === 'failed' ? (
+//                 <ErrorOutline color="error" sx={{ mr: 1 }} />
+//               ) : (
+//                 <AttachFile color="primary" sx={{ mr: 1 }} />
+//               )}
+//               <Box display="flex" flexDirection="column">
+//                 <Typography
+//                   variant="caption"
+//                   fontWeight="bold"
+//                   color={file.status === 'failed' ? 'error' : 'textPrimary'}
+//                 >
+//                   {file.file.name}
+//                 </Typography>
+//                 <Typography variant="caption" color="textSecondary">
+//                   {getFileSize(file.file.size)}
+//                 </Typography>
+
+//                 {file.status === 'failed' && (
+//                   <LinearProgress
+//                     variant="determinate"
+//                     value={100}
+//                     sx={{
+//                       mt: 1,
+//                       backgroundColor: '#ffcccc',
+//                       '& .MuiLinearProgress-bar': {
+//                         backgroundColor: '#ff4d4d',
+//                       },
+//                     }}
+//                   />
+//                 )}
+//               </Box>
+
+//               <IconButton
+//                 size="small"
+//                 onClick={(e) => {
+//                   e.stopPropagation();
+//                   removeFileHandler();
+//                 }}
+//                 sx={{
+//                   position: 'absolute',
+//                   top: -5,
+//                   right: -5,
+//                   color: '#ccc',
+//                 }}
+//               >
+//                 <ClearIcon />
+//               </IconButton>
+//             </Paper>
+//           </ListItem>
+//         </List>
+//       )}
+//     </Box>
+//   );
+// };
