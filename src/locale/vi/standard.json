@@ -81,5 +81,8 @@
   "embeddingIntoAgent": "Nhúng vào Agent",
   "unembeddedAgent": "Gỡ khỏi Agent",
   "using": "Đang được sử dụng",
-  "unused": "Chưa được sử dụng"
+  "unused": "Chưa được sử dụng",
+  "storeName": "Tên kho lưu trữ",
+  "selectVectorStore": "Chọn kho lưu trữ thích hợp",
+  "selectStore": "Chọn kho lưu trữ cho tài liệu"
 }

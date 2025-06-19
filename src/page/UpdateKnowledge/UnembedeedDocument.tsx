@@ -5,13 +5,14 @@ import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router';
+import { useNavigate } from 'react-router';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { useEffect, useState } from 'react';
 import UpdateDocumentDialog from './UpdateDocumentDialog';
 import DocumentDetailDialog from './DocumentDetailDialog';
 import { useGetUnembeddedDocuments } from '../../service';
 import { HideDuration, SnackbarSeverity } from '../../util';
+import SelectStoreToEmbedDialog from './SelectStoreToEmbedDialog';
 
 type DocumentRow = {
   id: string;
@@ -36,6 +37,7 @@ const UnembeddedDocumentPage = () => {
     documentDescription: string;
   } | null>(null);
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
+  const [openStoreToEmbedDialog, setOpenStoreToEmbedDialog] = useState(false);
   const [viewedDocument, setViewedDocument] = useState<{
     documentName: string;
     documentDescription: string;
@@ -153,7 +155,7 @@ const UnembeddedDocumentPage = () => {
           color="primary"
           label={t('embeddingIntoAgent')}
           onClick={() => {
-            // TODO: your handler here
+            setOpenStoreToEmbedDialog(true);
           }}
         />,
       ],
@@ -193,13 +195,6 @@ const UnembeddedDocumentPage = () => {
     }
   }, [document.data, t]);
 
-  const location = useLocation();
-  useEffect(() => {
-    if (location.state?.reload) {
-      setDocumentQuery((prev) => ({ ...prev })); // Reactivate fetch hook
-    }
-  }, [location.state]);
-
   const handleUpdateClick = (params: DocumentRow) => {
     setSelectedDocument(params);
     setOpenUpdateDialog(true);
@@ -238,6 +233,13 @@ const UnembeddedDocumentPage = () => {
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
         document={viewedDocument}
+      />
+      <SelectStoreToEmbedDialog
+        open={openStoreToEmbedDialog}
+        onClose={() => setOpenStoreToEmbedDialog(false)}
+        onSubmit={function (): void {
+          throw new Error('Function not implemented.');
+        }}
       />
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '90%' }}>

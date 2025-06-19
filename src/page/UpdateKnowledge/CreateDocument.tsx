@@ -50,7 +50,7 @@ const CreateDocumentPage = () => {
       setUploadedFile(undefined); //Clear the selected file list
       setResetSignal(true); // reset
       setTimeout(() => setResetSignal(false), 100); // Reset signal => false
-      navigate('/update-knowledge-management', { state: { reload: true } });
+      navigate('/update-knowledge-management');
 
       setSnackbarMessage(t('createDocumentSuccess'));
       setSnackbarSeverity(SnackbarSeverity.SUCCESS);

@@ -34,3 +34,6 @@ declare interface Document {
   created_at: string;
   source: string;
 }
+declare interface VectorStore {
+  name: string;
+}

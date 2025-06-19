@@ -1,31 +1,34 @@
 import { Box, Stack, Tooltip, Typography } from '@mui/material';
-import { DataGridTable } from '../../component';
+import { AppSnackbar, DataGridTable, Loading } from '../../component';
 import { GridActionsCellItem, type GridColDef } from '@mui/x-data-grid';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
-import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
-import CheckBoxIcon from '@mui/icons-material/CheckBox';
-import DisabledByDefaultIcon from '@mui/icons-material/DisabledByDefault';
 import FolderDeleteIcon from '@mui/icons-material/FolderDelete';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import UpdateDocumentDialog from './UpdateDocumentDialog';
 import DocumentDetailDialog from './DocumentDetailDialog';
+import { useGetUnembeddedDocuments } from '../../service';
+import { HideDuration, SnackbarSeverity } from '../../util';
 
 type DocumentRow = {
-  id: number;
+  id: string;
   documentName: string;
   documentDescription: string;
   createdAt: string;
-  updatedAt: string;
-  status: string;
+  mimeType: string;
+  source: string;
 };
 
-const EmbedDocumentPage = () => {
+const EmbeddedDocumentPage = () => {
   const { t } = useTranslation();
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] =
+    useState<SnackbarSeverity>('success');
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState<{
-    id: number;
+    id: string;
     documentName: string;
     documentDescription: string;
   } | null>(null);
@@ -34,8 +37,7 @@ const EmbedDocumentPage = () => {
     documentName: string;
     documentDescription: string;
     createdAt: string;
-    updatedAt: string;
-    status: string;
+    source: string;
   } | null>(null);
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
@@ -49,53 +51,45 @@ const EmbedDocumentPage = () => {
     {
       field: 'documentDescription',
       headerName: t('documentDescription'),
-      width: 250,
+      width: 300,
       align: 'center',
       headerAlign: 'center',
     },
-
+    {
+      field: 'storeName',
+      headerName: t('storeName'),
+      width: 200,
+      align: 'center',
+      headerAlign: 'center',
+    },
     {
       field: 'createdAt',
       headerName: t('createAt'),
       type: 'string',
-      width: 130,
+      width: 250,
       align: 'center',
       headerAlign: 'center',
     },
-
     {
-      field: 'updatedAt',
-      headerName: t('updateAt'),
+      field: 'source',
+      headerName: t('source'),
       type: 'string',
       width: 130,
-      headerAlign: 'center',
       align: 'center',
-    },
-    {
-      field: 'status',
-      headerName: t('usedStatus'),
-      width: 160,
       headerAlign: 'center',
       renderCell: (params) => {
-        let content;
-        if (params.value === 'done') {
-          content = <CheckBoxIcon color="primary" />;
-        } else if (params.value === 'pending') {
-          content = <DisabledByDefaultIcon color="warning" />;
-        } else {
-          content = <Typography color="textSecondary">-</Typography>;
-        }
         return (
           <Box
             sx={{
               display: 'flex',
-              justifyContent: 'center',
               alignItems: 'center',
-              width: '100%',
+              justifyContent: 'center',
               height: '100%',
             }}
           >
-            {content}
+            <Typography>
+              {params.value === 'UPLOADED' ? t('uploaded') : 'VectorDB'}
+            </Typography>
           </Box>
         );
       },
@@ -115,7 +109,12 @@ const EmbedDocumentPage = () => {
           color="primary"
           label={t('see')}
           onClick={() => {
-            setViewedDocument(params.row);
+            setViewedDocument({
+              documentName: params.row.documentName,
+              documentDescription: params.row.documentDescription,
+              createdAt: params.row.createdAt,
+              source: params.row.source,
+            });
             setOpenDetailDialog(true);
           }}
         />,
@@ -133,30 +132,12 @@ const EmbedDocumentPage = () => {
         />,
         <GridActionsCellItem
           icon={
-            <Tooltip title={t('delete')}>
-              <DeleteIcon color="error" />
-            </Tooltip>
-          }
-          label={t('delete')}
-          onClick={() => {}}
-        />,
-      ],
-    },
-    {
-      field: 'updateKnowledge',
-      headerName: t('updateKnowledgeForAgent'),
-      type: 'actions',
-      width: 230,
-      getActions: () => [
-        <GridActionsCellItem
-          size="large"
-          icon={
             <Tooltip title={t('unembeddedAgent')}>
               <FolderDeleteIcon color="error" />
             </Tooltip>
           }
           color="primary"
-          label={t('unembeddedAgent')}
+          label={t('embeddingIntoAgent')}
           onClick={() => {
             // TODO: your handler here
           }}
@@ -164,65 +145,39 @@ const EmbedDocumentPage = () => {
       ],
     },
   ];
+  const [rows, setRows] = useState<DocumentRow[]>([]);
 
-  const [rows, setRows] = useState<DocumentRow[]>([
-    {
-      id: 1,
-      documentName: 'A',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'done',
-    },
-    {
-      id: 2,
-      documentName: 'B',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'done',
-    },
-    {
-      id: 3,
-      documentName: 'C',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-05',
-      status: 'done',
-    },
-    {
-      id: 4,
-      documentName: 'D',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'done',
-    },
-    {
-      id: 5,
-      documentName: 'E',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-02',
-      status: 'done',
-    },
-    {
-      id: 6,
-      documentName: 'F',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-01',
-      status: 'done',
-    },
-    {
-      id: 7,
-      documentName: 'G',
-      documentDescription: 'A',
-      createdAt: '2024-05-01',
-      updatedAt: '2024-05-09',
-      status: 'done',
-    },
-  ]);
+  const [documentQuery, setDocumentQuery] =
+    useState<GetUnembeddedDocumentsQuery>({
+      offset: 0,
+      limit: 10,
+    });
+
+  const document = useGetUnembeddedDocuments(documentQuery, {
+    skip: !documentQuery,
+  });
+
+  useEffect(() => {
+    if (document.isError) {
+      setSnackbarMessage(t('createDocumentError'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    }
+  }, [document.isError, t]);
+
+  useEffect(() => {
+    if (document.data) {
+      const mappedRows: DocumentRow[] = document.data.content.map((doc) => ({
+        id: doc.id,
+        documentName: doc.name,
+        documentDescription: doc.description,
+        createdAt: doc.created_at,
+        mimeType: doc.mime_type,
+        source: doc.source,
+      }));
+      setRows(mappedRows);
+    }
+  }, [document.data, t]);
 
   const handleUpdateClick = (params: DocumentRow) => {
     setSelectedDocument(params);
@@ -234,7 +189,7 @@ const EmbedDocumentPage = () => {
       setRows((prev) =>
         prev.map((row) =>
           row.id === selectedDocument.id
-            ? { ...row, description: newDescription }
+            ? { ...row, documentDescription: newDescription }
             : row
         )
       );
@@ -245,6 +200,13 @@ const EmbedDocumentPage = () => {
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
+      <AppSnackbar
+        open={snackbarOpen}
+        message={snackbarMessage}
+        severity={snackbarSeverity}
+        autoHideDuration={HideDuration.FAST}
+        onClose={() => setSnackbarOpen(false)}
+      />
       <UpdateDocumentDialog
         open={openUpdateDialog}
         onClose={() => setOpenUpdateDialog(false)}
@@ -256,11 +218,25 @@ const EmbedDocumentPage = () => {
         onClose={() => setOpenDetailDialog(false)}
         document={viewedDocument}
       />
-      <Box sx={{ height: 400, width: '100%' }}>
-        <DataGridTable rows={rows} columns={columns} />
-      </Box>
+
+      {document.isLoading || document.isFetching ? (
+        <Loading />
+      ) : (
+        <Box sx={{ height: 400, width: '90%' }}>
+          <DataGridTable
+            rows={rows}
+            columns={columns}
+            pageSize={documentQuery?.limit ?? 6}
+            onPageChange={(newPage) =>
+              setDocumentQuery((prev) => {
+                return { ...prev, offset: newPage - 1 };
+              })
+            }
+          />
+        </Box>
+      )}
     </Stack>
   );
 };
 
-export default EmbedDocumentPage;
+export default EmbeddedDocumentPage;

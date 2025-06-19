@@ -8,7 +8,7 @@ const EXTENSION_URL = 'api/v1/documents';
 export const documentApi = createApi({
   reducerPath: 'documentApi',
   baseQuery: axiosBaseQuery(agentManagementInstance),
-  tagTypes: ['PagingDocument', 'Document'],
+  tagTypes: ['PagingUnembeddedDocument', 'PagingEmbeddedDocument', 'Document'],
   endpoints: (builder) => ({
     getDocumentInfoById: builder.query<Document, string>({
       query: (documentId: string) => ({
@@ -48,7 +48,7 @@ export const documentApi = createApi({
 
       providesTags(result) {
         const pagingTag = {
-          type: 'PagingDocument',
+          type: 'PagingUnembeddedDocument',
           id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
         } as const;
 
@@ -88,7 +88,7 @@ export const documentApi = createApi({
 
       providesTags(result) {
         const pagingTag = {
-          type: 'PagingDocument',
+          type: 'PagingEmbeddedDocument',
           id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
         } as const;
 
@@ -125,7 +125,9 @@ export const documentApi = createApi({
           body: formData,
         };
       },
-
+      invalidatesTags() {
+        return [{ type: 'PagingUnembeddedDocument' } as const];
+      },
       transformResponse: (response: string) => response,
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;
@@ -138,7 +140,10 @@ export const documentApi = createApi({
         method: 'POST',
       }),
       invalidatesTags() {
-        return [{ type: 'PagingDocument' } as const];
+        return [
+          { type: 'PagingUnembeddedDocument' } as const,
+          { type: 'PagingEmbeddedDocument' } as const,
+        ];
       },
       transformResponse: (response: string) => response,
       transformErrorResponse(baseQueryReturnValue) {
@@ -153,7 +158,11 @@ export const documentApi = createApi({
       }),
       invalidatesTags(_result, _error, arg) {
         const documentId = arg;
-        return [{ type: 'Document', id: documentId } as const];
+        return [
+          { type: 'Document', id: documentId } as const,
+          { type: 'PagingUnembeddedDocument' } as const,
+          { type: 'PagingEmbeddedDocument' } as const,
+        ];
       },
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;
