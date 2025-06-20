@@ -7,9 +7,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
-  IconButton,
 } from '@mui/material';
-import { Delete } from '@mui/icons-material';
 import AppSnackbar from './AppSnackbar';
 
 interface ConfirmDialogProps {
@@ -17,21 +15,9 @@ interface ConfirmDialogProps {
   message?: string;
   confirmText?: string;
   cancelText?: string;
+  open?: boolean;
+  onClose?: () => void;
   onDelete: () => Promise<void> | void;
-  deleteButtonProps?: {
-    variant?: 'text' | 'outlined' | 'contained';
-    size?: 'small' | 'medium' | 'large';
-    color?:
-      | 'inherit'
-      | 'primary'
-      | 'secondary'
-      | 'error'
-      | 'info'
-      | 'success'
-      | 'warning';
-    disabled?: boolean;
-  };
-  triggerButton?: React.ReactNode;
   successMessage?: string;
   errorMessage?: string;
 }
@@ -41,13 +27,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   message,
   confirmText,
   cancelText,
+  open = false,
+  onClose,
   onDelete,
-  deleteButtonProps = { variant: 'outlined', size: 'small', color: 'error' },
-  triggerButton,
   successMessage,
   errorMessage,
 }) => {
-  const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [snackbar, setSnackbar] = useState({
     open: false,
@@ -55,13 +40,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     severity: 'success' as 'success' | 'error' | 'warning' | 'info',
   });
 
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
   const handleClose = () => {
     if (!loading) {
-      setOpen(false);
+      onClose?.();
     }
   };
 
@@ -69,7 +50,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     try {
       setLoading(true);
       await onDelete();
-      setOpen(false);
+      handleClose();
       setSnackbar({
         open: true,
         message: successMessage || '',
@@ -93,16 +74,6 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <>
-      {/* Trigger Button */}
-      {triggerButton ? (
-        <div onClick={handleClickOpen}>{triggerButton}</div>
-      ) : (
-        <IconButton onClick={handleClickOpen} {...deleteButtonProps}>
-          <Delete />
-        </IconButton>
-      )}
-
-      {/* Confirm Dialog */}
       <Dialog
         open={open}
         onClose={handleClose}
@@ -134,7 +105,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
             color="error"
             size="small"
           >
-            {loading ? 'Đang xóa...' : confirmText}
+            {confirmText}
           </Button>
         </DialogActions>
       </Dialog>

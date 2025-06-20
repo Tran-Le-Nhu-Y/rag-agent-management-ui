@@ -25,6 +25,7 @@ export default function ImagePaginationViewer({
   const { t } = useTranslation('standard');
   const [page, setPage] = useState(1);
   const totalPages = Math.ceil(images.length / itemsPerPage);
+  const [imageIdToDelete, setImageIdToDelete] = useState<string | null>(null);
 
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
@@ -125,41 +126,45 @@ export default function ImagePaginationViewer({
               />
             </Zoom>
 
-            {onDelete && (
-              <Box
+            <Box
+              sx={{
+                position: 'absolute',
+                top: 8,
+                right: 8,
+              }}
+            >
+              <IconButton
+                size="small"
                 sx={{
-                  position: 'absolute',
-                  top: 8,
-                  right: 8,
+                  backgroundColor: 'rgba(255, 255, 255, 0.7)',
+                  '&:hover': {
+                    backgroundColor: 'rgba(255, 0, 0, 0.8)',
+                    color: 'white',
+                  },
                 }}
+                onClick={() => setImageIdToDelete(img.id)}
               >
-                <ConfirmDialog
-                  title={t('confirmDeleteTitle')}
-                  message={t('deleteImageConfirm')}
-                  confirmText={t('confirm')}
-                  cancelText={t('cancel')}
-                  successMessage={t('deleteImageSuccess')}
-                  errorMessage={t('deleteImageFailed')}
-                  onDelete={() => handleDelete(img.id)}
-                  triggerButton={
-                    <IconButton
-                      size="small"
-                      sx={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.7)',
-                        '&:hover': {
-                          backgroundColor: 'rgba(255, 0, 0, 0.8)',
-                          color: 'white',
-                        },
-                      }}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
-                  }
-                />
-              </Box>
-            )}
+                <DeleteIcon fontSize="small" />
+              </IconButton>
+            </Box>
           </Paper>
         ))
+      )}
+      {imageIdToDelete && (
+        <ConfirmDialog
+          open={true}
+          title={t('confirmDeleteTitle')}
+          message={t('deleteImageConfirm')}
+          confirmText={t('confirm')}
+          cancelText={t('cancel')}
+          successMessage={t('deleteImageSuccess')}
+          errorMessage={t('deleteImageFailed')}
+          onClose={() => setImageIdToDelete(null)}
+          onDelete={async () => {
+            handleDelete(imageIdToDelete);
+            setImageIdToDelete(null);
+          }}
+        />
       )}
 
       {images.length > 0 && (

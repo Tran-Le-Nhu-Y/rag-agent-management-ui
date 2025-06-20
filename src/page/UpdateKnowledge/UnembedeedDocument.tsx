@@ -10,18 +10,11 @@ import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { useEffect, useState } from 'react';
 import UpdateDocumentDialog from './UpdateDocumentDialog';
 import DocumentDetailDialog from './DocumentDetailDialog';
-import { useGetUnembeddedDocuments } from '../../service';
+import { useDeleteDocument, useGetUnembeddedDocuments } from '../../service';
 import { HideDuration, SnackbarSeverity } from '../../util';
 import SelectStoreToEmbedDialog from './SelectStoreToEmbedDialog';
-
-type DocumentRow = {
-  id: string;
-  documentName: string;
-  documentDescription: string;
-  createdAt: string;
-  mimeType: string;
-  source: string;
-};
+import type { DocumentInfo } from '../../@types/entities';
+import ConfirmDialog from '../../component/ConfirmDialog';
 
 const UnembeddedDocumentPage = () => {
   const { t } = useTranslation();
@@ -31,30 +24,30 @@ const UnembeddedDocumentPage = () => {
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<{
-    id: string;
-    documentName: string;
-    documentDescription: string;
-  } | null>(null);
+
+  const [selectedDocument, setSelectedDocument] = useState<DocumentInfo | null>(
+    null
+  );
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [openStoreToEmbedDialog, setOpenStoreToEmbedDialog] = useState(false);
-  const [viewedDocument, setViewedDocument] = useState<{
-    documentName: string;
-    documentDescription: string;
-    createdAt: string;
-    source: string;
-  } | null>(null);
 
-  const columns: GridColDef<(typeof rows)[number]>[] = [
+  const [viewedDocument, setViewedDocument] = useState<DocumentInfo | null>(
+    null
+  );
+  const [documentIdToDelete, setDocumentIdToDelete] = useState<string | null>(
+    null
+  );
+
+  const columns: GridColDef<DocumentInfo>[] = [
     {
-      field: 'documentName',
+      field: 'name',
       headerName: t('documentName'),
       width: 250,
       align: 'center',
       headerAlign: 'center',
     },
     {
-      field: 'documentDescription',
+      field: 'description',
       headerName: t('documentDescription'),
       width: 300,
       align: 'center',
@@ -62,7 +55,7 @@ const UnembeddedDocumentPage = () => {
     },
 
     {
-      field: 'createdAt',
+      field: 'created_at',
       headerName: t('createAt'),
       type: 'string',
       width: 250,
@@ -109,9 +102,11 @@ const UnembeddedDocumentPage = () => {
           label={t('see')}
           onClick={() => {
             setViewedDocument({
-              documentName: params.row.documentName,
-              documentDescription: params.row.documentDescription,
-              createdAt: params.row.createdAt,
+              id: params.row.id,
+              name: params.row.name,
+              description: params.row.description,
+              created_at: params.row.created_at,
+              mime_type: params.row.mime_type,
               source: params.row.source,
             });
             setOpenDetailDialog(true);
@@ -136,7 +131,7 @@ const UnembeddedDocumentPage = () => {
             </Tooltip>
           }
           label={t('delete')}
-          onClick={() => {}}
+          onClick={() => handleDeleteDocument(params.row.id)}
         />,
       ],
     },
@@ -161,8 +156,9 @@ const UnembeddedDocumentPage = () => {
       ],
     },
   ];
-  const [rows, setRows] = useState<DocumentRow[]>([]);
+  const [rows, setRows] = useState<DocumentInfo[]>([]);
 
+  // Get all unembedded document
   const [documentQuery, setDocumentQuery] =
     useState<GetUnembeddedDocumentsQuery>({
       offset: 0,
@@ -183,19 +179,19 @@ const UnembeddedDocumentPage = () => {
 
   useEffect(() => {
     if (document.data) {
-      const mappedRows: DocumentRow[] = document.data.content.map((doc) => ({
+      const mappedRows: DocumentInfo[] = document.data.content.map((doc) => ({
         id: doc.id,
-        documentName: doc.name,
-        documentDescription: doc.description,
-        createdAt: doc.created_at,
-        mimeType: doc.mime_type,
+        name: doc.name,
+        description: doc.description,
+        created_at: doc.created_at,
+        mime_type: doc.mime_type,
         source: doc.source,
       }));
       setRows(mappedRows);
     }
   }, [document.data, t]);
 
-  const handleUpdateClick = (params: DocumentRow) => {
+  const handleUpdateClick = (params: DocumentInfo) => {
     setSelectedDocument(params);
     setOpenUpdateDialog(true);
   };
@@ -205,13 +201,27 @@ const UnembeddedDocumentPage = () => {
       setRows((prev) =>
         prev.map((row) =>
           row.id === selectedDocument.id
-            ? { ...row, documentDescription: newDescription }
+            ? { ...row, description: newDescription }
             : row
         )
       );
     }
     setOpenUpdateDialog(false);
     setSelectedDocument(null);
+  };
+
+  //Delete doucment
+  const [deleteDocumentTrigger, deleteDocument] = useDeleteDocument();
+  useEffect(() => {
+    if (deleteDocument.isError) {
+      setSnackbarMessage(t('deleteImageFailed'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    }
+  }, [deleteDocument.isError, t]);
+
+  const handleDeleteDocument = (documentId: string) => {
+    setDocumentIdToDelete(documentId);
   };
 
   return (
@@ -241,6 +251,22 @@ const UnembeddedDocumentPage = () => {
           throw new Error('Function not implemented.');
         }}
       />
+      {documentIdToDelete && (
+        <ConfirmDialog
+          open={true}
+          onClose={() => setDocumentIdToDelete(null)}
+          title={t('confirmDeleteTitle')}
+          message={t('deleteDocumentConfirm')}
+          confirmText={t('confirm')}
+          cancelText={t('cancel')}
+          onDelete={async () => {
+            await deleteDocumentTrigger(documentIdToDelete);
+            setDocumentIdToDelete(null);
+          }}
+          successMessage={t('deleteDocumentSuccess')}
+          errorMessage={t('deleteDocumentFailed')}
+        />
+      )}
 
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '90%' }}>
         <Button

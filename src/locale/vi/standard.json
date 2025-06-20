@@ -55,8 +55,8 @@
   "tagList": "Danh sách nhãn",
   "confirmDeleteTitle": "Xác nhận xóa",
   "deleteImageConfirm": "Bạn có chắc chắn muốn xóa hình ảnh này không?",
-  "deleteImageSuccess": "Xóa hình ảnh thành công",
   "deleteImageFailed": "Xóa hình ảnh thất bại",
+  "deleteImageSuccess": "Xóa hình ảnh thành công",
 
   "imageUploadError": "Lỗi tải lên hình ảnh",
   "imageUploadSuccess": "Tải lên hình ảnh thành công",
@@ -64,10 +64,6 @@
   "assignLabelsSuccess": "Gán nhãn hình ảnh thành công",
   "imageExportError": "Lỗi trong việc tải xuống hình ảnh",
 
-  "createDocument": "Tạo tài liệu",
-  "createDocumentSuccess": "Tạo tài liệu thành công",
-  "createDocumentError": "Lỗi trong việc tạo tài liệu",
-  "updateDocument": "Cập nhật tài liệu",
   "documentDetail": "Chi tiết tài liệu",
   "documentName": "Tên tài liệu",
   "documentDescription": "Mô tả tài liệu",
@@ -84,5 +80,17 @@
   "unused": "Chưa được sử dụng",
   "storeName": "Tên kho lưu trữ",
   "selectVectorStore": "Chọn kho lưu trữ thích hợp",
-  "selectStore": "Chọn kho lưu trữ cho tài liệu"
+  "selectStore": "Chọn kho lưu trữ cho tài liệu",
+
+  "createDocument": "Tạo tài liệu",
+  "createDocumentSuccess": "Tạo tài liệu thành công",
+  "createDocumentError": "Lỗi trong việc tạo tài liệu",
+
+  "updateDocument": "Cập nhật tài liệu",
+  "updateDocumentSuccess": "Cập nhật tài liệu thành công",
+  "updateDocumentError": "Lỗi trong việc cập nhật tài liệu",
+
+  "deleteDocumentConfirm": "Bạn có chắc chắn muốn xóa tài liệu này không?",
+  "deleteDocumentFailed": "Xóa tài liệu thất bại",
+  "deleteDocumentSuccess": "Xóa tài liệu thành công"
 }

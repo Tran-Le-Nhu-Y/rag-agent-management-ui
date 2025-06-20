@@ -10,15 +10,7 @@ import UpdateDocumentDialog from './UpdateDocumentDialog';
 import DocumentDetailDialog from './DocumentDetailDialog';
 import { useGetUnembeddedDocuments } from '../../service';
 import { HideDuration, SnackbarSeverity } from '../../util';
-
-type DocumentRow = {
-  id: string;
-  documentName: string;
-  documentDescription: string;
-  createdAt: string;
-  mimeType: string;
-  source: string;
-};
+import type { DocumentInfo } from '../../@types/entities';
 
 const EmbeddedDocumentPage = () => {
   const { t } = useTranslation();
@@ -27,29 +19,24 @@ const EmbeddedDocumentPage = () => {
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
   const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<{
-    id: string;
-    documentName: string;
-    documentDescription: string;
-  } | null>(null);
+  const [selectedDocument, setSelectedDocument] = useState<DocumentInfo | null>(
+    null
+  );
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
-  const [viewedDocument, setViewedDocument] = useState<{
-    documentName: string;
-    documentDescription: string;
-    createdAt: string;
-    source: string;
-  } | null>(null);
+  const [viewedDocument, setViewedDocument] = useState<DocumentInfo | null>(
+    null
+  );
 
   const columns: GridColDef<(typeof rows)[number]>[] = [
     {
-      field: 'documentName',
+      field: 'name',
       headerName: t('documentName'),
       width: 250,
       align: 'center',
       headerAlign: 'center',
     },
     {
-      field: 'documentDescription',
+      field: 'description',
       headerName: t('documentDescription'),
       width: 300,
       align: 'center',
@@ -63,7 +50,7 @@ const EmbeddedDocumentPage = () => {
       headerAlign: 'center',
     },
     {
-      field: 'createdAt',
+      field: 'created_at',
       headerName: t('createAt'),
       type: 'string',
       width: 250,
@@ -110,9 +97,11 @@ const EmbeddedDocumentPage = () => {
           label={t('see')}
           onClick={() => {
             setViewedDocument({
-              documentName: params.row.documentName,
-              documentDescription: params.row.documentDescription,
-              createdAt: params.row.createdAt,
+              id: params.row.id,
+              name: params.row.name,
+              description: params.row.description,
+              created_at: params.row.created_at,
+              mime_type: params.row.mime_type,
               source: params.row.source,
             });
             setOpenDetailDialog(true);
@@ -145,7 +134,7 @@ const EmbeddedDocumentPage = () => {
       ],
     },
   ];
-  const [rows, setRows] = useState<DocumentRow[]>([]);
+  const [rows, setRows] = useState<DocumentInfo[]>([]);
 
   const [documentQuery, setDocumentQuery] =
     useState<GetUnembeddedDocumentsQuery>({
@@ -167,19 +156,19 @@ const EmbeddedDocumentPage = () => {
 
   useEffect(() => {
     if (document.data) {
-      const mappedRows: DocumentRow[] = document.data.content.map((doc) => ({
+      const mappedRows: DocumentInfo[] = document.data.content.map((doc) => ({
         id: doc.id,
-        documentName: doc.name,
-        documentDescription: doc.description,
-        createdAt: doc.created_at,
-        mimeType: doc.mime_type,
+        name: doc.name,
+        description: doc.description,
+        created_at: doc.created_at,
+        mime_type: doc.mime_type,
         source: doc.source,
       }));
       setRows(mappedRows);
     }
   }, [document.data, t]);
 
-  const handleUpdateClick = (params: DocumentRow) => {
+  const handleUpdateClick = (params: DocumentInfo) => {
     setSelectedDocument(params);
     setOpenUpdateDialog(true);
   };

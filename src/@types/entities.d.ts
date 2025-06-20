@@ -26,7 +26,7 @@ declare interface Label {
 
 declare type OrderByType = 'created_at';
 
-declare interface Document {
+declare interface DocumentInfo {
   id: string;
   name: string;
   description: string;

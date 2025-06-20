@@ -8,16 +8,12 @@ import {
   Stack,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import type { DocumentInfo } from '../../@types/entities';
 
 interface DocumentDetailDialogProps {
   open: boolean;
   onClose: () => void;
-  document: {
-    documentName: string;
-    documentDescription: string;
-    createdAt: string;
-    source: string;
-  } | null;
+  document: DocumentInfo | null;
 }
 
 const DocumentDetailDialog = ({
@@ -40,21 +36,19 @@ const DocumentDetailDialog = ({
             <Typography variant="body1" color="textSecondary">
               {t('documentName')}:
             </Typography>
-            <Typography variant="body1">{document.documentName}</Typography>
+            <Typography variant="body1">{document.name}</Typography>
           </Stack>
           <Stack direction={'row'} spacing={1}>
             <Typography variant="body1" color="textSecondary">
               {t('documentDescription')}:
             </Typography>
-            <Typography variant="body1">
-              {document.documentDescription}
-            </Typography>
+            <Typography variant="body1">{document.description}</Typography>
           </Stack>
           <Stack direction={'row'} spacing={1}>
             <Typography variant="body1" color="textSecondary">
               {t('createAt')}:
             </Typography>
-            <Typography variant="body1">{document.createdAt}</Typography>
+            <Typography variant="body1">{document.created_at}</Typography>
           </Stack>
           <Stack direction={'row'} spacing={1}>
             <Typography variant="body1" color="textSecondary">

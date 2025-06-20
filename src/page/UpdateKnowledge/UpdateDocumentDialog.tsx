@@ -11,15 +11,13 @@ import {
 import { useTranslation } from 'react-i18next';
 import { isValidLength, TextLength } from '../../util';
 import { useEffect, useState } from 'react';
+import type { DocumentInfo } from '../../@types/entities';
 
 interface UpdateDocumentDialogProps {
   open: boolean;
   onClose: () => void;
   onSubmit: (newDescription: string) => void;
-  document: {
-    documentName: string;
-    documentDescription: string;
-  } | null;
+  document: DocumentInfo | null;
 }
 
 const UpdateDocumentDialog = ({
@@ -33,7 +31,7 @@ const UpdateDocumentDialog = ({
 
   useEffect(() => {
     if (document) {
-      setDescription(document.documentDescription);
+      setDescription(document.description);
     }
   }, [document]);
 
@@ -45,7 +43,7 @@ const UpdateDocumentDialog = ({
           <Stack direction="row" spacing={1}>
             <Typography variant="body1">{t('documentName')}:</Typography>
             <Typography variant="body1" fontWeight="bold">
-              {document?.documentName}
+              {document?.name}
             </Typography>
           </Stack>
           <TextField
