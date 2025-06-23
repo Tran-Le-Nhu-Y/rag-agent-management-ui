@@ -5,6 +5,7 @@ import EmbedDocumentPage from './UpdateKnowledge/EmbedDocument';
 import UnembeddedDocumentPage from './UpdateKnowledge/UnembedeedDocument';
 import UpdateKnowledgePage from './UpdateKnowledge/UpdateKnowledge';
 import CreateDocumentPage from './UpdateKnowledge/CreateDocument';
+import UseGuidePage from './UseGuide/UseGuide';
 
 export {
   UntaggedImagePage,
@@ -14,4 +15,5 @@ export {
   UnembeddedDocumentPage,
   UpdateKnowledgePage,
   CreateDocumentPage,
+  UseGuidePage,
 };

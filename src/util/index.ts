@@ -6,7 +6,6 @@ import axios, {
   type AxiosRequestConfig,
   type CreateAxiosDefaults,
 } from 'axios';
-import dayjs, { Dayjs } from 'dayjs';
 
 export const TextLength = {
   SHORT: 6,
@@ -109,12 +108,12 @@ export function getFileSize(bytes: number) {
   else return `${(bytes / 1e6).toFixed(1)} MB`;
 }
 
-export const convertToAPIDateFormat = (date: Dayjs) => {
-  return date.format('YYYY-MM-DD');
-};
+// export const convertToAPIDateFormat = (date: Dayjs) => {
+//   return date.format('YYYY-MM-DD');
+// };
 
-export const parseToDayjs = (date: string) => {
-  return dayjs(date, 'YYYY-MM-DD');
+export const parseDay = (date: string) => {
+  return new Date(date).toLocaleString();
 };
 
 export type TextLengthValue = (typeof TextLength)[keyof typeof TextLength];

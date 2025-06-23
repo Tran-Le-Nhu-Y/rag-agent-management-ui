@@ -23,6 +23,12 @@
   "loading": "Đang tải",
   "source": "Nguồn",
   "uploaded": "Được tải lên",
+  "external": "Bên ngoài",
+  "download": "Tải về",
+
+  "useGuide": "Hướng dẫn sử dụng",
+  "agentCreationGuide": "Hướng dẫn tạo Agent",
+  "fileConfigCreationGuide": "Hướng dẫn tạo tập tin cấu hình",
 
   "dataEvaluation": "Đánh giá dữ liệu",
 
@@ -81,6 +87,9 @@
   "storeName": "Tên kho lưu trữ",
   "selectVectorStore": "Chọn kho lưu trữ thích hợp",
   "selectStore": "Chọn kho lưu trữ cho tài liệu",
+  "embedded_to_bm25": "Nhúng vào BM25",
+  "embedded": "Đã nhúng",
+  "unembedded": "Chưa nhúng",
 
   "createDocument": "Tạo tài liệu",
   "createDocumentSuccess": "Tạo tài liệu thành công",

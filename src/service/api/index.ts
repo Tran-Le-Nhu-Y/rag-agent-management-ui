@@ -1,6 +1,6 @@
 import {
   getExportingAllToken,
-  createExportLabeledImagesUrl,
+  downloadFile,
   getExportingTokenByLabelId,
 } from './file';
 import { getImageUrl } from './image';
@@ -8,6 +8,6 @@ import { getImageUrl } from './image';
 export {
   getImageUrl,
   getExportingAllToken,
-  createExportLabeledImagesUrl,
+  downloadFile,
   getExportingTokenByLabelId,
 };

@@ -2,7 +2,7 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { agentManagementInstance } from './instance';
 import { axiosBaseQuery } from '../util';
 import { toEntity } from './mapper/document-mapper';
-import type { Document } from '../@types/entities';
+import type { DocumentInfo } from '../@types/entities';
 
 const EXTENSION_URL = 'api/v1/documents';
 export const documentApi = createApi({
@@ -10,7 +10,7 @@ export const documentApi = createApi({
   baseQuery: axiosBaseQuery(agentManagementInstance),
   tagTypes: ['PagingUnembeddedDocument', 'PagingEmbeddedDocument', 'Document'],
   endpoints: (builder) => ({
-    getDocumentInfoById: builder.query<Document, string>({
+    getDocumentInfoById: builder.query<DocumentInfo, string>({
       query: (documentId: string) => ({
         url: `/${EXTENSION_URL}/${documentId}/info`,
         method: 'GET',
@@ -34,7 +34,7 @@ export const documentApi = createApi({
     }),
 
     getUnembeddedDocuments: builder.query<
-      PagingWrapper<Document>,
+      PagingWrapper<DocumentInfo>,
       GetUnembeddedDocumentsQuery
     >({
       query: ({ offset = 0, limit = 100 }) => ({
@@ -74,7 +74,7 @@ export const documentApi = createApi({
     }),
 
     getEmbeddedDocuments: builder.query<
-      PagingWrapper<Document>,
+      PagingWrapper<DocumentInfo>,
       GetEmbeddedDocumentsQuery
     >({
       query: ({ offset = 0, limit = 100 }) => ({

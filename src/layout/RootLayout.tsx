@@ -102,6 +102,7 @@ const RootLayout = () => {
       pathname === '/create-document'
     )
       return 1;
+    if (pathname === '/use-guide') return 2;
     return 0; // fallback
   };
   React.useEffect(() => {
@@ -235,6 +236,23 @@ const RootLayout = () => {
                 <InboxIcon />
               </ListItemIcon>
               <ListItemText primary={t('updateKnowledgeBase')} />
+            </ListItemButton>
+          </ListItem>
+        </List>
+        <Divider />
+        <List>
+          <ListItem key={t('useGuide')} disablePadding>
+            <ListItemButton
+              selected={selectedIndex === 2}
+              onClick={(event) => {
+                handleListItemClick(event, 2);
+                navigate('/use-guide');
+              }}
+            >
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('useGuide')} />
             </ListItemButton>
           </ListItem>
         </List>

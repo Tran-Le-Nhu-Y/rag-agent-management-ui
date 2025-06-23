@@ -12,7 +12,7 @@ const getExportingTokenByLabelId = async (labelId: string) => {
   return response.data as string;
 };
 
-const createExportLabeledImagesUrl = (downloadToken: string) => {
+const downloadFile = (downloadToken: string) => {
   return `${import.meta.env.VITE_API_GATEWAY}/download?token=${downloadToken}`;
 };
 
@@ -25,7 +25,7 @@ const getDocumentDownloadTokenById = async (documentId: string) => {
 
 export {
   getExportingAllToken,
-  createExportLabeledImagesUrl,
+  downloadFile,
   getExportingTokenByLabelId,
   getDocumentDownloadTokenById,
 };

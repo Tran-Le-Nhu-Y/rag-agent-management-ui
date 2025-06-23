@@ -26,6 +26,8 @@ declare interface DocumentResponse {
   name: string;
   description: string;
   mime_type: string;
+  embedded_to_bm25?: boolean;
+  embedded_to_vs?: string;
   created_at: string;
   source: string;
 }

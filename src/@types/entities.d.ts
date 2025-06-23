@@ -30,6 +30,8 @@ declare interface DocumentInfo {
   id: string;
   name: string;
   description: string;
+  embedded_to_bm25?: boolean;
+  embedded_to_vs?: string | null;
   mime_type: string;
   created_at: string;
   source: string;

@@ -18,6 +18,7 @@ import {
   CreateDocumentPage,
   ImageTaggingPage,
   UpdateKnowledgePage,
+  UseGuidePage,
 } from './page/index.ts';
 
 const router = createBrowserRouter(
@@ -29,6 +30,7 @@ const router = createBrowserRouter(
         path="update-knowledge-management"
         element={<UpdateKnowledgePage />}
       />
+      <Route path="use-guide" element={<UseGuidePage />} />
     </Route>
   )
 );

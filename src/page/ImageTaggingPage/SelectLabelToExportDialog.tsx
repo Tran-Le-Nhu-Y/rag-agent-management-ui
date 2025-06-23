@@ -11,10 +11,7 @@ import { useEffect, useState } from 'react';
 import { HideDuration, SnackbarSeverity } from '../../util';
 import { Stack } from '@mui/material';
 import type { Label } from '../../@types/entities';
-import {
-  createExportLabeledImagesUrl,
-  getExportingTokenByLabelId,
-} from '../../service/api';
+import { downloadFile, getExportingTokenByLabelId } from '../../service/api';
 
 type FormDialogProps = {
   open: boolean;
@@ -49,7 +46,7 @@ export default function SelectLabelToExportDialog({
 
         // create "a" HTML element with href to file & click
         const link = document.createElement('a');
-        link.href = createExportLabeledImagesUrl(path);
+        link.href = downloadFile(path);
         link.setAttribute('target', '_blank');
         document.body.appendChild(link);
         link.click();

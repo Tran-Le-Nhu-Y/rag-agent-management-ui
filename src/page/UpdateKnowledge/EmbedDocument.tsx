@@ -1,16 +1,19 @@
+import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Box, Stack, Tooltip, Typography } from '@mui/material';
 import { AppSnackbar, DataGridTable, Loading } from '../../component';
 import { GridActionsCellItem, type GridColDef } from '@mui/x-data-grid';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
-import DriveFileRenameOutlineIcon from '@mui/icons-material/DriveFileRenameOutline';
 import { useTranslation } from 'react-i18next';
 import FolderDeleteIcon from '@mui/icons-material/FolderDelete';
-import { useEffect, useState } from 'react';
-import UpdateDocumentDialog from './UpdateDocumentDialog';
+import { useCallback, useEffect, useState } from 'react';
 import DocumentDetailDialog from './DocumentDetailDialog';
-import { useGetUnembeddedDocuments } from '../../service';
-import { HideDuration, SnackbarSeverity } from '../../util';
+import { useGetEmbeddedDocuments } from '../../service';
+import { HideDuration, parseDay, SnackbarSeverity } from '../../util';
 import type { DocumentInfo } from '../../@types/entities';
+import {
+  downloadFile,
+  getDocumentDownloadTokenById,
+} from '../../service/api/file';
 
 const EmbeddedDocumentPage = () => {
   const { t } = useTranslation();
@@ -18,10 +21,7 @@ const EmbeddedDocumentPage = () => {
   const [snackbarMessage, setSnackbarMessage] = useState('');
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
-  const [openUpdateDialog, setOpenUpdateDialog] = useState(false);
-  const [selectedDocument, setSelectedDocument] = useState<DocumentInfo | null>(
-    null
-  );
+
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [viewedDocument, setViewedDocument] = useState<DocumentInfo | null>(
     null
@@ -43,7 +43,7 @@ const EmbeddedDocumentPage = () => {
       headerAlign: 'center',
     },
     {
-      field: 'storeName',
+      field: 'embedded_to_vs',
       headerName: t('storeName'),
       width: 200,
       align: 'center',
@@ -75,7 +75,7 @@ const EmbeddedDocumentPage = () => {
             }}
           >
             <Typography>
-              {params.value === 'UPLOADED' ? t('uploaded') : 'VectorDB'}
+              {params.value === 'UPLOADED' ? t('uploaded') : t('external')}
             </Typography>
           </Box>
         );
@@ -86,106 +86,126 @@ const EmbeddedDocumentPage = () => {
       headerName: t('actions'),
       type: 'actions',
       width: 160,
-      getActions: (params) => [
-        <GridActionsCellItem
-          icon={
-            <Tooltip title={t('see')}>
-              <RemoveRedEyeIcon />
-            </Tooltip>
-          }
-          color="primary"
-          label={t('see')}
-          onClick={() => {
-            setViewedDocument({
-              id: params.row.id,
-              name: params.row.name,
-              description: params.row.description,
-              created_at: params.row.created_at,
-              mime_type: params.row.mime_type,
-              source: params.row.source,
-            });
-            setOpenDetailDialog(true);
-          }}
-        />,
-        <GridActionsCellItem
-          icon={
-            <Tooltip title={t('update')}>
-              <DriveFileRenameOutlineIcon />
-            </Tooltip>
-          }
-          color="primary"
-          label={t('update')}
-          onClick={() => {
-            handleUpdateClick(params.row);
-          }}
-        />,
-        <GridActionsCellItem
-          icon={
-            <Tooltip title={t('unembeddedAgent')}>
-              <FolderDeleteIcon color="error" />
-            </Tooltip>
-          }
-          color="primary"
-          label={t('embeddingIntoAgent')}
-          onClick={() => {
-            // TODO: your handler here
-          }}
-        />,
-      ],
+      getActions: (params) => {
+        const isUploaded = params.row.source === 'UPLOADED';
+
+        return [
+          ...(isUploaded
+            ? [
+                <GridActionsCellItem
+                  icon={
+                    <Tooltip title={t('download')}>
+                      <FileDownloadIcon />
+                    </Tooltip>
+                  }
+                  color="primary"
+                  label={t('download')}
+                  onClick={() => handleDownload(params.row.id)}
+                />,
+              ]
+            : []),
+          <GridActionsCellItem
+            icon={
+              <Tooltip title={t('see')}>
+                <RemoveRedEyeIcon />
+              </Tooltip>
+            }
+            color="primary"
+            label={t('see')}
+            onClick={() => {
+              setViewedDocument({
+                id: params.row.id,
+                name: params.row.name,
+                description: params.row.description,
+                embedded_to_bm25: params.row.embedded_to_bm25,
+                embedded_to_vs: params.row.embedded_to_vs,
+                created_at: params.row.created_at,
+                mime_type: params.row.mime_type,
+                source: params.row.source,
+              });
+              setOpenDetailDialog(true);
+            }}
+          />,
+
+          <GridActionsCellItem
+            icon={
+              <Tooltip title={t('unembeddedAgent')}>
+                <FolderDeleteIcon color="error" />
+              </Tooltip>
+            }
+            color="primary"
+            label={t('embeddingIntoAgent')}
+            onClick={() => {
+              // TODO: your handler here
+            }}
+          />,
+        ];
+      },
     },
   ];
   const [rows, setRows] = useState<DocumentInfo[]>([]);
 
-  const [documentQuery, setDocumentQuery] =
-    useState<GetUnembeddedDocumentsQuery>({
+  const [documentQuery, setDocumentQuery] = useState<GetEmbeddedDocumentsQuery>(
+    {
       offset: 0,
-      limit: 10,
-    });
+      limit: 8,
+    }
+  );
 
-  const document = useGetUnembeddedDocuments(documentQuery, {
+  const documentResults = useGetEmbeddedDocuments(documentQuery, {
     skip: !documentQuery,
   });
 
   useEffect(() => {
-    if (document.isError) {
+    if (documentResults.isError) {
       setSnackbarMessage(t('createDocumentError'));
       setSnackbarSeverity(SnackbarSeverity.ERROR);
       setSnackbarOpen(true);
     }
-  }, [document.isError, t]);
+  }, [documentResults.isError, t]);
 
   useEffect(() => {
-    if (document.data) {
-      const mappedRows: DocumentInfo[] = document.data.content.map((doc) => ({
-        id: doc.id,
-        name: doc.name,
-        description: doc.description,
-        created_at: doc.created_at,
-        mime_type: doc.mime_type,
-        source: doc.source,
-      }));
+    if (documentResults.data) {
+      const mappedRows: DocumentInfo[] = documentResults.data.content.map(
+        (doc) => ({
+          id: doc.id,
+          name: doc.name,
+          description: doc.description,
+          created_at: parseDay(doc.created_at),
+          embedded_to_bm25: doc.embedded_to_bm25,
+          embedded_to_vs: doc.embedded_to_vs,
+          mime_type: doc.mime_type,
+          source: doc.source,
+        })
+      );
       setRows(mappedRows);
     }
-  }, [document.data, t]);
+  }, [documentResults.data, t]);
 
-  const handleUpdateClick = (params: DocumentInfo) => {
-    setSelectedDocument(params);
-    setOpenUpdateDialog(true);
-  };
+  //Download document
+  const handleDownload = useCallback(
+    async (documentId: string) => {
+      try {
+        const path = await getDocumentDownloadTokenById(documentId);
 
-  const handleUpdateSubmit = (newDescription: string) => {
-    if (selectedDocument) {
-      setRows((prev) =>
-        prev.map((row) =>
-          row.id === selectedDocument.id
-            ? { ...row, documentDescription: newDescription }
-            : row
-        )
-      );
-    }
-    setOpenUpdateDialog(false);
-    setSelectedDocument(null);
-  };
+        // create "a" HTML element with href to file & click
+        const link = document.createElement('a');
+        link.href = downloadFile(path);
+        link.setAttribute('target', '_blank');
+        document.body.appendChild(link);
+        link.click();
+
+        // clean up "a" element
+        document.body.removeChild(link);
+      } catch (error) {
+        console.error(error);
+        setSnackbarMessage(t('imageExportError'));
+        setSnackbarSeverity(SnackbarSeverity.ERROR);
+        setSnackbarOpen(true);
+      }
+    },
+    [t]
+  );
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
@@ -196,29 +216,27 @@ const EmbeddedDocumentPage = () => {
         autoHideDuration={HideDuration.FAST}
         onClose={() => setSnackbarOpen(false)}
       />
-      <UpdateDocumentDialog
-        open={openUpdateDialog}
-        onClose={() => setOpenUpdateDialog(false)}
-        onSubmit={handleUpdateSubmit}
-        document={selectedDocument}
-      />
+
       <DocumentDetailDialog
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
         document={viewedDocument}
       />
 
-      {document.isLoading || document.isFetching ? (
+      {documentResults.isLoading || documentResults.isFetching ? (
         <Loading />
       ) : (
-        <Box sx={{ height: 400, width: '90%' }}>
+        <Box sx={{ height: 500, width: '90%' }}>
           <DataGridTable
+            height={530}
             rows={rows}
             columns={columns}
+            total={documentResults.data?.total_elements ?? 0}
+            page={documentQuery.offset ?? 0}
             pageSize={documentQuery?.limit ?? 6}
             onPageChange={(newPage) =>
               setDocumentQuery((prev) => {
-                return { ...prev, offset: newPage - 1 };
+                return { ...prev, offset: newPage };
               })
             }
           />
