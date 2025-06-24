@@ -17,3 +17,8 @@ declare interface EmbedDocumentRequest {
   storeName: string;
   documentId: string;
 }
+
+declare interface UnembedDocumentRequest {
+  storeName: string;
+  documentId: string;
+}

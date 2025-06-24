@@ -7,7 +7,7 @@ import { useTranslation } from 'react-i18next';
 import FolderDeleteIcon from '@mui/icons-material/FolderDelete';
 import { useCallback, useEffect, useState } from 'react';
 import DocumentDetailDialog from './DocumentDetailDialog';
-import { useGetEmbeddedDocuments } from '../../service';
+import { useGetEmbeddedDocuments, useUnembedDocument } from '../../service';
 import { HideDuration, parseDay, SnackbarSeverity } from '../../util';
 import type { DocumentInfo } from '../../@types/entities';
 import {
@@ -134,9 +134,12 @@ const EmbeddedDocumentPage = () => {
               </Tooltip>
             }
             color="primary"
-            label={t('embeddingIntoAgent')}
-            onClick={() => {
-              // TODO: your handler here
+            label={t('unembeddedAgent')}
+            onClick={async () => {
+              await unembedDocumentTrigger({
+                documentId: params.row.id,
+                storeName: params.row.embedded_to_vs ?? '',
+              });
             }}
           />,
         ];
@@ -207,6 +210,21 @@ const EmbeddedDocumentPage = () => {
     [t]
   );
 
+  //Unembed document
+  const [unembedDocumentTrigger, unembedDocument] = useUnembedDocument();
+  useEffect(() => {
+    if (unembedDocument.isError) {
+      setSnackbarMessage(t('unembedDocumentFailed'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    }
+    if (unembedDocument.isSuccess) {
+      setSnackbarMessage(t('unembedDocumentSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+    }
+  }, [unembedDocument.isError, unembedDocument.isSuccess, t]);
+
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
       <AppSnackbar
@@ -223,7 +241,9 @@ const EmbeddedDocumentPage = () => {
         document={viewedDocument}
       />
 
-      {documentResults.isLoading || documentResults.isFetching ? (
+      {documentResults.isLoading ||
+      documentResults.isFetching ||
+      unembedDocument.isLoading ? (
         <Loading />
       ) : (
         <Box sx={{ height: 500, width: '90%' }}>

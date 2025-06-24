@@ -9,10 +9,14 @@ import { useNavigate } from 'react-router';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { useCallback, useEffect, useState } from 'react';
 import DocumentDetailDialog from './DocumentDetailDialog';
-import { useDeleteDocument, useGetUnembeddedDocuments } from '../../service';
+import {
+  useDeleteDocument,
+  useEmbedDocument,
+  useGetUnembeddedDocuments,
+} from '../../service';
 import { HideDuration, parseDay, SnackbarSeverity } from '../../util';
 import SelectStoreToEmbedDialog from './SelectStoreToEmbedDialog';
-import type { DocumentInfo } from '../../@types/entities';
+import type { DocumentInfo, VectorStore } from '../../@types/entities';
 import ConfirmDialog from '../../component/ConfirmDialog';
 import {
   downloadFile,
@@ -34,6 +38,10 @@ const UnembeddedDocumentPage = () => {
     null
   );
   const [documentIdToDelete, setDocumentIdToDelete] = useState<string | null>(
+    null
+  );
+  const [, setSelectedStoreToEmbed] = useState<VectorStore | null>(null);
+  const [documentIdToEmbed, setDocumentIdToEmbed] = useState<string | null>(
     null
   );
 
@@ -103,6 +111,7 @@ const UnembeddedDocumentPage = () => {
             color="primary"
             label={t('embeddingIntoAgent')}
             onClick={() => {
+              setDocumentIdToEmbed(params.row.id);
               setOpenStoreToEmbedDialog(true);
             }}
           />,
@@ -194,11 +203,16 @@ const UnembeddedDocumentPage = () => {
   const [deleteDocumentTrigger, deleteDocument] = useDeleteDocument();
   useEffect(() => {
     if (deleteDocument.isError) {
-      setSnackbarMessage(t('deleteImageFailed'));
+      setSnackbarMessage(t('deleteDocumentFailed'));
       setSnackbarSeverity(SnackbarSeverity.ERROR);
       setSnackbarOpen(true);
     }
-  }, [deleteDocument.isError, t]);
+    if (deleteDocument.isSuccess) {
+      setSnackbarMessage(t('deleteDocumentSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+    }
+  }, [deleteDocument.isError, deleteDocument.isSuccess, t]);
 
   const handleDeleteDocument = (documentId: string) => {
     setDocumentIdToDelete(documentId);
@@ -229,6 +243,21 @@ const UnembeddedDocumentPage = () => {
     [t]
   );
 
+  //Embedded doucment
+  const [embedDocumentTrigger, embedDocument] = useEmbedDocument();
+  useEffect(() => {
+    if (embedDocument.isError) {
+      setSnackbarMessage(t('embedDocumentFailed'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+      setSnackbarOpen(true);
+    }
+    if (embedDocument.isSuccess) {
+      setSnackbarMessage(t('embedDocumentSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+    }
+  }, [embedDocument.isError, embedDocument.isSuccess, t]);
+
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
       <AppSnackbar
@@ -246,8 +275,17 @@ const UnembeddedDocumentPage = () => {
       <SelectStoreToEmbedDialog
         open={openStoreToEmbedDialog}
         onClose={() => setOpenStoreToEmbedDialog(false)}
-        onSubmit={function (): void {
-          throw new Error('Function not implemented.');
+        onSubmit={async (selectedStore) => {
+          setOpenStoreToEmbedDialog(false);
+          setSelectedStoreToEmbed(selectedStore);
+
+          if (documentIdToEmbed && selectedStore) {
+            await embedDocumentTrigger({
+              documentId: documentIdToEmbed,
+              storeName: selectedStore.name,
+            });
+            setDocumentIdToEmbed(null);
+          }
         }}
       />
       {documentIdToDelete && (
@@ -275,7 +313,9 @@ const UnembeddedDocumentPage = () => {
           {t('createDocument')}
         </Button>
       </Box>
-      {documentResults.isLoading || documentResults.isFetching ? (
+      {documentResults.isLoading ||
+      documentResults.isFetching ||
+      embedDocument.isLoading ? (
         <Loading />
       ) : (
         <Box sx={{ height: 400, width: '90%' }}>

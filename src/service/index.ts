@@ -5,6 +5,7 @@ import {
   useGetEmbeddedDocumentsQuery as useGetEmbeddedDocuments,
   useGetUnembeddedDocumentsQuery as useGetUnembeddedDocuments,
   useUploadDocumentMutation as useUploadDocument,
+  useUnembedDocumentMutation as useUnembedDocument,
 } from './document';
 export {
   useGetDocumentInfoById,
@@ -13,6 +14,7 @@ export {
   useGetEmbeddedDocuments,
   useGetUnembeddedDocuments,
   useUploadDocument,
+  useUnembedDocument,
 };
 
 import {

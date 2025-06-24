@@ -14,7 +14,7 @@ import { useState } from 'react';
 interface SelectStoreToEmbedDialogProps {
   open: boolean;
   onClose: () => void;
-  onSubmit: () => void;
+  onSubmit: (store: VectorStore) => void;
 }
 
 const SelectStoreToEmbedDialog = ({
@@ -23,7 +23,14 @@ const SelectStoreToEmbedDialog = ({
   onSubmit,
 }: SelectStoreToEmbedDialogProps) => {
   const { t } = useTranslation();
-  const [, setSelectedStore] = useState<VectorStore>();
+  const [selectedStore, setSelectedStore] = useState<VectorStore | null>(null);
+
+  const fakeStores: VectorStore[] = [
+    { id: '1', name: 'chroma_db' },
+    { id: '2', name: 'faiss_store' },
+    { id: '3', name: 'pinecone_vector' },
+    { id: '4', name: 'milvus_index' },
+  ];
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -34,9 +41,11 @@ const SelectStoreToEmbedDialog = ({
         <Stack spacing={2}>
           <Stack spacing={1}>
             <Tags
-              options={[{ name: '' }]}
+              //   multiple
+              options={fakeStores}
               limitTags={3}
               label={t('selectVectorStore')}
+              getOptionLabel={(option) => option.name}
               onChange={(v) => {
                 const value = v as VectorStore;
                 setSelectedStore(value);
@@ -47,7 +56,15 @@ const SelectStoreToEmbedDialog = ({
       </DialogContent>
       <DialogActions>
         <Button onClick={onClose}>{t('close')}</Button>
-        <Button onClick={onSubmit} variant="contained" color="primary">
+        <Button
+          onClick={() => {
+            if (selectedStore) {
+              onSubmit(selectedStore);
+            }
+          }}
+          variant="contained"
+          color="primary"
+        >
           {t('confirm')}
         </Button>
       </DialogActions>

@@ -101,5 +101,11 @@
 
   "deleteDocumentConfirm": "Bạn có chắc chắn muốn xóa tài liệu này không?",
   "deleteDocumentFailed": "Xóa tài liệu thất bại",
-  "deleteDocumentSuccess": "Xóa tài liệu thành công"
+  "deleteDocumentSuccess": "Xóa tài liệu thành công",
+
+  "embedDocumentFailed": "Nhúng tài liệu vào Agent thất bại",
+  "embedDocumentSuccess": "Nhúng tài liệu vào Agent thành công",
+
+  "unembedDocumentFailed": "Gỡ nhúng tài liệu vào Agent thất bại",
+  "unembedDocumentSuccess": "Gỡ nhúng tài liệu vào Agent thành công"
 }

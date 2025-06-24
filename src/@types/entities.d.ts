@@ -37,5 +37,6 @@ declare interface DocumentInfo {
   source: string;
 }
 declare interface VectorStore {
+  id: string;
   name: string;
 }

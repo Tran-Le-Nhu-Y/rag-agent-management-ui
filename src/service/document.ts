@@ -150,6 +150,21 @@ export const documentApi = createApi({
         return baseQueryReturnValue.status;
       },
     }),
+    unembedDocument: builder.mutation<void, UnembedDocumentRequest>({
+      query: ({ storeName, documentId }) => ({
+        url: `/${EXTENSION_URL}/${storeName}/unembed/${documentId}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags() {
+        return [
+          { type: 'PagingUnembeddedDocument' } as const,
+          { type: 'PagingEmbeddedDocument' } as const,
+        ];
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return baseQueryReturnValue.status;
+      },
+    }),
 
     deleteDocument: builder.mutation<void, string>({
       query: (documentId: string) => ({
@@ -180,4 +195,5 @@ export const {
   useGetEmbeddedDocumentsQuery,
   useGetUnembeddedDocumentsQuery,
   useUploadDocumentMutation,
+  useUnembedDocumentMutation,
 } = documentApi;
