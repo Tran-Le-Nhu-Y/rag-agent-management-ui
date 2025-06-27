@@ -371,7 +371,7 @@ const UpdateLabelDialog = ({
       </DialogTitle>
       <DialogContent dividers>
         <Stack spacing={2}>
-          <Stack direction={'row'} spacing={2}>
+          <Stack direction={'row'} alignItems={'center'} spacing={1}>
             <Typography variant="h6">{t('labelName')}:</Typography>
             <Typography variant="body1">{labelName}</Typography>
           </Stack>
