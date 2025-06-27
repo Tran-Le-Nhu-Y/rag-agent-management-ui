@@ -42,5 +42,14 @@ export {
 import {
   useGetAllLabelQuery as useGetAllLabel,
   useGetLabelByImageIdQuery as useGetLabelByImageId,
+  usePostLabelMutation as useCreateLabel,
+  useDeleteLabelMutation as useDeleteLabel,
+  usePutLabelMutation as useUpdateLabel,
 } from './label';
-export { useGetAllLabel, useGetLabelByImageId };
+export {
+  useCreateLabel,
+  useGetAllLabel,
+  useGetLabelByImageId,
+  useDeleteLabel,
+  useUpdateLabel,
+};

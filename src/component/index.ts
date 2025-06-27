@@ -10,6 +10,7 @@ import {
 import { InputFileUpload } from './InputFileUpload';
 import AppSnackbar from './AppSnackbar';
 import Loading from './Loading';
+import CreateLabelDialog from './CreateLabelDialog';
 export {
   DataGridTable,
   Tags,
@@ -19,5 +20,7 @@ export {
   InputFileUpload,
   AppSnackbar,
   Loading,
+  CreateLabelDialog,
 };
+
 export type { FileAttachment, DragAndDropFormProps };

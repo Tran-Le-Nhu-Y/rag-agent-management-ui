@@ -1,11 +1,12 @@
 import UntaggedImagePage from './ImageTaggingPage/UntaggedImage';
 import TaggedImagePage from './ImageTaggingPage/TaggedImage';
 import ImageTaggingPage from './ImageTaggingPage/ImageTagging';
-import EmbedDocumentPage from './UpdateKnowledge/EmbedDocument';
-import UnembeddedDocumentPage from './UpdateKnowledge/UnembedeedDocument';
-import UpdateKnowledgePage from './UpdateKnowledge/UpdateKnowledge';
-import CreateDocumentPage from './UpdateKnowledge/CreateDocument';
-import UseGuidePage from './UseGuide/UseGuide';
+import EmbedDocumentPage from './UpdateKnowledgePage/EmbedDocument';
+import UnembeddedDocumentPage from './UpdateKnowledgePage/UnembedeedDocument';
+import UpdateKnowledgePage from './UpdateKnowledgePage/UpdateKnowledge';
+import CreateDocumentPage from './UpdateKnowledgePage/CreateDocument';
+import UseGuidePage from './UseGuidePage/UseGuide';
+import LabelManagementPage from './LabelManagementPage/LabelManagement';
 
 export {
   UntaggedImagePage,
@@ -16,4 +17,5 @@ export {
   UpdateKnowledgePage,
   CreateDocumentPage,
   UseGuidePage,
+  LabelManagementPage,
 };

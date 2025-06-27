@@ -16,14 +16,14 @@ import { getFileSize } from '../util';
 
 const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
 const SUPPORTED_FILE_TYPES = [
-  'text/*',
+  //   'text/*',
   'image/*',
-  'application/xml',
-  'application/pdf',
-  'application/msword',
-  'application/vnd.ms-excel',
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  //   'application/xml',
+  //   'application/pdf',
+  //   'application/msword',
+  //   'application/vnd.ms-excel',
+  //   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  //   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
 ];
 
 export interface FileAttachment {
@@ -112,7 +112,7 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
       <List
         sx={{
           width: '100%',
-          maxHeight: 270,
+          maxHeight: 200,
           overflowY: 'auto',
 
           //   display: 'flex',
@@ -127,7 +127,7 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
               display: 'flex',
               justifyContent: 'flex-start',
               px: 1,
-              py: 1,
+              //   py: 1,
               //   width: 'fit-content',
             }}
           >
@@ -135,7 +135,7 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
               elevation={1}
               sx={{
                 width: '100%',
-                padding: 2,
+                padding: 1,
                 display: 'flex',
                 alignItems: 'center',
                 minWidth: 250,

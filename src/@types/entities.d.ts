@@ -22,6 +22,7 @@ declare interface Label {
   id: int;
   name: string;
   description: string;
+  source: string;
 }
 
 declare type OrderByType = 'created_at';

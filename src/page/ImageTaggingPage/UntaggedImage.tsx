@@ -1,6 +1,14 @@
-import { Box, Button, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  IconButton,
+  Stack,
+  Tooltip,
+  Typography,
+} from '@mui/material';
 import {
   AppSnackbar,
+  CreateLabelDialog,
   DragAndDropForm,
   ImagePaginationViewer,
   Loading,
@@ -10,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import {
   useAssignLabelToImage,
+  useCreateLabel,
   useDeleteImage,
   useGetAllLabel,
   useGetUnlabeledImages,
@@ -18,6 +27,8 @@ import {
 import type { Label } from '../../@types/entities';
 import { getImageUrl } from '../../service/api';
 import { HideDuration, SnackbarSeverity } from '../../util';
+import AddCircleIcon from '@mui/icons-material/AddCircle';
+import { LabelError } from '../../util/errors';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
@@ -29,6 +40,7 @@ const UntaggedImagePage = () => {
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [createLabelDialogOpen, setCreateLabelDialogOpen] = useState(false);
 
   // Fetch unlabeled images
   const [unlabeledImagesQuery] = useState<GetUnlabeledImagesQuery>({
@@ -173,6 +185,39 @@ const UntaggedImagePage = () => {
     }
   };
 
+  //Create Label
+  const [createLabelTrigger] = useCreateLabel();
+
+  const handleCreateLabelSubmit = async (label: {
+    name: string;
+    description: string;
+  }) => {
+    try {
+      await createLabelTrigger(label).unwrap();
+      labels.refetch(); // Refresh the list of labels
+      setSnackbarMessage(t('createLabelSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+      setCreateLabelDialogOpen(false);
+    } catch (error) {
+      switch (error) {
+        case LabelError.DUPLICATE_LABEL_NAME: {
+          console.log(typeof error);
+          setSnackbarMessage(t('duplicateLabelNameError'));
+          setSnackbarSeverity(SnackbarSeverity.WARNING);
+          setSnackbarOpen(true);
+          break;
+        }
+        case LabelError.UNKNOWN_ERROR: {
+          setSnackbarMessage(t('createLabelError'));
+          setSnackbarSeverity(SnackbarSeverity.ERROR);
+          setSnackbarOpen(true);
+          break;
+        }
+      }
+    }
+  };
+
   return (
     <Stack justifyContent={'center'} alignItems="center">
       <AppSnackbar
@@ -181,6 +226,11 @@ const UntaggedImagePage = () => {
         severity={snackbarSeverity}
         autoHideDuration={HideDuration.FAST}
         onClose={() => setSnackbarOpen(false)}
+      />
+      <CreateLabelDialog
+        open={createLabelDialogOpen}
+        onClose={() => setCreateLabelDialogOpen(false)}
+        onSubmit={handleCreateLabelSubmit}
       />
       {uploadImage.isLoading ||
       labels.isLoading ||
@@ -224,7 +274,15 @@ const UntaggedImagePage = () => {
             </Stack>
 
             <Stack width={'100%'} spacing={1}>
-              <Typography variant="h6">{t('imageTagging')}:</Typography>
+              <Stack direction={'row'} spacing={1} alignItems={'center'}>
+                <Typography variant="h6">{t('imageTagging')}:</Typography>
+                <Tooltip title={t('createLabel')}>
+                  <IconButton onClick={() => setCreateLabelDialogOpen(true)}>
+                    <AddCircleIcon color="primary" />
+                  </IconButton>
+                </Tooltip>
+              </Stack>
+
               <Tags
                 multiple
                 options={labels.data ?? []}

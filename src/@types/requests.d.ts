@@ -22,3 +22,12 @@ declare interface UnembedDocumentRequest {
   storeName: string;
   documentId: string;
 }
+
+declare interface LabelCreateRequest {
+  name: string;
+  description: string;
+}
+declare interface LabelUpdateRequest {
+  labelId: string;
+  description: string;
+}
