@@ -11,6 +11,8 @@ import { AppSnackbar, InputFileUpload } from '../../component';
 import { useNavigate } from 'react-router';
 import { useUploadDocument } from '../../service';
 
+const acceptedFileTypes = ['.pdf', '.txt', '.docx'];
+
 const CreateDocumentPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -103,7 +105,7 @@ const CreateDocumentPage = () => {
             onFilesChange={(files: File[]) => {
               setUploadedFile(files[0]);
             }}
-            acceptedFileTypes={['.pdf', '.txt']}
+            acceptedFileTypes={acceptedFileTypes}
             resetSignal={resetSignal}
           />
         </Box>

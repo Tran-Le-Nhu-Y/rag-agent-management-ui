@@ -53,3 +53,6 @@ export {
   useDeleteLabel,
   useUpdateLabel,
 };
+
+import { useGetAgentStatusQuery } from './agent';
+export { useGetAgentStatusQuery as useGetAgentStatus };

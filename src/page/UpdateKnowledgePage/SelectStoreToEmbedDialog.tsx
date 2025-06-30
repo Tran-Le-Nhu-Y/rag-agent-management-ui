@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { Tags } from '../../component';
 import type { VectorStore } from '../../@types/entities';
 import { useState } from 'react';
+import { useGetAgentStatus } from '../../service';
 
 interface SelectStoreToEmbedDialogProps {
   open: boolean;
@@ -23,14 +24,9 @@ const SelectStoreToEmbedDialog = ({
   onSubmit,
 }: SelectStoreToEmbedDialogProps) => {
   const { t } = useTranslation();
-  const [selectedStore, setSelectedStore] = useState<VectorStore | null>(null);
+  const [selectedStore, setSelectedStore] = useState<string | null>(null);
 
-  const fakeStores: VectorStore[] = [
-    { id: '1', name: 'chroma_db' },
-    { id: '2', name: 'faiss_store' },
-    { id: '3', name: 'pinecone_vector' },
-    { id: '4', name: 'milvus_index' },
-  ];
+  const agentStatusQuery = useGetAgentStatus();
 
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
@@ -42,13 +38,15 @@ const SelectStoreToEmbedDialog = ({
           <Stack spacing={1}>
             <Tags
               //   multiple
-              options={fakeStores}
+              options={agentStatusQuery.data?.available_vector_stores ?? []}
               limitTags={3}
+              loading={
+                agentStatusQuery.isLoading || agentStatusQuery.isFetching
+              }
+              getOptionLabel={(option) => option}
               label={t('selectVectorStore')}
-              getOptionLabel={(option) => option.name}
               onChange={(v) => {
-                const value = v as VectorStore;
-                setSelectedStore(value);
+                setSelectedStore(v as string);
               }}
             />
           </Stack>
@@ -59,7 +57,7 @@ const SelectStoreToEmbedDialog = ({
         <Button
           onClick={() => {
             if (selectedStore) {
-              onSubmit(selectedStore);
+              onSubmit({ id: selectedStore, name: selectedStore });
             }
           }}
           variant="contained"

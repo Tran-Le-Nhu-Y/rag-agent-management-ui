@@ -41,3 +41,9 @@ declare interface VectorStore {
   id: string;
   name: string;
 }
+
+declare interface AgentStatus {
+  status: 'ON' | 'OFF' | 'RESTART';
+  available_vector_stores: string[];
+  bm25_last_sync: string | null;
+}

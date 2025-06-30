@@ -31,3 +31,9 @@ declare interface DocumentResponse {
   created_at: string;
   source: string;
 }
+
+declare interface AgentStatusResponse {
+  status: string;
+  available_vector_stores: string[];
+  bm25_last_sync: string | null;
+}
