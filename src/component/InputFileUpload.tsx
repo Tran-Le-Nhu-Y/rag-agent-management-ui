@@ -9,12 +9,14 @@ import {
   List,
   ListItem,
   Paper,
+  Tooltip,
   Typography,
 } from '@mui/material';
 import { AttachFile, ErrorOutline } from '@mui/icons-material';
 import { ClearIcon } from '@mui/x-date-pickers';
 import { getFileSize } from '../util';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 const VisuallyHiddenInput = styled('input')({
   clip: 'rect(0 0 0 0)',
@@ -37,18 +39,21 @@ export interface FileAttachment {
 }
 
 export interface InputFileUploadProps {
+  maxBytes?: number;
   onFilesChange: (files: File[]) => void;
   acceptedFileTypes: string[];
   resetSignal?: boolean;
 }
 
-const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
+const DEFAULT_FILE_MAX_BYTES = 128 * 1024 * 1024; // 128MB
 
 export const InputFileUpload: React.FC<InputFileUploadProps> = ({
+  maxBytes = DEFAULT_FILE_MAX_BYTES,
   onFilesChange,
   acceptedFileTypes,
   resetSignal,
 }) => {
+  const { t } = useTranslation('standard');
   const [files, setFiles] = useState<FileAttachment[]>([]);
 
   //Check file type
@@ -75,9 +80,9 @@ export const InputFileUpload: React.FC<InputFileUploadProps> = ({
 
     const newFile: FileAttachment = {
       id: Date.now() + Math.random(),
-      status: size > FILE_MAX_BYTES ? 'failed' : 'loading',
-      progress: size > FILE_MAX_BYTES ? 0 : 0,
-      error: size > FILE_MAX_BYTES ? 'File too large' : undefined,
+      status: size > maxBytes ? 'failed' : 'loading',
+      progress: size > maxBytes ? 0 : 0,
+      error: size > maxBytes ? 'File too large' : undefined,
       file: file,
     };
 
@@ -100,24 +105,26 @@ export const InputFileUpload: React.FC<InputFileUploadProps> = ({
   return (
     <Box display={'flex'}>
       {files.length === 0 && (
-        <Button
-          component="label"
-          role={undefined}
-          variant="contained"
-          tabIndex={-1}
-        >
-          <CloudUploadIcon />
-          <VisuallyHiddenInput
-            type="file"
-            accept={acceptedFileTypes.join(',')}
-            onChange={(e) => {
-              if (e.target.files) {
-                selectFileHandler(Array.from(e.target.files));
-                e.target.value = ''; // Clear the input value after selection
-              }
-            }}
-          />
-        </Button>
+        <Tooltip title={`${t('sizeLimit')} ${getFileSize(maxBytes)}`}>
+          <Button
+            component="label"
+            role={undefined}
+            variant="contained"
+            tabIndex={-1}
+          >
+            <CloudUploadIcon />
+            <VisuallyHiddenInput
+              type="file"
+              accept={acceptedFileTypes.join(',')}
+              onChange={(e) => {
+                if (e.target.files) {
+                  selectFileHandler(Array.from(e.target.files));
+                  e.target.value = ''; // Clear the input value after selection
+                }
+              }}
+            />
+          </Button>
+        </Tooltip>
       )}
       <List
         sx={{

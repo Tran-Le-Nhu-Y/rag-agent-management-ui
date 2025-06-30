@@ -14,17 +14,7 @@ import {
 } from '@mui/material';
 import { getFileSize } from '../util';
 
-const FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
-const SUPPORTED_FILE_TYPES = [
-  //   'text/*',
-  'image/*',
-  //   'application/xml',
-  //   'application/pdf',
-  //   'application/msword',
-  //   'application/vnd.ms-excel',
-  //   'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  //   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-];
+const DEFAULT_FILE_MAX_BYTES = 128 * 1000 * 1000; // 128MB
 
 export interface FileAttachment {
   id: number;
@@ -35,10 +25,14 @@ export interface FileAttachment {
 }
 
 export interface DragAndDropFormProps {
+  maxBytes?: number;
+  acceptedFileTypes?: string[];
   onFilesChange: (files: File[]) => void;
 }
 
 export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
+  maxBytes = DEFAULT_FILE_MAX_BYTES,
+  acceptedFileTypes = [],
   onFilesChange,
 }) => {
   const { t } = useTranslation('standard');
@@ -52,9 +46,9 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
       const size = file.size;
       return {
         id: Date.now() + Math.random(),
-        status: size > FILE_MAX_BYTES ? 'failed' : 'loading',
-        progress: size > FILE_MAX_BYTES ? 0 : 0,
-        error: size > FILE_MAX_BYTES ? 'File too large' : undefined,
+        status: size > DEFAULT_FILE_MAX_BYTES ? 'failed' : 'loading',
+        progress: size > DEFAULT_FILE_MAX_BYTES ? 0 : 0,
+        error: size > DEFAULT_FILE_MAX_BYTES ? 'File too large' : undefined,
         file: file,
       };
     });
@@ -104,7 +98,7 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
             sx={{ fontSize: 40, color: 'lightskyblue', display: 'block' }}
           />
           <Typography variant="caption">
-            {`${t('imageSizeLimit')} ${getFileSize(FILE_MAX_BYTES)}`}
+            {`${t('sizeLimit')} ${getFileSize(maxBytes)}`}
           </Typography>
         </Stack>
       )}
@@ -209,7 +203,7 @@ export const DragAndDropForm: React.FC<DragAndDropFormProps> = ({
         id="file-upload"
         type="file"
         ref={fileInputRef}
-        accept={SUPPORTED_FILE_TYPES.join(',')}
+        accept={acceptedFileTypes.join(',')}
         onChange={(e) => {
           if (e.target.files) {
             selectFileHandler(Array.from(e.target.files));

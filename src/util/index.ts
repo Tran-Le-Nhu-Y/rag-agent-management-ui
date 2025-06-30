@@ -103,9 +103,11 @@ export function createAxiosInstance(config?: CreateAxiosDefaults) {
 }
 
 export function getFileSize(bytes: number) {
-  if (bytes < 1e3) return `${bytes} bytes`;
-  else if (bytes >= 1e3 && bytes < 1e6) return `${(bytes / 1e3).toFixed(1)} KB`;
-  else return `${(bytes / 1e6).toFixed(1)} MB`;
+  const oneKB = 1024;
+  const oneMB = 1024 * oneKB;
+  if (bytes < oneKB) return `${bytes} bytes`;
+  else if (bytes < oneMB) return `${(bytes / oneKB).toFixed(1)} KB`;
+  else return `${(bytes / oneMB).toFixed(1)} MB`;
 }
 
 // export const convertToAPIDateFormat = (date: Dayjs) => {

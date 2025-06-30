@@ -37,8 +37,8 @@
   "imageRecommendation": "Đề xuất dữ liệu hình ảnh",
   "recommentImageMore": "Đề xuất thêm hình ảnh",
   "uploadImage": "Tải lên hình ảnh",
-  "imageSizeLimit": "Kích thước hình ảnh tối đa",
-  "dragAndDrop": "Kéo và thả các hình ảnh ở đây",
+  "sizeLimit": "Kích thước tập tin tối đa",
+  "dragAndDrop": "Kéo và thả các tập tin ở đây",
 
   "labelManagement": "Quản lý nhãn",
   "labelList": "Danh sách nhãn",

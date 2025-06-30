@@ -258,6 +258,8 @@ const UntaggedImagePage = () => {
             <Stack spacing={1} width={'100%'}>
               <Typography variant="h6">{t('recommentImageMore')}:</Typography>
               <DragAndDropForm
+                maxBytes={5 * 1024 * 1024} // 5MB
+                acceptedFileTypes={['image/*']}
                 onFilesChange={(files: File[]) => {
                   setUploadedFiles(files);
                 }}
