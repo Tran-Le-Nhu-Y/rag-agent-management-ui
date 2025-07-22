@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Box, IconButton, Pagination, Paper, Typography } from '@mui/material';
 import Zoom from 'react-medium-image-zoom';
 import 'react-medium-image-zoom/dist/styles.css';
@@ -7,13 +7,13 @@ import { useTranslation } from 'react-i18next';
 import type { ImageItem } from '../@types/entities';
 import ConfirmDialog from './ConfirmDialog';
 
-type Props = {
+interface Props {
   images: ImageItem[];
   itemsPerPage?: number;
   onDelete?: (imageId: string) => void;
   onPageChange?: (page: number) => void;
   onImageDeleted?: () => void;
-};
+}
 
 export default function ImagePaginationViewer({
   images,
@@ -22,10 +22,14 @@ export default function ImagePaginationViewer({
   onPageChange,
   onImageDeleted,
 }: Props) {
+  const MIN_PAGE = 0;
   const { t } = useTranslation('standard');
-  const [page, setPage] = useState(1);
-  const totalPages = Math.ceil(images.length / itemsPerPage);
+  const [page, setPage] = useState(MIN_PAGE);
   const [imageIdToDelete, setImageIdToDelete] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (images.length > 0 && page === MIN_PAGE) setPage(1);
+  }, [images.length, page]);
 
   const handleChange = (_: React.ChangeEvent<unknown>, value: number) => {
     setPage(value);
@@ -39,15 +43,15 @@ export default function ImagePaginationViewer({
     onImageDeleted?.();
 
     // Điều chỉnh trang hiện tại nếu cần thiết
-    const newTotalPages = Math.ceil((images.length - 1) / itemsPerPage);
-    if (page > newTotalPages && newTotalPages > 0) {
-      setPage(newTotalPages);
-      onPageChange?.(newTotalPages);
-    }
+    const newPage = Math.max(MIN_PAGE, page - 1);
+    setPage(newPage);
+    onPageChange?.(newPage);
   };
 
-  const startIndex = (page - 1) * itemsPerPage;
-  const currentImages = images.slice(startIndex, startIndex + itemsPerPage);
+  const currentImages = useMemo(() => {
+    const startIndex = Math.max(0, page - 1) * itemsPerPage;
+    return images.slice(startIndex, startIndex + itemsPerPage);
+  }, [images, itemsPerPage, page]);
 
   return (
     <Box
@@ -160,7 +164,7 @@ export default function ImagePaginationViewer({
           successMessage={t('deleteImageSuccess')}
           errorMessage={t('deleteImageFailed')}
           onClose={() => setImageIdToDelete(null)}
-          onDelete={async () => {
+          onDelete={() => {
             handleDelete(imageIdToDelete);
             setImageIdToDelete(null);
           }}
@@ -169,7 +173,7 @@ export default function ImagePaginationViewer({
 
       {images.length > 0 && (
         <Pagination
-          count={totalPages}
+          count={Math.ceil(images.length / itemsPerPage)}
           page={page}
           onChange={handleChange}
           color="primary"

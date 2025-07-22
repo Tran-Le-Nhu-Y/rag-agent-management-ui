@@ -11,6 +11,7 @@ type Props<T> = {
   label?: string;
   limitTags?: number;
   multiple?: boolean;
+  value?: T | T[] | null;
   options: T[];
   onChange?: (value: T | T[] | null) => void;
   loading?: boolean;
@@ -21,6 +22,7 @@ export default function Tags<T>({
   label,
   limitTags,
   multiple,
+  value,
   options,
   onChange,
   loading = false,
@@ -35,6 +37,7 @@ export default function Tags<T>({
       onChange={(_, value) => {
         onChange?.(value);
       }}
+      value={value}
       disableCloseOnSelect
       loading={loading}
       getOptionLabel={getOptionLabel}
