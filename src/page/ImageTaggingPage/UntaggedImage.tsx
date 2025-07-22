@@ -29,17 +29,25 @@ import { getImageUrl } from '../../service/api';
 import { HideDuration, SnackbarSeverity } from '../../util';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { LabelError } from '../../util/errors';
+import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
-  const userId = 'a3e6a251-89c3-4b18-9a80-640b2cd24dc2';
+  const userId = import.meta.env.VITE_USER_ID as string;
   const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
-  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [snackbarState, setSnackbarState] = useState<{
+    open: boolean;
+    message: string;
+    severity: SnackbarSeverity;
+  }>({
+    open: false,
+    message: '',
+    severity: SnackbarSeverity.SUCCESS,
+  });
+  const [currentImageIndex, setCurrentImageIndex] = useState<
+    number | undefined
+  >(undefined);
   const [createLabelDialogOpen, setCreateLabelDialogOpen] = useState(false);
 
   // Fetch unlabeled images
@@ -50,24 +58,40 @@ const UntaggedImagePage = () => {
   });
   const unlabeledImages = useGetUnlabeledImages(unlabeledImagesQuery!, {
     skip: !unlabeledImagesQuery,
-    refetchOnMountOrArgChange: true,
   });
   useEffect(() => {
-    if (unlabeledImages.isError) {
-      setSnackbarMessage(t('imageLoadingError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [unlabeledImages.isError, t]);
+    if (unlabeledImages.isError)
+      setSnackbarState({
+        open: true,
+        message: t('imageLoadingError'),
+        severity: SnackbarSeverity.ERROR,
+      });
+
+    const contentLength = unlabeledImages?.data?.content?.length;
+    if (
+      unlabeledImages.isSuccess &&
+      contentLength !== undefined &&
+      contentLength > 0 &&
+      currentImageIndex === undefined
+    )
+      setCurrentImageIndex(0);
+  }, [
+    unlabeledImages.isError,
+    t,
+    unlabeledImages.isSuccess,
+    unlabeledImages?.data?.content?.length,
+    currentImageIndex,
+  ]);
 
   // Fetch all labels
   const labels = useGetAllLabel();
   useEffect(() => {
-    if (labels.isError) {
-      setSnackbarMessage(t('labelLoadingError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
+    if (labels.isError)
+      setSnackbarState({
+        open: true,
+        message: t('labelLoadingError'),
+        severity: SnackbarSeverity.ERROR,
+      });
   }, [labels.isError, t]);
 
   // Generate image URLs
@@ -82,6 +106,7 @@ const UntaggedImagePage = () => {
     return unlabeledImages.data.content.map((img) => ({
       id: img.id,
       url: getImageUrl(img.id),
+      recommendLabels: img.recommenedLabels,
     }));
   }, [
     unlabeledImages.data,
@@ -90,34 +115,34 @@ const UntaggedImagePage = () => {
   ]);
 
   //Delete Image
-  const [deleteImageTrigger, deleteImage] = useDeleteImage();
-  useEffect(() => {
-    if (deleteImage.isError) {
-      setSnackbarMessage(t('deleteImageFailed'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [deleteImage.isError, t]);
-
+  const [deleteImageTrigger] = useDeleteImage();
   const handleDeleteImage = async (imageId: string) => {
     await deleteImageTrigger(imageId);
+    try {
+      const uploadPromises = uploadedFiles.map((image) =>
+        uploadImageTrigger({ file: image, userId: userId }).unwrap()
+      );
+
+      await Promise.all(uploadPromises); //Wait for all images to finish uploading
+      setUploadedFiles([]); //Clear the selected file list
+
+      setSnackbarState({
+        open: true,
+        message: t('imageUploadSuccess'),
+        severity: SnackbarSeverity.SUCCESS,
+      });
+    } catch (error) {
+      console.error('Uploading images have error:', error);
+      setSnackbarState({
+        open: true,
+        message: t('deleteImageFailed'),
+        severity: SnackbarSeverity.ERROR,
+      });
+    }
   };
 
   // Handle images upload
   const [uploadImageTrigger, uploadImage] = useUploadImage();
-  useEffect(() => {
-    if (uploadImage.isError) {
-      setSnackbarMessage(t('imageUploadError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    } else if (uploadImage.isSuccess) {
-      setSnackbarMessage(t('imageUploadSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-      setUploadedFiles([]); // Clear uploaded files after successful upload
-    }
-  }, [uploadImage.isError, uploadImage.isSuccess, t]);
-
   const handleUploadImages = async () => {
     if (!uploadedFiles.length) return;
 
@@ -126,40 +151,33 @@ const UntaggedImagePage = () => {
         uploadImageTrigger({ file: image, userId: userId }).unwrap()
       );
 
-      const results = await Promise.all(uploadPromises); //Wait for all images to finish uploading
-      await unlabeledImages.refetch(); //Upload successful -> call API again to get new images
+      await Promise.all(uploadPromises); //Wait for all images to finish uploading
       setUploadedFiles([]); //Clear the selected file list
 
-      console.log('Upload thành công:', results);
-      setSnackbarMessage(t('imageUploadSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      setSnackbarState({
+        open: true,
+        message: t('imageUploadSuccess'),
+        severity: SnackbarSeverity.SUCCESS,
+      });
     } catch (error) {
       console.error('Uploading images have error:', error);
-      setSnackbarMessage(t('imageUploadError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-      return;
+      setSnackbarState({
+        open: true,
+        message: t('imageUploadError'),
+        severity: SnackbarSeverity.ERROR,
+      });
     }
   };
 
   // Assign labels to images
-  const [assignLabelsTrigger, assignLabels] = useAssignLabelToImage();
-  useEffect(() => {
-    if (assignLabels.isError) {
-      setSnackbarMessage(t('assignLabelsError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    } else if (assignLabels.isSuccess) {
-      setSnackbarMessage(t('assignLabelsSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-      setSelectedLabels([]); // Clear selected labels after successful asignment
-    }
-  }, [assignLabels.isError, assignLabels.isSuccess, t, unlabeledImages]);
-
+  const [assignLabelsTrigger] = useAssignLabelToImage();
   const handleAssignLabels = async () => {
-    if (selectedLabels.length === 0 || !imageUrls[currentImageIndex]) return;
+    if (
+      selectedLabels.length === 0 ||
+      currentImageIndex === undefined ||
+      !imageUrls[currentImageIndex]
+    )
+      return;
 
     const imageId = imageUrls[currentImageIndex].id;
     const labelIds = selectedLabels.map((label) => label.id);
@@ -170,48 +188,53 @@ const UntaggedImagePage = () => {
         labelIds: labelIds,
       }).unwrap(); // Wait for all labels to be assigned
 
-      unlabeledImages.refetch(); // Refresh the list of unlabeled images
       setSelectedLabels([]); // Clear selected labels after successful assignment
 
-      setSnackbarMessage(t('assignLabelsSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      setSnackbarState({
+        open: true,
+        message: t('assignLabelsSuccess'),
+        severity: SnackbarSeverity.SUCCESS,
+      });
     } catch (error) {
       console.error('Assigning label have error:', error);
-      setSnackbarMessage(t('assignLabelsError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-      return;
+      setSnackbarState({
+        open: true,
+        message: t('assignLabelsError'),
+        severity: SnackbarSeverity.ERROR,
+      });
     }
   };
 
   //Create Label
   const [createLabelTrigger] = useCreateLabel();
-
   const handleCreateLabelSubmit = async (label: {
     name: string;
     description: string;
   }) => {
     try {
       await createLabelTrigger(label).unwrap();
-      labels.refetch(); // Refresh the list of labels
-      setSnackbarMessage(t('createLabelSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      setSnackbarState({
+        open: true,
+        message: t('createLabelSuccess'),
+        severity: SnackbarSeverity.SUCCESS,
+      });
       setCreateLabelDialogOpen(false);
     } catch (error) {
       switch (error) {
         case LabelError.DUPLICATE_LABEL_NAME: {
-          console.log(typeof error);
-          setSnackbarMessage(t('duplicateLabelNameError'));
-          setSnackbarSeverity(SnackbarSeverity.WARNING);
-          setSnackbarOpen(true);
+          setSnackbarState({
+            open: true,
+            message: t('duplicateLabelNameError'),
+            severity: SnackbarSeverity.WARNING,
+          });
           break;
         }
         case LabelError.UNKNOWN_ERROR: {
-          setSnackbarMessage(t('createLabelError'));
-          setSnackbarSeverity(SnackbarSeverity.ERROR);
-          setSnackbarOpen(true);
+          setSnackbarState({
+            open: true,
+            message: t('createLabelError'),
+            severity: SnackbarSeverity.ERROR,
+          });
           break;
         }
       }
@@ -221,11 +244,11 @@ const UntaggedImagePage = () => {
   return (
     <Stack justifyContent={'center'} alignItems="center">
       <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
+        open={snackbarState.open}
+        message={snackbarState.message}
+        severity={snackbarState.severity}
         autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
+        onClose={() => setSnackbarState((pre) => ({ ...pre, open: false }))}
       />
       <CreateLabelDialog
         open={createLabelDialogOpen}
@@ -250,7 +273,10 @@ const UntaggedImagePage = () => {
               images={imageUrls}
               itemsPerPage={1}
               onDelete={handleDeleteImage}
-              onPageChange={(index) => setCurrentImageIndex(index)}
+              onPageChange={(page) => {
+                const newIndex = page - 1;
+                setCurrentImageIndex(newIndex < 0 ? undefined : newIndex);
+              }}
             />
           </Stack>
 
@@ -285,8 +311,46 @@ const UntaggedImagePage = () => {
                 </Tooltip>
               </Stack>
 
+              {currentImageIndex !== undefined && (
+                <Stack direction={'row'} spacing={1} alignItems="center">
+                  <IconButton
+                    color="primary"
+                    disabled={
+                      imageUrls[currentImageIndex]?.recommendLabels ===
+                      undefined
+                    }
+                    onClick={() => {
+                      if (currentImageIndex >= imageUrls.length) return;
+                      const recommendedLabels =
+                        imageUrls[currentImageIndex]?.recommendLabels;
+                      if (recommendedLabels)
+                        setSelectedLabels(recommendedLabels);
+                    }}
+                  >
+                    <Tooltip
+                      title={t('selectAllLabelHints')}
+                      placement="bottom"
+                    >
+                      <ArrowDownwardIcon />
+                    </Tooltip>
+                  </IconButton>
+
+                  <Typography
+                    variant="body1"
+                    color="textPrimary"
+                    textOverflow={'ellipsis'}
+                  >
+                    {t('labelHint')}:{' '}
+                    {imageUrls[currentImageIndex]?.recommendLabels
+                      ?.map((label) => label.name)
+                      ?.join(', ') ?? t('noLabelHint')}
+                  </Typography>
+                </Stack>
+              )}
+
               <Tags
                 multiple
+                value={selectedLabels}
                 options={labels.data ?? []}
                 getOptionLabel={(option) => option.name}
                 loading={labels.isLoading}

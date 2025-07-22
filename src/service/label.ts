@@ -71,9 +71,31 @@ export const labelApi = createApi({
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;
       },
-      // transformResponse(rawResult: LabelResponse) {
-      //   return toEntity(rawResult);
-      // },
+      transformResponse(rawResult: LabelResponse[]) {
+        return rawResult.map((label) => toEntity(label));
+      },
+    }),
+    getLabelById: builder.query<Label, number>({
+      query: (id) => ({
+        url: `/${EXTENSION_URL}/${id}`,
+        method: 'GET',
+      }),
+      providesTags(result) {
+        return result
+          ? [
+              {
+                type: 'Label' as const,
+                id: result.id,
+              },
+            ]
+          : [];
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return baseQueryReturnValue.status;
+      },
+      transformResponse(rawResult: LabelResponse) {
+        return toEntity(rawResult);
+      },
     }),
     getLabelByImageId: builder.query<Label[], string>({
       query: (imageId: string) => ({

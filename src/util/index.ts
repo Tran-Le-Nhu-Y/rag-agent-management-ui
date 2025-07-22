@@ -40,14 +40,22 @@ export const axiosQueryHandler = async <T>(func: () => Promise<T>) => {
   try {
     const result = await func();
     return { data: result };
-  } catch (axiosError) {
-    const err = axiosError as AxiosError;
-    return {
-      error: {
-        status: err.response!.status!,
-        data: err.response?.data || err.message,
-      },
-    };
+  } catch (error) {
+    console.error('In querying:', error);
+    if (error instanceof AxiosError) {
+      const err = error as AxiosError;
+      return {
+        error: {
+          status: err.response!.status!,
+          data: err.response?.data || err.message,
+        },
+      };
+    } else
+      return {
+        error: {
+          status: 500,
+        },
+      };
   }
 };
 

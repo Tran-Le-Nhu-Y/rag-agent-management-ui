@@ -12,18 +12,19 @@ function toEntity(response: ImageResponse): Image {
 
 function toImageHasLabelsEntity(
   response: ImageResponse[],
-  labelsByImageId: Record<string, Label[]>
+  labels: Label[]
 ): ImageHasLabels[] {
   return response.map((image) => ({
     id: image.id,
     name: image.name,
     mime_type: image.mime_type,
     created_at: image.created_at,
-    labels: (labelsByImageId[image.id] || []).map((label) => ({
-      id: label.id,
-      name: label.name,
-      description: label.description,
-    })),
+    labels: labels.filter((label) =>
+      image.assigned_label_ids?.includes(label.id)
+    ),
+    recommenedLabels: labels.filter((label) =>
+      image.classified_label_ids?.includes(label.id)
+    ),
   }));
 }
 
