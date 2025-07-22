@@ -75,7 +75,6 @@ const UntaggedImagePage = () => {
       currentImageIndex === undefined
     )
       setCurrentImageIndex(0);
-    console.log(contentLength);
   }, [
     unlabeledImages.isError,
     t,
@@ -175,7 +174,7 @@ const UntaggedImagePage = () => {
   const handleAssignLabels = async () => {
     if (
       selectedLabels.length === 0 ||
-      !currentImageIndex ||
+      currentImageIndex === undefined ||
       !imageUrls[currentImageIndex]
     )
       return;
@@ -223,7 +222,6 @@ const UntaggedImagePage = () => {
     } catch (error) {
       switch (error) {
         case LabelError.DUPLICATE_LABEL_NAME: {
-          console.log(typeof error);
           setSnackbarState({
             open: true,
             message: t('duplicateLabelNameError'),
@@ -277,7 +275,6 @@ const UntaggedImagePage = () => {
               onDelete={handleDeleteImage}
               onPageChange={(page) => {
                 const newIndex = page - 1;
-                console.log('Page changed to:', page);
                 setCurrentImageIndex(newIndex < 0 ? undefined : newIndex);
               }}
             />
@@ -323,15 +320,7 @@ const UntaggedImagePage = () => {
                       undefined
                     }
                     onClick={() => {
-                      console.log(
-                        'Recommended labels:',
-                        imageUrls[currentImageIndex]?.recommendLabels
-                      );
-                      if (
-                        !currentImageIndex ||
-                        currentImageIndex >= imageUrls.length
-                      )
-                        return;
+                      if (currentImageIndex >= imageUrls.length) return;
                       const recommendedLabels =
                         imageUrls[currentImageIndex]?.recommendLabels;
                       if (recommendedLabels)
