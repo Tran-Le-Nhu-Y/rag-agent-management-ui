@@ -5,12 +5,9 @@ declare interface Image {
   created_at: string;
 }
 
-declare interface ImageHasLabels {
-  id: string;
-  name: string;
-  mime_type: string;
-  created_at: string;
+declare interface ImageHasLabels extends Image {
   labels: Label[];
+  recommenedLabels?: Label[];
 }
 
 export type ImageItem = {
@@ -22,7 +19,7 @@ declare interface Label {
   id: int;
   name: string;
   description: string;
-  source: string;
+  source: 'PREDEFINED' | 'CREATED';
 }
 
 declare type OrderByType = 'created_at';

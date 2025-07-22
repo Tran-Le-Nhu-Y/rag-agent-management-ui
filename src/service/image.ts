@@ -2,13 +2,15 @@ import { createApi } from '@reduxjs/toolkit/query/react';
 import { agentManagementInstance } from './instance';
 import { axiosBaseQuery, axiosQueryHandler } from '../util';
 import { toEntity, toImageHasLabelsEntity } from './mapper/image-mapper';
-import type { Image, ImageHasLabels, Label } from '../@types/entities';
+import { toEntity as toLabelEntity } from './mapper/label-mapper';
+import type { Image, ImageHasLabels } from '../@types/entities';
+import { getLabelById } from './api';
 
 const EXTENSION_URL = 'api/v1/images';
 export const imageApi = createApi({
   reducerPath: 'imageApi',
   baseQuery: axiosBaseQuery(agentManagementInstance),
-  tagTypes: ['PagingImage', 'Image'],
+  tagTypes: ['UnlabeledPagingImage', 'LabeledPagingImage', 'Image'],
   endpoints: (builder) => ({
     getImageInfoById: builder.query<Image, string>({
       query: (imageId: string) => ({
@@ -33,52 +35,6 @@ export const imageApi = createApi({
       },
     }),
 
-    getImagesByLabelId: builder.query<
-      PagingWrapper<Image>,
-      GetImagesByLabelIdQuery
-    >({
-      query: ({
-        labelId,
-        offset = 0,
-        limit = 100,
-        orderBy = 'created_at',
-      }) => ({
-        url: `/${EXTENSION_URL}/${labelId}/label`,
-        method: 'GET',
-        params: {
-          offset: offset,
-          limit: limit,
-          order_by: orderBy,
-        },
-      }),
-
-      providesTags(result) {
-        const pagingTag = {
-          type: 'PagingImage',
-          id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
-        } as const;
-
-        return result
-          ? [
-              ...result.content.map(
-                ({ id }) => ({ type: 'Image', id } as const)
-              ),
-              pagingTag,
-            ]
-          : [pagingTag];
-      },
-      transformErrorResponse(baseQueryReturnValue) {
-        return baseQueryReturnValue.status;
-      },
-      transformResponse(rawResult: PagingWrapper<ImageResponse>) {
-        const content = rawResult.content.map(toEntity);
-        return {
-          ...rawResult,
-          content,
-        };
-      },
-    }),
-
     getImagesByLabelIds: builder.query<
       PagingWrapper<ImageHasLabels>,
       GetImagesByLabelIdsQuery
@@ -99,38 +55,38 @@ export const imageApi = createApi({
             }
           );
           const labeledImage: PagingWrapper<ImageResponse> = response.data;
-          const imageIds = labeledImage.content.map((image) => image.id);
-
-          //Call the label for each imageId and merge them together.
-          const labelResults = await Promise.all(
-            imageIds.map((id) =>
-              agentManagementInstance
-                .get(`/api/v1/labels/${id}/image`)
-                .then((res) => ({
-                  id,
-                  labels: (res.data as Label[]) ?? [],
-                }))
-            )
+          const labelIdSet = new Set(
+            labeledImage.content
+              .map((img) => {
+                const labelIds: number[] = [];
+                img.assigned_label_ids?.forEach((id) => {
+                  labelIds.push(id);
+                });
+                img.classified_label_ids?.forEach((id) => {
+                  labelIds.push(id);
+                });
+                return labelIds;
+              })
+              .flat()
+          );
+          const labelIdsToGet: number[] = [];
+          labelIdSet.forEach((id) => labelIdsToGet.push(id));
+          const labels = await Promise.all(
+            labelIdsToGet.map(async (id) => {
+              const result = await getLabelById(id);
+              return toLabelEntity(result);
+            })
           );
 
-          // Create a mapping  imageId -> Label[]
-          const labelsByImageId: Record<string, Label[]> = {};
-          labelResults.forEach(({ id, labels }) => {
-            labelsByImageId[id] = labels;
-          });
-
-          const content = toImageHasLabelsEntity(
-            labeledImage.content,
-            labelsByImageId
-          );
+          const content = toImageHasLabelsEntity(labeledImage.content, labels);
           return { ...labeledImage, content };
         };
         return axiosQueryHandler(func);
       },
       providesTags(result) {
         const pagingTag = {
-          type: 'PagingImage',
-          id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
+          type: 'LabeledPagingImage',
+          id: `ByLabelIds-${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
         } as const;
 
         return result
@@ -145,22 +101,53 @@ export const imageApi = createApi({
     }),
 
     getUnlabeledImages: builder.query<
-      PagingWrapper<Image>,
+      PagingWrapper<ImageHasLabels>,
       GetUnlabeledImagesQuery
     >({
-      query: ({ offset = 0, limit = 100, orderBy = 'created_at' }) => ({
-        url: `/${EXTENSION_URL}/unlabeled`,
-        method: 'GET',
-        params: {
-          offset: offset,
-          limit: limit,
-          order_by: orderBy,
-        },
-      }),
+      async queryFn(arg) {
+        const { offset = 0, limit = 50 } = arg;
+        const func = async () => {
+          const response = await agentManagementInstance.get(
+            `/${EXTENSION_URL}/unlabeled`,
+            {
+              params: {
+                offset: offset,
+                limit: limit,
+              },
+            }
+          );
+          const labeledImage: PagingWrapper<ImageResponse> = response.data;
+          const labelIdSet = new Set(
+            labeledImage.content
+              .map((img) => {
+                const labelIds: number[] = [];
+                img.assigned_label_ids?.forEach((id) => {
+                  labelIds.push(id);
+                });
+                img.classified_label_ids?.forEach((id) => {
+                  labelIds.push(id);
+                });
+                return labelIds;
+              })
+              .flat()
+          );
+          const labelIdsToGet: number[] = [];
+          labelIdSet.forEach((id) => labelIdsToGet.push(id));
+          const labels = await Promise.all(
+            labelIdsToGet.map(async (id) => {
+              const result = await getLabelById(id);
+              return toLabelEntity(result);
+            })
+          );
 
+          const content = toImageHasLabelsEntity(labeledImage.content, labels);
+          return { ...labeledImage, content };
+        };
+        return axiosQueryHandler(func);
+      },
       providesTags(result) {
         const pagingTag = {
-          type: 'PagingImage',
+          type: 'UnlabeledPagingImage',
           id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
         } as const;
 
@@ -172,16 +159,6 @@ export const imageApi = createApi({
               pagingTag,
             ]
           : [pagingTag];
-      },
-      transformErrorResponse(baseQueryReturnValue) {
-        return baseQueryReturnValue.status;
-      },
-      transformResponse(rawResult: PagingWrapper<ImageResponse>) {
-        const content = rawResult.content.map(toEntity);
-        return {
-          ...rawResult,
-          content,
-        };
       },
     }),
 
@@ -203,30 +180,30 @@ export const imageApi = createApi({
             }
           );
           const labeledImage: PagingWrapper<ImageResponse> = response.data;
-          const imageIds = labeledImage.content.map((image) => image.id);
-
-          //Call the label for each imageId and merge them together.
-          const labelResults = await Promise.all(
-            imageIds.map((id) =>
-              agentManagementInstance
-                .get(`/api/v1/labels/${id}/image`)
-                .then((res) => ({
-                  id,
-                  labels: (res.data as Label[]) || [],
-                }))
-            )
+          const labelIdSet = new Set(
+            labeledImage.content
+              .map((img) => {
+                const labelIds: number[] = [];
+                img.assigned_label_ids?.forEach((id) => {
+                  labelIds.push(id);
+                });
+                img.classified_label_ids?.forEach((id) => {
+                  labelIds.push(id);
+                });
+                return labelIds;
+              })
+              .flat()
+          );
+          const labelIdsToGet: number[] = [];
+          labelIdSet.forEach((id) => labelIdsToGet.push(id));
+          const labels = await Promise.all(
+            labelIdsToGet.map(async (id) => {
+              const result = await getLabelById(id);
+              return toLabelEntity(result);
+            })
           );
 
-          // Create a mapping  imageId -> Label[]
-          const labelsByImageId: Record<string, Label[]> = {};
-          labelResults.forEach(({ id, labels }) => {
-            labelsByImageId[id] = labels;
-          });
-
-          const content = toImageHasLabelsEntity(
-            labeledImage.content,
-            labelsByImageId
-          );
+          const content = toImageHasLabelsEntity(labeledImage.content, labels);
           return { ...labeledImage, content };
         };
         return axiosQueryHandler(func);
@@ -234,7 +211,7 @@ export const imageApi = createApi({
 
       providesTags(result) {
         const pagingTag = {
-          type: 'PagingImage',
+          type: 'LabeledPagingImage',
           id: `${result?.page_number}-${result?.total_pages}-${result?.page_size}-${result?.total_elements}`,
         } as const;
 
@@ -260,7 +237,9 @@ export const imageApi = createApi({
           body: formData,
         };
       },
-
+      invalidatesTags() {
+        return [{ type: 'UnlabeledPagingImage' } as const];
+      },
       transformResponse: (response: string) => response,
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;
@@ -274,7 +253,10 @@ export const imageApi = createApi({
         body: labelIds,
       }),
       invalidatesTags() {
-        return [{ type: 'PagingImage' } as const];
+        return [
+          { type: 'UnlabeledPagingImage' } as const,
+          { type: 'LabeledPagingImage' } as const,
+        ];
       },
       transformResponse: (response: string) => response,
       transformErrorResponse(baseQueryReturnValue) {
@@ -306,7 +288,6 @@ export const {
   useGetUnlabeledImagesQuery,
   useUploadImageMutation,
   useAssignLabelToImageMutation,
-  useGetImagesByLabelIdQuery,
   useGetLabeledImagesQuery,
   useGetImagesByLabelIdsQuery,
 } = imageApi;

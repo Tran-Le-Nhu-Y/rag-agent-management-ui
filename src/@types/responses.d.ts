@@ -13,12 +13,15 @@ declare interface ImageResponse {
   name: string;
   mime_type: string;
   created_at: string;
+  assigned_label_ids: number[] | null;
+  classified_label_ids: number[] | null;
 }
 
 declare interface LabelResponse {
   id: string;
   name: string;
-  description: string;
+  description: string | null;
+  source: 'PREDEFINED' | 'CREATED';
 }
 
 declare interface DocumentResponse {

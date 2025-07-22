@@ -23,7 +23,6 @@ import {
   useGetUnlabeledImagesQuery as useGetUnlabeledImages,
   useUploadImageMutation as useUploadImage,
   useAssignLabelToImageMutation as useAssignLabelToImage,
-  useGetImagesByLabelIdQuery as useGetImagesByLabelId,
   useGetLabeledImagesQuery as useGetLabeledImages,
   useGetImagesByLabelIdsQuery as useGetImagesByLabelIds,
 } from './image';
@@ -35,7 +34,6 @@ export {
   useDeleteImage,
   useUploadImage,
   useAssignLabelToImage,
-  useGetImagesByLabelId,
   useGetImagesByLabelIds,
 };
 
