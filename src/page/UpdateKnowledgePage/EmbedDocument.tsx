@@ -138,7 +138,6 @@ const EmbeddedDocumentPage = () => {
             onClick={async () => {
               await unembedDocumentTrigger({
                 documentId: params.row.id,
-                storeName: params.row.embedded_to_vs ?? '',
               });
             }}
           />,

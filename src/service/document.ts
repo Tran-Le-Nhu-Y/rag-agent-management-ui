@@ -151,8 +151,8 @@ export const documentApi = createApi({
       },
     }),
     unembedDocument: builder.mutation<void, UnembedDocumentRequest>({
-      query: ({ storeName, documentId }) => ({
-        url: `/${EXTENSION_URL}/${storeName}/unembed/${documentId}`,
+      query: ({ documentId }) => ({
+        url: `/${EXTENSION_URL}/${documentId}/unembed`,
         method: 'DELETE',
       }),
       invalidatesTags() {
