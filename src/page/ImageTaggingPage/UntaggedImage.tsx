@@ -33,7 +33,6 @@ import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
-  const userId = import.meta.env.VITE_USER_ID as string;
   const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [snackbarState, setSnackbarState] = useState<{
@@ -118,27 +117,6 @@ const UntaggedImagePage = () => {
   const [deleteImageTrigger] = useDeleteImage();
   const handleDeleteImage = async (imageId: string) => {
     await deleteImageTrigger(imageId);
-    try {
-      const uploadPromises = uploadedFiles.map((image) =>
-        uploadImageTrigger({ file: image, userId: userId }).unwrap()
-      );
-
-      await Promise.all(uploadPromises); //Wait for all images to finish uploading
-      setUploadedFiles([]); //Clear the selected file list
-
-      setSnackbarState({
-        open: true,
-        message: t('imageUploadSuccess'),
-        severity: SnackbarSeverity.SUCCESS,
-      });
-    } catch (error) {
-      console.error('Uploading images have error:', error);
-      setSnackbarState({
-        open: true,
-        message: t('deleteImageFailed'),
-        severity: SnackbarSeverity.ERROR,
-      });
-    }
   };
 
   // Handle images upload
@@ -148,7 +126,7 @@ const UntaggedImagePage = () => {
 
     try {
       const uploadPromises = uploadedFiles.map((image) =>
-        uploadImageTrigger({ file: image, userId: userId }).unwrap()
+        uploadImageTrigger({ file: image }).unwrap()
       );
 
       await Promise.all(uploadPromises); //Wait for all images to finish uploading

@@ -1,5 +1,4 @@
 declare interface UploadImageRequest {
-  userId: string;
   file: File;
 }
 

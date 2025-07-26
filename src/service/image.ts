@@ -227,12 +227,12 @@ export const imageApi = createApi({
     }),
 
     uploadImage: builder.mutation<string, UploadImageRequest>({
-      query: ({ userId, file }) => {
+      query: ({ file }) => {
         const formData = new FormData();
         formData.append('file', file);
 
         return {
-          url: `/${EXTENSION_URL}/${userId}/upload`,
+          url: `/${EXTENSION_URL}/upload`,
           method: 'POST',
           body: formData,
         };
