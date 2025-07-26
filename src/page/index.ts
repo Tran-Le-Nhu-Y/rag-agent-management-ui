@@ -7,6 +7,7 @@ import UpdateKnowledgePage from './UpdateKnowledgePage/UpdateKnowledge';
 import CreateDocumentPage from './UpdateKnowledgePage/CreateDocument';
 import UseGuidePage from './UseGuidePage/UseGuide';
 import LabelManagementPage from './LabelManagementPage/LabelManagement';
+import HealthPage from './HealthPage';
 
 export {
   UntaggedImagePage,
@@ -18,4 +19,5 @@ export {
   CreateDocumentPage,
   UseGuidePage,
   LabelManagementPage,
+  HealthPage,
 };

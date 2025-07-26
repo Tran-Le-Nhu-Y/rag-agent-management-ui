@@ -40,6 +40,16 @@
   "sizeLimit": "Kích thước tập tin tối đa",
   "dragAndDrop": "Kéo và thả các tập tin ở đây",
 
+  "ON": "Hoạt động",
+  "OFF": "Ngừng hoạt động",
+  "RESTART": "Khởi động lại",
+  "embedDocument": "Đang nhúng tài liệu",
+  "undefined": "Không xác định",
+  "status": "Trạng thái",
+  "configuredVectorStores": "Các Vector Store đã cấu hình",
+  "lastSyncBM25": "Thời điểm đồng bộ BM25 lần cuối",
+
+  "agentStatus": "Trạng thái AI Agent",
   "labelManagement": "Quản lý nhãn",
   "labelList": "Danh sách nhãn",
   "createLabel": "Tạo nhãn",

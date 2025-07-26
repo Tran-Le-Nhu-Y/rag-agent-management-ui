@@ -104,6 +104,7 @@ const RootLayout = () => {
       return 1;
     if (pathname === '/label-management') return 2;
     if (pathname === '/use-guide') return 3;
+    if (pathname === 'health') return 4;
     return 0; // fallback
   };
   React.useEffect(() => {
@@ -275,6 +276,22 @@ const RootLayout = () => {
           </ListItem>
         </List>
         <Divider /> */}
+        <List>
+          <ListItem key={t('agentStatus')} disablePadding>
+            <ListItemButton
+              selected={selectedIndex === 4}
+              onClick={(event) => {
+                handleListItemClick(event, 4);
+                navigate('/health');
+              }}
+            >
+              <ListItemIcon>
+                <InboxIcon />
+              </ListItemIcon>
+              <ListItemText primary={t('agentStatus')} />
+            </ListItemButton>
+          </ListItem>
+        </List>
       </Drawer>
       <Main open={open}>
         <DrawerHeader />

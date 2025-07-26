@@ -16,6 +16,7 @@ import RootLayout from './layout/RootLayout.tsx';
 
 import {
   CreateDocumentPage,
+  HealthPage,
   ImageTaggingPage,
   LabelManagementPage,
   UpdateKnowledgePage,
@@ -33,6 +34,7 @@ const router = createBrowserRouter(
       />
       <Route path="label-management" element={<LabelManagementPage />} />
       <Route path="use-guide" element={<UseGuidePage />} />
+      <Route path="health" element={<HealthPage />} />
     </Route>
   )
 );
