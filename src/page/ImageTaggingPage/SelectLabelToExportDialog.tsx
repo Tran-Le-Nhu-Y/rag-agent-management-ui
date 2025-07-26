@@ -27,7 +27,7 @@ export default function SelectLabelToExportDialog({
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
   const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [selectedLabelId, setSelectedLabelId] = useState<string>('');
+  const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
 
   // Query to get all labels
   const labels = useGetAllLabel();
@@ -58,6 +58,8 @@ export default function SelectLabelToExportDialog({
         setSnackbarMessage(t('imageExportError'));
         setSnackbarSeverity(SnackbarSeverity.ERROR);
         setSnackbarOpen(true);
+      } finally {
+        setSelectedLabelId(null);
       }
     },
     [t]
@@ -98,10 +100,10 @@ export default function SelectLabelToExportDialog({
             variant="contained"
             type="submit"
             onClick={() => {
-              handleExportByLabelId(selectedLabelId);
+              handleExportByLabelId(selectedLabelId!);
               onClose();
             }}
-            disabled={selectedLabelId.length === 0} // disable if not select
+            disabled={selectedLabelId === null} // disable if not select
           >
             {t('confirm')}
           </Button>
