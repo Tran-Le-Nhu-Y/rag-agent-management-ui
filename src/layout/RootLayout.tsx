@@ -97,10 +97,7 @@ const RootLayout = () => {
   const location = useLocation();
   const getSelectedIndexFromPath = (pathname: string) => {
     if (pathname === '/') return 0;
-    if (
-      pathname === '/update-knowledge-management' ||
-      pathname === '/create-document'
-    )
+    if (pathname === '/document-management' || pathname === '/create-document')
       return 1;
     if (pathname === '/label-management') return 2;
     if (pathname === '/use-guide') return 3;
@@ -226,18 +223,18 @@ const RootLayout = () => {
         </List>
         <Divider />
         <List>
-          <ListItem key={t('updateKnowledgeBase')} disablePadding>
+          <ListItem key={t('documentManagement')} disablePadding>
             <ListItemButton
               selected={selectedIndex === 1}
               onClick={(event) => {
                 handleListItemClick(event, 1);
-                navigate('/update-knowledge-management');
+                navigate('/document-management');
               }}
             >
               <ListItemIcon>
                 <InboxIcon />
               </ListItemIcon>
-              <ListItemText primary={t('updateKnowledgeBase')} />
+              <ListItemText primary={t('documentManagement')} />
             </ListItemButton>
           </ListItem>
         </List>

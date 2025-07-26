@@ -109,6 +109,7 @@
   "fieldContent": "Nội dung",
   "addTextRecommendationFile": "Tập tin dữ liệu đề xuất",
   "updateKnowledgeBase": "Cập nhật cơ sở tri thức",
+  "documentManagement": "Quản lý tài liệu",
   "updateKnowledgeForAgent": "Cập nhật tri thức cho Agent",
   "embeddingIntoAgent": "Nhúng vào Agent",
   "unembeddedAgent": "Gỡ khỏi Agent",

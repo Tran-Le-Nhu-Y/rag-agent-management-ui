@@ -28,10 +28,7 @@ const router = createBrowserRouter(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<ImageTaggingPage />} />
       <Route path="create-document" element={<CreateDocumentPage />} />
-      <Route
-        path="update-knowledge-management"
-        element={<UpdateKnowledgePage />}
-      />
+      <Route path="document-management" element={<UpdateKnowledgePage />} />
       <Route path="label-management" element={<LabelManagementPage />} />
       <Route path="use-guide" element={<UseGuidePage />} />
       <Route path="health" element={<HealthPage />} />
