@@ -5,6 +5,7 @@ import {
   DialogActions,
   Button,
   Stack,
+  Typography,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Tags } from '../../component';
@@ -50,14 +51,18 @@ const SelectStoreToEmbedDialog = ({
               }}
             />
           </Stack>
+          <Typography variant="body1">{t('embedDocumentNote')}</Typography>
+          <Typography variant="body1">
+            {t('embedDocumentCheckStatusNote')}
+          </Typography>
         </Stack>
       </DialogContent>
       <DialogActions>
-        <Button onClick={onClose}>{t('close')}</Button>
         <Button
           onClick={() => {
             if (selectedStore) {
               onSubmit({ id: selectedStore, name: selectedStore });
+              agentStatusQuery.refetch();
             }
           }}
           variant="contained"
@@ -65,6 +70,7 @@ const SelectStoreToEmbedDialog = ({
         >
           {t('confirm')}
         </Button>
+        <Button onClick={onClose}>{t('close')}</Button>
       </DialogActions>
     </Dialog>
   );

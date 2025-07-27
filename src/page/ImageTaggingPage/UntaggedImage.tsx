@@ -116,7 +116,21 @@ const UntaggedImagePage = () => {
   //Delete Image
   const [deleteImageTrigger] = useDeleteImage();
   const handleDeleteImage = async (imageId: string) => {
-    await deleteImageTrigger(imageId);
+    try {
+      await deleteImageTrigger(imageId).unwrap();
+      setSnackbarState({
+        open: true,
+        message: t('deleteImageSuccess'),
+        severity: SnackbarSeverity.SUCCESS,
+      });
+    } catch (err) {
+      console.error(err);
+      setSnackbarState({
+        open: true,
+        message: t('deleteImageFailed'),
+        severity: SnackbarSeverity.ERROR,
+      });
+    }
   };
 
   // Handle images upload

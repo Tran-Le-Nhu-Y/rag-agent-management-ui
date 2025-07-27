@@ -245,18 +245,25 @@ const UnembeddedDocumentPage = () => {
 
   //Embedded doucment
   const [embedDocumentTrigger, embedDocument] = useEmbedDocument();
-  useEffect(() => {
-    if (embedDocument.isError) {
-      setSnackbarMessage(t('embedDocumentFailed'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-    if (embedDocument.isSuccess) {
+  const embedDocumentHandler = async (
+    documentId: string,
+    storeName: string
+  ) => {
+    try {
+      await embedDocumentTrigger({
+        documentId: documentId,
+        storeName: storeName,
+      }).unwrap();
       setSnackbarMessage(t('embedDocumentSuccess'));
       setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+    } catch (err) {
+      console.debug(err);
+      setSnackbarMessage(t('embedDocumentFailed'));
+      setSnackbarSeverity(SnackbarSeverity.ERROR);
+    } finally {
       setSnackbarOpen(true);
     }
-  }, [embedDocument.isError, embedDocument.isSuccess, t]);
+  };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
@@ -280,10 +287,7 @@ const UnembeddedDocumentPage = () => {
           setSelectedStoreToEmbed(selectedStore);
 
           if (documentIdToEmbed && selectedStore) {
-            await embedDocumentTrigger({
-              documentId: documentIdToEmbed,
-              storeName: selectedStore.name,
-            });
+            await embedDocumentHandler(documentIdToEmbed, selectedStore.name);
             setDocumentIdToEmbed(null);
           }
         }}

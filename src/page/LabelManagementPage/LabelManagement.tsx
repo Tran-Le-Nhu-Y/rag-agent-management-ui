@@ -123,7 +123,7 @@ const LabelManagementPage = () => {
                     </Tooltip>
                   }
                   label={t('delete')}
-                  onClick={() => handleDeleteLabel(params.row.id)}
+                  onClick={() => setLabelIdToDelete(params.row.id)}
                 />,
               ]
             : []),
@@ -157,39 +157,35 @@ const LabelManagementPage = () => {
 
   //Delete label
   const [deleteLabelTrigger, deleteLabel] = useDeleteLabel();
-  useEffect(() => {
-    if (deleteLabel.isError) {
+  useEffect(() => {}, [deleteLabel.isError, deleteLabel.isSuccess, t]);
+
+  const handleDeleteLabel = async (labelId: string) => {
+    try {
+      await deleteLabelTrigger(labelId).unwrap();
+
+      setSnackbarMessage(t('deleteLabelSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+    } catch (error) {
+      console.error(error);
       setSnackbarMessage(t('deleteLabelFailed'));
       setSnackbarSeverity(SnackbarSeverity.ERROR);
       setSnackbarOpen(true);
     }
-    if (deleteLabel.isSuccess) {
-      setSnackbarMessage(t('deleteLabelSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-    }
-  }, [deleteLabel.isError, deleteLabel.isSuccess, t]);
-
-  const handleDeleteLabel = (labelId: string) => {
-    setLabelIdToDelete(labelId);
   };
 
   //Create Label
   const [createLabelTrigger, createLabel] = useCreateLabel();
-
   const handleCreateLabelSubmit = async (label: {
     name: string;
     description: string;
   }) => {
     try {
       await createLabelTrigger(label).unwrap();
-      labels.refetch(); // Refresh the list of labels
       setSnackbarMessage(t('createLabelSuccess'));
       setSnackbarSeverity(SnackbarSeverity.SUCCESS);
       setSnackbarOpen(true);
-      setCreateLabelDialogOpen(false);
     } catch (error) {
-      setCreateLabelDialogOpen(false);
       switch (error) {
         case LabelError.DUPLICATE_LABEL_NAME: {
           console.log(typeof error);
@@ -205,6 +201,8 @@ const LabelManagementPage = () => {
           break;
         }
       }
+    } finally {
+      setCreateLabelDialogOpen(false);
     }
   };
 
@@ -282,7 +280,7 @@ const LabelManagementPage = () => {
           confirmText={t('confirm')}
           cancelText={t('cancel')}
           onDelete={async () => {
-            await deleteLabelTrigger(labelIdToDelete);
+            await handleDeleteLabel(labelIdToDelete);
             setLabelIdToDelete(null);
           }}
         />

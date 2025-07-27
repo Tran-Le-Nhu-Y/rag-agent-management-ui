@@ -14,6 +14,7 @@ import {
   downloadFile,
   getDocumentDownloadTokenById,
 } from '../../service/api/file';
+import ConfirmDialog from '../../component/ConfirmDialog';
 
 const EmbeddedDocumentPage = () => {
   const { t } = useTranslation();
@@ -22,6 +23,9 @@ const EmbeddedDocumentPage = () => {
   const [snackbarSeverity, setSnackbarSeverity] =
     useState<SnackbarSeverity>('success');
 
+  const [unembedDocumentId, setUnembedDocumentId] = useState<string | null>(
+    null
+  );
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [viewedDocument, setViewedDocument] = useState<DocumentInfo | null>(
     null
@@ -136,9 +140,7 @@ const EmbeddedDocumentPage = () => {
             color="primary"
             label={t('unembeddedAgent')}
             onClick={async () => {
-              await unembedDocumentTrigger({
-                documentId: params.row.id,
-              });
+              setUnembedDocumentId(params.row.id);
             }}
           />,
         ];
@@ -211,18 +213,19 @@ const EmbeddedDocumentPage = () => {
 
   //Unembed document
   const [unembedDocumentTrigger, unembedDocument] = useUnembedDocument();
-  useEffect(() => {
-    if (unembedDocument.isError) {
+  const unembedDocumentHandler = async (documentId: string) => {
+    try {
+      await unembedDocumentTrigger({ documentId }).unwrap();
+      setSnackbarMessage(t('unembedDocumentSuccess'));
+      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      setSnackbarOpen(true);
+    } catch (err) {
+      console.error(err);
       setSnackbarMessage(t('unembedDocumentFailed'));
       setSnackbarSeverity(SnackbarSeverity.ERROR);
       setSnackbarOpen(true);
     }
-    if (unembedDocument.isSuccess) {
-      setSnackbarMessage(t('unembedDocumentSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-    }
-  }, [unembedDocument.isError, unembedDocument.isSuccess, t]);
+  };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
@@ -239,6 +242,23 @@ const EmbeddedDocumentPage = () => {
         onClose={() => setOpenDetailDialog(false)}
         document={viewedDocument}
       />
+
+      {unembedDocumentId && (
+        <ConfirmDialog
+          open={true}
+          onClose={() => setUnembedDocumentId(null)}
+          title={t('unembedDocumentTitle')}
+          message={t('unembedDocumentDescription')}
+          confirmText={t('confirm')}
+          cancelText={t('cancel')}
+          onDelete={async () => {
+            await unembedDocumentHandler(unembedDocumentId!);
+            setUnembedDocumentId(null);
+          }}
+          successMessage={t('unembedDocumentSuccess')}
+          errorMessage={t('unembedDocumentFailed')}
+        />
+      )}
 
       {documentResults.isLoading ||
       documentResults.isFetching ||

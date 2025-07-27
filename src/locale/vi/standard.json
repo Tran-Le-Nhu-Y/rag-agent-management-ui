@@ -134,9 +134,13 @@
   "deleteDocumentFailed": "Xóa tài liệu thất bại",
   "deleteDocumentSuccess": "Xóa tài liệu thành công",
 
-  "embedDocumentFailed": "Nhúng tài liệu vào Agent thất bại",
-  "embedDocumentSuccess": "Nhúng tài liệu vào Agent thành công",
+  "embedDocumentNote": "Lưu ý: Việc xử lý nhúng tài liệu có thể diễn ra trong khoảng thời gian dài.",
+  "embedDocumentCheckStatusNote": "Hãy kiểm tra trạng thái của AI Agent để biết trạng thái hiện tại.",
+  "embedDocumentFailed": "Nhúng tài liệu vào Vector Store thất bại.",
+  "embedDocumentSuccess": "Hệ thống đã nhận yêu cầu nhúng tài liệu vào Vector Store thành công.",
 
-  "unembedDocumentFailed": "Gỡ nhúng tài liệu vào Agent thất bại",
-  "unembedDocumentSuccess": "Gỡ nhúng tài liệu vào Agent thành công"
+  "unembedDocumentTitle": "Xác nhận gỡ tài liệu",
+  "unembedDocumentDescription": "Bạn có chắc chắn muốn gỡ tài liệu này khỏi Vector Store hay không?",
+  "unembedDocumentFailed": "Gỡ tài liệu khỏi Vector Store thất bại.",
+  "unembedDocumentSuccess": "Gỡ tài liệu khỏi Vector Store thành công."
 }
