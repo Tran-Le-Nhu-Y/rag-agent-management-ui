@@ -11,7 +11,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material';
-import { AppSnackbar, CreateLabelDialog, Loading } from '../../component';
+import { CreateLabelDialog, Loading } from '../../component';
 import {
   DataGrid,
   GridActionsCellItem,
@@ -26,24 +26,16 @@ import {
   useGetAllLabel,
   useUpdateLabel,
 } from '../../service';
-import {
-  HideDuration,
-  isValidLength,
-  SnackbarSeverity,
-  TextLength,
-} from '../../util';
+import { isValidLength, TextLength } from '../../util';
 import type { Label } from '../../@types/entities';
 import ConfirmDialog from '../../component/ConfirmDialog';
 import BorderColorIcon from '@mui/icons-material/BorderColor';
 import { LabelError } from '../../util/errors';
+import { useSnackbar } from '../../hook';
 
 const LabelManagementPage = () => {
   const { t } = useTranslation();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
-
+  const snackbar = useSnackbar();
   const [labelIdToDelete, setLabelIdToDelete] = useState<string | null>(null);
   const [createLabelDialogOpen, setCreateLabelDialogOpen] = useState(false);
   const [updateLabelDialogOpen, setUpdateLabelDialogOpen] = useState(false);
@@ -135,12 +127,12 @@ const LabelManagementPage = () => {
   // Fetch all labels
   const labels = useGetAllLabel();
   useEffect(() => {
-    if (labels.isError) {
-      setSnackbarMessage(t('labelLoadingError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [labels.isError, t]);
+    if (labels.isError)
+      snackbar.show({
+        message: t('labelLoadingError'),
+        severity: 'error',
+      });
+  }, [labels.isError, snackbar, t]);
 
   const [rows, setRows] = useState<Label[]>([]);
   useEffect(() => {
@@ -163,14 +155,16 @@ const LabelManagementPage = () => {
     try {
       await deleteLabelTrigger(labelId).unwrap();
 
-      setSnackbarMessage(t('deleteLabelSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('deleteLabelSuccess'),
+        severity: 'success',
+      });
     } catch (error) {
       console.error(error);
-      setSnackbarMessage(t('deleteLabelFailed'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('deleteLabelFailed'),
+        severity: 'error',
+      });
     }
   };
 
@@ -182,25 +176,28 @@ const LabelManagementPage = () => {
   }) => {
     try {
       await createLabelTrigger(label).unwrap();
-      setSnackbarMessage(t('createLabelSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('createLabelSuccess'),
+        severity: 'success',
+      });
     } catch (error) {
       switch (error) {
         case LabelError.DUPLICATE_LABEL_NAME: {
-          console.log(typeof error);
-          setSnackbarMessage(t('duplicateLabelNameError'));
-          setSnackbarSeverity(SnackbarSeverity.WARNING);
-          setSnackbarOpen(true);
+          snackbar.show({
+            message: t('duplicateLabelNameError'),
+            severity: 'warning',
+          });
           break;
         }
         case LabelError.UNKNOWN_ERROR: {
-          setSnackbarMessage(t('createLabelError'));
-          setSnackbarSeverity(SnackbarSeverity.ERROR);
-          setSnackbarOpen(true);
+          snackbar.show({
+            message: t('createLabelError'),
+            severity: 'error',
+          });
           break;
         }
       }
+      console.error(error);
     } finally {
       setCreateLabelDialogOpen(false);
     }
@@ -221,40 +218,38 @@ const LabelManagementPage = () => {
         labelId: selectedLabel.id,
         description: newData.description,
       }).unwrap();
-      setSnackbarMessage(t('updateLabelSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-      labels.refetch();
+
+      snackbar.show({
+        message: t('updateLabelSuccess'),
+        severity: 'success',
+      });
       setUpdateLabelDialogOpen(false);
     } catch (error) {
       setUpdateLabelDialogOpen(false);
       switch (error) {
         case LabelError.DUPLICATE_LABEL_NAME: {
-          console.log(typeof error);
-          setSnackbarMessage(t('duplicateLabelNameError'));
-          setSnackbarSeverity(SnackbarSeverity.WARNING);
-          setSnackbarOpen(true);
+          snackbar.show({
+            message: t('duplicateLabelNameError'),
+            severity: 'warning',
+          });
           break;
         }
         case LabelError.UNKNOWN_ERROR: {
-          setSnackbarMessage(t('createLabelError'));
-          setSnackbarSeverity(SnackbarSeverity.ERROR);
-          setSnackbarOpen(true);
+          snackbar.show({
+            message: t('createLabelError'),
+            severity: 'error',
+          });
           break;
         }
       }
+      console.error(error);
+    } finally {
+      setUpdateLabelDialogOpen(false);
     }
   };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
-      <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
-      />
       <CreateLabelDialog
         open={createLabelDialogOpen}
         onClose={() => setCreateLabelDialogOpen(false)}

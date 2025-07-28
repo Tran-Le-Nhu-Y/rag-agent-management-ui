@@ -4,14 +4,14 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import { AppSnackbar, Tags } from '../../component';
+import { Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
 import { useGetAllLabel } from '../../service';
 import { useEffect, useState } from 'react';
-import { HideDuration, SnackbarSeverity } from '../../util';
 import { Stack } from '@mui/material';
 import type { Label } from '../../@types/entities';
 import { downloadFile, getExportingTokenByLabelId } from '../../service/api';
+import { useSnackbar } from '../../hook';
 
 type FormDialogProps = {
   open: boolean;
@@ -23,21 +23,18 @@ export default function SelectLabelToExportDialog({
   onClose,
 }: FormDialogProps) {
   const { t } = useTranslation();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
-  const [snackbarMessage, setSnackbarMessage] = useState('');
+  const snackbar = useSnackbar();
   const [selectedLabelId, setSelectedLabelId] = useState<string | null>(null);
 
   // Query to get all labels
   const labels = useGetAllLabel();
   useEffect(() => {
-    if (labels.isError) {
-      setSnackbarMessage(t('labelLoadingError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [labels.isError, t]);
+    if (labels.isError)
+      snackbar.show({
+        message: t('labelLoadingError'),
+        severity: 'error',
+      });
+  }, [labels.isError, snackbar, t]);
 
   const handleExportByLabelId = React.useCallback(
     async (labelId: string) => {
@@ -55,60 +52,50 @@ export default function SelectLabelToExportDialog({
         document.body.removeChild(link);
       } catch (error) {
         console.error(error);
-        setSnackbarMessage(t('imageExportError'));
-        setSnackbarSeverity(SnackbarSeverity.ERROR);
-        setSnackbarOpen(true);
-      } finally {
-        setSelectedLabelId(null);
+        snackbar.show({
+          message: t('imageExportError'),
+          severity: 'error',
+        });
       }
     },
-    [t]
+    [snackbar, t]
   );
 
   return (
-    <React.Fragment>
-      <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
-      />
-      <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
-        <DialogTitle>{t('selectLabelToExport')}</DialogTitle>
-        <DialogContent>
-          <Stack sx={{ mt: 1 }}>
-            <Tags
-              options={labels.data ?? []}
-              getOptionLabel={(option) => option.name}
-              loading={labels.isLoading}
-              limitTags={1}
-              label={t('downloadImagesByLabel')}
-              onChange={(value) => {
-                const tag = value as Label;
-                const labelId = tag.id;
-                setSelectedLabelId(labelId);
-              }}
-            />
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={onClose}>
-            {t('cancel')}
-          </Button>
-          <Button
-            variant="contained"
-            type="submit"
-            onClick={() => {
-              handleExportByLabelId(selectedLabelId!);
-              onClose();
+    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+      <DialogTitle>{t('selectLabelToExport')}</DialogTitle>
+      <DialogContent>
+        <Stack sx={{ mt: 1 }}>
+          <Tags
+            options={labels.data ?? []}
+            getOptionLabel={(option) => option.name}
+            loading={labels.isLoading}
+            limitTags={1}
+            label={t('downloadImagesByLabel')}
+            onChange={(value) => {
+              const tag = value as Label;
+              const labelId = tag.id;
+              setSelectedLabelId(labelId);
             }}
-            disabled={selectedLabelId === null} // disable if not select
-          >
-            {t('confirm')}
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </React.Fragment>
+          />
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="outlined" onClick={onClose}>
+          {t('cancel')}
+        </Button>
+        <Button
+          variant="contained"
+          type="submit"
+          onClick={() => {
+            handleExportByLabelId(selectedLabelId!);
+            onClose();
+          }}
+          disabled={selectedLabelId === null} // disable if not select
+        >
+          {t('confirm')}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 }

@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
-import { AppSnackbar, DataGridTable, Loading } from '../../component';
+import { DataGridTable, Loading } from '../../component';
 import { GridActionsCellItem, type GridColDef } from '@mui/x-data-grid';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -7,14 +7,14 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import DocumentDetailDialog from './DocumentDetailDialog';
 import {
   useDeleteDocument,
   useEmbedDocument,
   useGetUnembeddedDocuments,
 } from '../../service';
-import { HideDuration, parseDay, SnackbarSeverity } from '../../util';
+import { parseDay, Path } from '../../util';
 import SelectStoreToEmbedDialog from './SelectStoreToEmbedDialog';
 import type { DocumentInfo, VectorStore } from '../../@types/entities';
 import ConfirmDialog from '../../component/ConfirmDialog';
@@ -22,14 +22,12 @@ import {
   downloadFile,
   getDocumentDownloadTokenById,
 } from '../../service/api/file';
+import { useSnackbar } from '../../hook';
 
-const UnembeddedDocumentPage = () => {
+const UnembedDocument = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
+  const snackbar = useSnackbar();
 
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
   const [openStoreToEmbedDialog, setOpenStoreToEmbedDialog] = useState(false);
@@ -156,13 +154,12 @@ const UnembeddedDocumentPage = () => {
               </Tooltip>
             }
             label={t('delete')}
-            onClick={() => handleDeleteDocument(params.row.id)}
+            onClick={() => setDocumentIdToDelete(params.row.id)}
           />,
         ];
       },
     },
   ];
-  const [rows, setRows] = useState<DocumentInfo[]>([]);
 
   // Get all unembedded document
   const [documentQuery, setDocumentQuery] =
@@ -174,48 +171,46 @@ const UnembeddedDocumentPage = () => {
   const documentResults = useGetUnembeddedDocuments(documentQuery, {
     skip: !documentQuery,
   });
-
   useEffect(() => {
-    if (documentResults.isError) {
-      setSnackbarMessage(t('createDocumentError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [documentResults.isError, t]);
+    if (documentResults.isError)
+      snackbar.show({
+        message: t('createDocumentError'),
+        severity: 'error',
+      });
+  }, [documentResults.isError, snackbar, t]);
 
-  useEffect(() => {
-    if (documentResults.data) {
-      const mappedRows: DocumentInfo[] = documentResults.data.content.map(
-        (doc) => ({
+  const rows = useMemo(() => {
+    if (documentResults.isFetching) return [];
+    if (!documentResults.data) return [];
+    return documentResults.data.content.map(
+      (doc) =>
+        ({
           id: doc.id,
           name: doc.name,
           description: doc.description,
           created_at: parseDay(doc.created_at),
           mime_type: doc.mime_type,
           source: doc.source,
-        })
-      );
-      setRows(mappedRows);
-    }
-  }, [documentResults.data, t]);
+        } as DocumentInfo)
+    );
+  }, [documentResults.data, documentResults.isFetching]);
 
   //Delete doucment
-  const [deleteDocumentTrigger, deleteDocument] = useDeleteDocument();
-  useEffect(() => {
-    if (deleteDocument.isError) {
-      setSnackbarMessage(t('deleteDocumentFailed'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
+  const [deleteDocumentTrigger] = useDeleteDocument();
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      await deleteDocumentTrigger(documentId).unwrap();
+      snackbar.show({
+        message: t('deleteDocumentSuccess'),
+        severity: 'success',
+      });
+    } catch (error) {
+      console.error(error);
+      snackbar.show({
+        message: t('deleteDocumentFailed'),
+        severity: 'error',
+      });
     }
-    if (deleteDocument.isSuccess) {
-      setSnackbarMessage(t('deleteDocumentSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-    }
-  }, [deleteDocument.isError, deleteDocument.isSuccess, t]);
-
-  const handleDeleteDocument = (documentId: string) => {
-    setDocumentIdToDelete(documentId);
   };
 
   //Download document
@@ -235,12 +230,13 @@ const UnembeddedDocumentPage = () => {
         document.body.removeChild(link);
       } catch (error) {
         console.error(error);
-        setSnackbarMessage(t('imageExportError'));
-        setSnackbarSeverity(SnackbarSeverity.ERROR);
-        setSnackbarOpen(true);
+        snackbar.show({
+          message: t('imageExportError'),
+          severity: 'error',
+        });
       }
     },
-    [t]
+    [snackbar, t]
   );
 
   //Embedded doucment
@@ -254,26 +250,21 @@ const UnembeddedDocumentPage = () => {
         documentId: documentId,
         storeName: storeName,
       }).unwrap();
-      setSnackbarMessage(t('embedDocumentSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
+      snackbar.show({
+        message: t('embedDocumentSuccess'),
+        severity: 'success',
+      });
     } catch (err) {
-      console.debug(err);
-      setSnackbarMessage(t('embedDocumentFailed'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-    } finally {
-      setSnackbarOpen(true);
+      console.error(err);
+      snackbar.show({
+        message: t('embedDocumentFailed'),
+        severity: 'error',
+      });
     }
   };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
-      <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
-      />
       <DocumentDetailDialog
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
@@ -301,7 +292,7 @@ const UnembeddedDocumentPage = () => {
           confirmText={t('confirm')}
           cancelText={t('cancel')}
           onDelete={async () => {
-            await deleteDocumentTrigger(documentIdToDelete);
+            await handleDeleteDocument(documentIdToDelete);
             setDocumentIdToDelete(null);
           }}
           successMessage={t('deleteDocumentSuccess')}
@@ -312,7 +303,7 @@ const UnembeddedDocumentPage = () => {
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', width: '90%' }}>
         <Button
           variant="contained"
-          onClick={() => navigate('/create-document')}
+          onClick={() => navigate(Path.CREATE_DOCUMENT)}
         >
           {t('createDocument')}
         </Button>
@@ -341,4 +332,4 @@ const UnembeddedDocumentPage = () => {
   );
 };
 
-export default UnembeddedDocumentPage;
+export default UnembedDocument;

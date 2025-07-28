@@ -19,19 +19,21 @@ import {
   HealthPage,
   ImageTaggingPage,
   LabelManagementPage,
-  UpdateKnowledgePage,
-  UseGuidePage,
+  DocumentManagementPage,
+  UserGuidePage,
 } from './page/index.ts';
+import { Path } from './util/index.ts';
+import AppSnackbar from './component/AppSnackbar.tsx';
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/" element={<RootLayout />}>
       <Route index element={<ImageTaggingPage />} />
-      <Route path="create-document" element={<CreateDocumentPage />} />
-      <Route path="document-management" element={<UpdateKnowledgePage />} />
-      <Route path="label-management" element={<LabelManagementPage />} />
-      <Route path="use-guide" element={<UseGuidePage />} />
-      <Route path="health" element={<HealthPage />} />
+      <Route path={Path.CREATE_DOCUMENT} element={<CreateDocumentPage />} />
+      <Route path={Path.DOCUMENT} element={<DocumentManagementPage />} />
+      <Route path={Path.LABEL} element={<LabelManagementPage />} />
+      <Route path={Path.USER_GUIDE} element={<UserGuidePage />} />
+      <Route path={Path.HEALTH} element={<HealthPage />} />
     </Route>
   )
 );
@@ -40,7 +42,9 @@ createRoot(document.getElementById('root')!).render(
   <Provider store={store}>
     <ThemeProvider theme={theme}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
-        <RouterProvider router={router} />
+        <AppSnackbar>
+          <RouterProvider router={router} />
+        </AppSnackbar>
       </LocalizationProvider>
     </ThemeProvider>
   </Provider>

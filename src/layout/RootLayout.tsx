@@ -25,6 +25,7 @@ import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Stack } from '@mui/material';
+import { Path } from '../util';
 
 const drawerWidth = 240;
 
@@ -97,11 +98,11 @@ const RootLayout = () => {
   const location = useLocation();
   const getSelectedIndexFromPath = (pathname: string) => {
     if (pathname === '/') return 0;
-    if (pathname === '/document-management' || pathname === '/create-document')
+    if (pathname === Path.DOCUMENT || pathname === Path.CREATE_DOCUMENT)
       return 1;
-    if (pathname === '/label-management') return 2;
-    if (pathname === '/use-guide') return 3;
-    if (pathname === 'health') return 4;
+    if (pathname === Path.LABEL) return 2;
+    if (pathname === Path.USER_GUIDE) return 3;
+    if (pathname === Path.HEALTH) return 4;
     return 0; // fallback
   };
   React.useEffect(() => {
@@ -228,7 +229,7 @@ const RootLayout = () => {
               selected={selectedIndex === 1}
               onClick={(event) => {
                 handleListItemClick(event, 1);
-                navigate('/document-management');
+                navigate(Path.DOCUMENT);
               }}
             >
               <ListItemIcon>
@@ -245,7 +246,7 @@ const RootLayout = () => {
               selected={selectedIndex === 2}
               onClick={(event) => {
                 handleListItemClick(event, 2);
-                navigate('/label-management');
+                navigate(Path.LABEL);
               }}
             >
               <ListItemIcon>
@@ -262,7 +263,7 @@ const RootLayout = () => {
               selected={selectedIndex === 3}
               onClick={(event) => {
                 handleListItemClick(event, 3);
-                navigate('/use-guide');
+                navigate(Path.USER_GUIDE);
               }}
             >
               <ListItemIcon>
@@ -279,7 +280,7 @@ const RootLayout = () => {
               selected={selectedIndex === 4}
               onClick={(event) => {
                 handleListItemClick(event, 4);
-                navigate('/health');
+                navigate(Path.HEALTH);
               }}
             >
               <ListItemIcon>

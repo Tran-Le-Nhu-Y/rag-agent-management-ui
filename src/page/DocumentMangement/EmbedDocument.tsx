@@ -1,6 +1,6 @@
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
 import { Box, Stack, Tooltip, Typography } from '@mui/material';
-import { AppSnackbar, DataGridTable, Loading } from '../../component';
+import { DataGridTable, Loading } from '../../component';
 import { GridActionsCellItem, type GridColDef } from '@mui/x-data-grid';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import { useTranslation } from 'react-i18next';
@@ -8,20 +8,18 @@ import FolderDeleteIcon from '@mui/icons-material/FolderDelete';
 import { useCallback, useEffect, useState } from 'react';
 import DocumentDetailDialog from './DocumentDetailDialog';
 import { useGetEmbeddedDocuments, useUnembedDocument } from '../../service';
-import { HideDuration, parseDay, SnackbarSeverity } from '../../util';
+import { parseDay } from '../../util';
 import type { DocumentInfo } from '../../@types/entities';
 import {
   downloadFile,
   getDocumentDownloadTokenById,
 } from '../../service/api/file';
 import ConfirmDialog from '../../component/ConfirmDialog';
+import { useSnackbar } from '../../hook';
 
-const EmbeddedDocumentPage = () => {
+const EmbedDocument = () => {
   const { t } = useTranslation();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
+  const snackbar = useSnackbar();
 
   const [unembedDocumentId, setUnembedDocumentId] = useState<string | null>(
     null
@@ -159,14 +157,13 @@ const EmbeddedDocumentPage = () => {
   const documentResults = useGetEmbeddedDocuments(documentQuery, {
     skip: !documentQuery,
   });
-
   useEffect(() => {
-    if (documentResults.isError) {
-      setSnackbarMessage(t('createDocumentError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [documentResults.isError, t]);
+    if (documentResults.isError)
+      snackbar.show({
+        message: t('createDocumentError'),
+        severity: 'error',
+      });
+  }, [documentResults.isError, snackbar, t]);
 
   useEffect(() => {
     if (documentResults.data) {
@@ -203,12 +200,14 @@ const EmbeddedDocumentPage = () => {
         document.body.removeChild(link);
       } catch (error) {
         console.error(error);
-        setSnackbarMessage(t('imageExportError'));
-        setSnackbarSeverity(SnackbarSeverity.ERROR);
-        setSnackbarOpen(true);
+
+        snackbar.show({
+          message: t('imageExportError'),
+          severity: 'error',
+        });
       }
     },
-    [t]
+    [snackbar, t]
   );
 
   //Unembed document
@@ -216,27 +215,21 @@ const EmbeddedDocumentPage = () => {
   const unembedDocumentHandler = async (documentId: string) => {
     try {
       await unembedDocumentTrigger({ documentId }).unwrap();
-      setSnackbarMessage(t('unembedDocumentSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('unembedDocumentSuccess'),
+        severity: 'success',
+      });
     } catch (err) {
       console.error(err);
-      setSnackbarMessage(t('unembedDocumentFailed'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('unembedDocumentFailed'),
+        severity: 'error',
+      });
     }
   };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
-      <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
-      />
-
       <DocumentDetailDialog
         open={openDetailDialog}
         onClose={() => setOpenDetailDialog(false)}
@@ -285,4 +278,4 @@ const EmbeddedDocumentPage = () => {
   );
 };
 
-export default EmbeddedDocumentPage;
+export default EmbedDocument;

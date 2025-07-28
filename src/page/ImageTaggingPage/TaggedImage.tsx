@@ -1,5 +1,5 @@
 import { Button, Stack } from '@mui/material';
-import { AppSnackbar, Loading, TaggedImageList, Tags } from '../../component';
+import { Loading, TaggedImageList, Tags } from '../../component';
 import { useTranslation } from 'react-i18next';
 import { useState, useMemo, useEffect, useCallback } from 'react';
 import type { ImageHasLabels, Label } from '../../@types/entities';
@@ -8,7 +8,6 @@ import {
   useGetImagesByLabelIds,
   useGetLabeledImages,
 } from '../../service';
-import { HideDuration, SnackbarSeverity } from '../../util';
 
 import SelectLabelToExportDialog from './SelectLabelToExportDialog';
 import {
@@ -16,26 +15,24 @@ import {
   getExportingAllToken,
   getImageUrl,
 } from '../../service/api';
+import { useSnackbar } from '../../hook';
 
 const TaggedImagePage = () => {
   const { t } = useTranslation();
+  const snackbar = useSnackbar();
   const [selectedLabelIds, setSelectedLabelIds] = useState<string[]>([]);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
-  const [snackbarMessage, setSnackbarMessage] = useState('');
   const [openExportDialog, setOpenExportDialog] = useState(false);
   const pageSize = 10;
 
   // Query to get all labels
   const labels = useGetAllLabel();
   useEffect(() => {
-    if (labels.isError) {
-      setSnackbarMessage(t('labelLoadingError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [labels.isError, t]);
+    if (labels.isError)
+      snackbar.show({
+        message: t('labelLoadingError'),
+        severity: 'error',
+      });
+  }, [labels.isError, snackbar, t]);
 
   // Query to get all labeled images
   const [labeledImagesQuery, setLabeledImagesQuery] =
@@ -59,12 +56,12 @@ const TaggedImagePage = () => {
     skip: selectedLabelIds.length === 0,
   });
   useEffect(() => {
-    if (imagesByLabelIds.isError) {
-      setSnackbarMessage(t('assignLabelsError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    }
-  }, [imagesByLabelIds.isError, t]);
+    if (imagesByLabelIds.isError)
+      snackbar.show({
+        message: t('assignLabelsError'),
+        severity: 'error',
+      });
+  }, [imagesByLabelIds.isError, snackbar, t]);
 
   //Prepare image URLs for the image list
   const imageUrls = useMemo<
@@ -130,21 +127,15 @@ const TaggedImagePage = () => {
       document.body.removeChild(link);
     } catch (error) {
       console.error(error);
-      setSnackbarMessage(t('imageExportError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('imageExportError'),
+        severity: 'error',
+      });
     }
-  }, [t]);
+  }, [snackbar, t]);
 
   return (
     <Stack justifyContent="center" alignItems="center">
-      <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
-      />
       <SelectLabelToExportDialog
         open={openExportDialog}
         onClose={() => setOpenExportDialog(false)}

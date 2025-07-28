@@ -15,7 +15,6 @@ import {
 import { AttachFile, ErrorOutline } from '@mui/icons-material';
 import { ClearIcon } from '@mui/x-date-pickers';
 import { getFileSize } from '../util';
-import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 const VisuallyHiddenInput = styled('input')({
@@ -40,21 +39,22 @@ export interface FileAttachment {
 
 export interface InputFileUploadProps {
   maxBytes?: number;
-  onFilesChange: (files: File[]) => void;
+  files?: FileAttachment[];
+  onFilesChange: (files: FileAttachment[]) => void;
   acceptedFileTypes: string[];
-  resetSignal?: boolean;
+  disabled?: boolean;
 }
 
 const DEFAULT_FILE_MAX_BYTES = 128 * 1024 * 1024; // 128MB
 
 export const InputFileUpload: React.FC<InputFileUploadProps> = ({
   maxBytes = DEFAULT_FILE_MAX_BYTES,
+  files,
   onFilesChange,
   acceptedFileTypes,
-  resetSignal,
+  disabled,
 }) => {
   const { t } = useTranslation('standard');
-  const [files, setFiles] = useState<FileAttachment[]>([]);
 
   //Check file type
   const isAcceptedFile = (file: File, accepted: string[]) => {
@@ -75,43 +75,31 @@ export const InputFileUpload: React.FC<InputFileUploadProps> = ({
       return;
     }
 
-    const file = validFiles[0];
-    const size = file.size;
+    const values = selectedFiles.map((f) => {
+      const size = f.size;
 
-    const newFile: FileAttachment = {
-      id: Date.now() + Math.random(),
-      status: size > maxBytes ? 'failed' : 'loading',
-      progress: size > maxBytes ? 0 : 0,
-      error: size > maxBytes ? 'File too large' : undefined,
-      file: file,
-    };
+      return {
+        id: Date.now() + Math.random(),
+        status: size > maxBytes ? 'failed' : 'loading',
+        progress: size > maxBytes ? 0 : 0,
+        error: size > maxBytes ? 'File too large' : undefined,
+        file: f,
+      } as FileAttachment;
+    });
 
-    setFiles([newFile]);
-    onFilesChange([file]);
+    onFilesChange(values);
   };
 
   const removeFileHandler = (id: number) => {
-    const newFiles = files.filter((file) => file.id !== id);
-    setFiles(newFiles);
-    onFilesChange(newFiles.map((f) => f.file));
+    const newFiles = files?.filter((file) => file.id !== id) ?? [];
+    onFilesChange(newFiles);
   };
-
-  useEffect(() => {
-    if (resetSignal) {
-      setFiles([]);
-    }
-  }, [resetSignal]);
 
   return (
     <Box display={'flex'}>
-      {files.length === 0 && (
+      {!disabled && (
         <Tooltip title={`${t('sizeLimit')} ${getFileSize(maxBytes)}`}>
-          <Button
-            component="label"
-            role={undefined}
-            variant="contained"
-            tabIndex={-1}
-          >
+          <Button component="label" variant="contained" tabIndex={-1}>
             <CloudUploadIcon />
             <VisuallyHiddenInput
               type="file"
@@ -135,7 +123,7 @@ export const InputFileUpload: React.FC<InputFileUploadProps> = ({
           flexDirection: 'column',
         }}
       >
-        {files.map((file) => (
+        {files?.map((file) => (
           <ListItem key={file.id} sx={{ width: 'fit-content' }}>
             <Paper
               elevation={1}

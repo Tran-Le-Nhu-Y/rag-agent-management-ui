@@ -7,7 +7,6 @@ import {
   Typography,
 } from '@mui/material';
 import {
-  AppSnackbar,
   CreateLabelDialog,
   DragAndDropForm,
   ImagePaginationViewer,
@@ -26,24 +25,16 @@ import {
 } from '../../service';
 import type { Label } from '../../@types/entities';
 import { getImageUrl } from '../../service/api';
-import { HideDuration, SnackbarSeverity } from '../../util';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { LabelError } from '../../util/errors';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
+import { useSnackbar } from '../../hook';
 
 const UntaggedImagePage = () => {
   const { t } = useTranslation();
   const [selectedLabels, setSelectedLabels] = useState<Label[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
-  const [snackbarState, setSnackbarState] = useState<{
-    open: boolean;
-    message: string;
-    severity: SnackbarSeverity;
-  }>({
-    open: false,
-    message: '',
-    severity: SnackbarSeverity.SUCCESS,
-  });
+  const snackbar = useSnackbar();
   const [currentImageIndex, setCurrentImageIndex] = useState<
     number | undefined
   >(undefined);
@@ -60,10 +51,9 @@ const UntaggedImagePage = () => {
   });
   useEffect(() => {
     if (unlabeledImages.isError)
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('imageLoadingError'),
-        severity: SnackbarSeverity.ERROR,
+        severity: 'error',
       });
 
     const contentLength = unlabeledImages?.data?.content?.length;
@@ -80,18 +70,18 @@ const UntaggedImagePage = () => {
     unlabeledImages.isSuccess,
     unlabeledImages?.data?.content?.length,
     currentImageIndex,
+    snackbar,
   ]);
 
   // Fetch all labels
   const labels = useGetAllLabel();
   useEffect(() => {
     if (labels.isError)
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('labelLoadingError'),
-        severity: SnackbarSeverity.ERROR,
+        severity: 'error',
       });
-  }, [labels.isError, t]);
+  }, [labels.isError, snackbar, t]);
 
   // Generate image URLs
   const imageUrls = useMemo(() => {
@@ -118,17 +108,15 @@ const UntaggedImagePage = () => {
   const handleDeleteImage = async (imageId: string) => {
     try {
       await deleteImageTrigger(imageId).unwrap();
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('deleteImageSuccess'),
-        severity: SnackbarSeverity.SUCCESS,
+        severity: 'success',
       });
     } catch (err) {
       console.error(err);
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('deleteImageFailed'),
-        severity: SnackbarSeverity.ERROR,
+        severity: 'error',
       });
     }
   };
@@ -146,17 +134,15 @@ const UntaggedImagePage = () => {
       await Promise.all(uploadPromises); //Wait for all images to finish uploading
       setUploadedFiles([]); //Clear the selected file list
 
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('imageUploadSuccess'),
-        severity: SnackbarSeverity.SUCCESS,
+        severity: 'success',
       });
     } catch (error) {
       console.error('Uploading images have error:', error);
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('imageUploadError'),
-        severity: SnackbarSeverity.ERROR,
+        severity: 'error',
       });
     }
   };
@@ -182,17 +168,15 @@ const UntaggedImagePage = () => {
 
       setSelectedLabels([]); // Clear selected labels after successful assignment
 
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('assignLabelsSuccess'),
-        severity: SnackbarSeverity.SUCCESS,
+        severity: 'success',
       });
     } catch (error) {
       console.error('Assigning label have error:', error);
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('assignLabelsError'),
-        severity: SnackbarSeverity.ERROR,
+        severity: 'error',
       });
     }
   };
@@ -205,27 +189,24 @@ const UntaggedImagePage = () => {
   }) => {
     try {
       await createLabelTrigger(label).unwrap();
-      setSnackbarState({
-        open: true,
+      snackbar.show({
         message: t('createLabelSuccess'),
-        severity: SnackbarSeverity.SUCCESS,
+        severity: 'success',
       });
       setCreateLabelDialogOpen(false);
     } catch (error) {
       switch (error) {
         case LabelError.DUPLICATE_LABEL_NAME: {
-          setSnackbarState({
-            open: true,
+          snackbar.show({
             message: t('duplicateLabelNameError'),
-            severity: SnackbarSeverity.WARNING,
+            severity: 'warning',
           });
           break;
         }
         case LabelError.UNKNOWN_ERROR: {
-          setSnackbarState({
-            open: true,
+          snackbar.show({
             message: t('createLabelError'),
-            severity: SnackbarSeverity.ERROR,
+            severity: 'error',
           });
           break;
         }
@@ -235,13 +216,6 @@ const UntaggedImagePage = () => {
 
   return (
     <Stack justifyContent={'center'} alignItems="center">
-      <AppSnackbar
-        open={snackbarState.open}
-        message={snackbarState.message}
-        severity={snackbarState.severity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarState((pre) => ({ ...pre, open: false }))}
-      />
       <CreateLabelDialog
         open={createLabelDialogOpen}
         onClose={() => setCreateLabelDialogOpen(false)}

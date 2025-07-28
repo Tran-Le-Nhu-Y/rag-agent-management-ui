@@ -1,4 +1,3 @@
-// components/ConfirmDeleteDialog.tsx
 import React, { useState } from 'react';
 import {
   Dialog,
@@ -8,7 +7,7 @@ import {
   DialogActions,
   Button,
 } from '@mui/material';
-import AppSnackbar from './AppSnackbar';
+import { useSnackbar } from '../hook';
 
 interface ConfirmDialogProps {
   title?: string;
@@ -34,11 +33,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   errorMessage,
 }) => {
   const [loading, setLoading] = useState(false);
-  const [snackbar, setSnackbar] = useState({
-    open: false,
-    message: '',
-    severity: 'success' as 'success' | 'error' | 'warning' | 'info',
-  });
+  const snackbar = useSnackbar();
 
   const handleClose = () => {
     if (!loading) {
@@ -51,15 +46,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       setLoading(true);
       await onDelete();
       handleClose();
-      setSnackbar({
-        open: true,
+      snackbar.show({
         message: successMessage || '',
         severity: 'success',
       });
     } catch (error) {
       console.error('Delete error:', error);
-      setSnackbar({
-        open: true,
+      snackbar.show({
         message: errorMessage || '',
         severity: 'error',
       });
@@ -68,56 +61,42 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     }
   };
 
-  const handleSnackbarClose = () => {
-    setSnackbar((prev) => ({ ...prev, open: false }));
-  };
-
   return (
-    <>
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="alert-dialog-title"
-        aria-describedby="alert-dialog-description"
-        maxWidth="xs"
-        fullWidth
-      >
-        <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id="alert-dialog-description">
-            {message}
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={handleClose}
-            disabled={loading}
-            variant="outlined"
-            size="small"
-          >
-            {cancelText}
-          </Button>
-          <Button
-            onClick={handleConfirm}
-            autoFocus
-            disabled={loading}
-            variant="contained"
-            color="error"
-            size="small"
-          >
-            {confirmText}
-          </Button>
-        </DialogActions>
-      </Dialog>
-
-      {/* Snackbar Alert */}
-      <AppSnackbar
-        open={snackbar.open}
-        message={snackbar.message}
-        severity={snackbar.severity}
-        onClose={handleSnackbarClose}
-      />
-    </>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="alert-dialog-title"
+      aria-describedby="alert-dialog-description"
+      maxWidth="xs"
+      fullWidth
+    >
+      <DialogTitle id="alert-dialog-title">{title}</DialogTitle>
+      <DialogContent>
+        <DialogContentText id="alert-dialog-description">
+          {message}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={handleClose}
+          disabled={loading}
+          variant="outlined"
+          size="small"
+        >
+          {cancelText}
+        </Button>
+        <Button
+          onClick={handleConfirm}
+          autoFocus
+          disabled={loading}
+          variant="contained"
+          color="error"
+          size="small"
+        >
+          {confirmText}
+        </Button>
+      </DialogActions>
+    </Dialog>
   );
 };
 

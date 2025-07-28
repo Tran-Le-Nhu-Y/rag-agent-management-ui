@@ -1,80 +1,52 @@
 import { Box, Button, Stack, TextField, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import {
-  HideDuration,
-  isValidLength,
-  SnackbarSeverity,
-  TextLength,
-} from '../../util';
-import { useEffect, useState } from 'react';
-import { AppSnackbar, InputFileUpload } from '../../component';
+import { isValidLength, Path, TextLength } from '../../util';
+import { useState } from 'react';
+import { InputFileUpload, type FileAttachment } from '../../component';
 import { useNavigate } from 'react-router';
 import { useUploadDocument } from '../../service';
+import { useSnackbar } from '../../hook';
 
 const acceptedFileTypes = ['.pdf', '.txt', '.docx'];
 
 const CreateDocumentPage = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
-  const [snackbarSeverity, setSnackbarSeverity] =
-    useState<SnackbarSeverity>('success');
-  const [resetSignal, setResetSignal] = useState(false);
+  const snackbar = useSnackbar();
+
   const [description, setDescription] = useState('');
-  const [uploadedFile, setUploadedFile] = useState<File>();
+  const [uploadedFile, setUploadedFile] = useState<FileAttachment>();
 
   const [uploadDocumentTrigger, uploadDocument] = useUploadDocument();
-  useEffect(() => {
-    if (uploadDocument.isError) {
-      setSnackbarMessage(t('createDocumentError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-    } else if (uploadDocument.isSuccess) {
-      setSnackbarMessage(t('createDocumentSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
-      setUploadedFile(undefined); // Clear uploaded files after successful upload
-    }
-  }, [t, uploadDocument.isError, uploadDocument.isSuccess]);
-
   const handleUploadDocument = async () => {
     if (!uploadedFile) return;
 
     try {
       const newDocument: UploadDocumentRequest = {
         description: description,
-        file: uploadedFile,
+        file: uploadedFile.file,
       };
 
       await uploadDocumentTrigger(newDocument);
       setDescription(''); //Clear description
       setUploadedFile(undefined); //Clear the selected file list
-      setResetSignal(true); // reset
-      setTimeout(() => setResetSignal(false), 100); // Reset signal => false
-      navigate('/update-knowledge-management');
+      navigate(Path.DOCUMENT);
 
-      setSnackbarMessage(t('createDocumentSuccess'));
-      setSnackbarSeverity(SnackbarSeverity.SUCCESS);
-      setSnackbarOpen(true);
+      snackbar.show({
+        message: t('createDocumentSuccess'),
+        severity: 'success',
+      });
     } catch (error) {
       console.error('Uploading images have error:', error);
-      setSnackbarMessage(t('createDocumentError'));
-      setSnackbarSeverity(SnackbarSeverity.ERROR);
-      setSnackbarOpen(true);
-      return;
+      snackbar.show({
+        message: t('createDocumentError'),
+        severity: 'error',
+      });
     }
   };
 
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={3}>
-      <AppSnackbar
-        open={snackbarOpen}
-        message={snackbarMessage}
-        severity={snackbarSeverity}
-        autoHideDuration={HideDuration.FAST}
-        onClose={() => setSnackbarOpen(false)}
-      />
       <Typography variant="h4">{t('createDocument')}</Typography>
       <Stack spacing={2} sx={{ width: '80%' }}>
         <Stack alignItems={'center'} spacing={1} sx={{ width: '100%' }}>
@@ -102,20 +74,27 @@ const CreateDocumentPage = () => {
             {t('addTextRecommendationFile')}:
           </Typography>
           <InputFileUpload
-            onFilesChange={(files: File[]) => {
-              setUploadedFile(files[0]);
-            }}
+            disabled={uploadDocument.isLoading || uploadedFile !== undefined}
+            onFilesChange={(files) => setUploadedFile(files[0])}
             acceptedFileTypes={acceptedFileTypes}
-            resetSignal={resetSignal}
           />
         </Box>
       </Stack>
 
       <Box display="flex" justifyContent="center" gap={2}>
-        <Button variant="contained" onClick={() => handleUploadDocument()}>
+        <Button
+          variant="contained"
+          loading={uploadDocument.isLoading}
+          disabled={uploadedFile === undefined}
+          onClick={() => handleUploadDocument()}
+        >
           {t('confirm')}
         </Button>
-        <Button variant="outlined" onClick={() => navigate(-1)}>
+        <Button
+          variant="outlined"
+          disabled={uploadDocument.isLoading}
+          onClick={() => navigate(Path.DOCUMENT, { replace: true })}
+        >
           {t('back')}
         </Button>
       </Box>

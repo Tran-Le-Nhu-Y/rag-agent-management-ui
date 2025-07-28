@@ -16,10 +16,19 @@ export const TextLength = {
 };
 
 export const PathHolder = {
-  ROOT: '/',
+  DOCUMENT: 'document',
+  LABEL: 'label',
 };
 
-export const Path = {};
+export const Path = {
+  DOCUMENT: `/${PathHolder.DOCUMENT}`,
+  CREATE_DOCUMENT: `/${PathHolder.DOCUMENT}/create`,
+
+  LABEL: `/${PathHolder.LABEL}`,
+
+  USER_GUIDE: '/guide',
+  HEALTH: '/health',
+};
 
 export const HideDuration = {
   FAST: 3000,
@@ -27,13 +36,6 @@ export const HideDuration = {
   SLOW: 7000,
 };
 
-// export type SnackbarSeverity = 'error' | 'warning' | 'info' | 'success';
-export const SnackbarSeverity = {
-  ERROR: 'error',
-  WARNING: 'warning',
-  INFO: 'info',
-  SUCCESS: 'success',
-} as const;
 export type SnackbarSeverity = AlertColor;
 
 export const axiosQueryHandler = async <T>(func: () => Promise<T>) => {

@@ -1,34 +1,31 @@
-// component/AppSnackbar.tsx
 import { Alert, Snackbar } from '@mui/material';
-import React from 'react';
-import type { SnackbarSeverity } from '../util';
+import React, { useCallback, useState, type PropsWithChildren } from 'react';
+import { SnackbarContext } from '../hook';
+import type { SnackbarValue } from '../hook/useSnackbar';
 
-interface AppSnackbarProps {
-  open: boolean;
-  message: string;
-  severity?: SnackbarSeverity;
-  onClose: () => void;
-  autoHideDuration?: number;
-}
+const AppSnackbar: React.FC<PropsWithChildren> = ({ children }) => {
+  const [state, setState] = useState<SnackbarValue>();
 
-const AppSnackbar: React.FC<AppSnackbarProps> = ({
-  open,
-  message,
-  severity,
-  onClose,
-  autoHideDuration = 3000,
-}) => {
+  const handler = useCallback((value?: SnackbarValue) => setState(value), []);
+
   return (
-    <Snackbar
-      open={open}
-      autoHideDuration={autoHideDuration}
-      onClose={onClose}
-      anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-    >
-      <Alert onClose={onClose} severity={severity} sx={{ width: '100%' }}>
-        {message}
-      </Alert>
-    </Snackbar>
+    <SnackbarContext value={{ show: handler }}>
+      <Snackbar
+        open={state !== undefined}
+        autoHideDuration={state?.duration ?? 3000}
+        onClose={() => handler(undefined)}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+      >
+        <Alert
+          onClose={() => handler(undefined)}
+          severity={state?.severity ?? 'info'}
+          sx={{ width: '100%' }}
+        >
+          {state?.message}
+        </Alert>
+      </Snackbar>
+      {children}
+    </SnackbarContext>
   );
 };
 

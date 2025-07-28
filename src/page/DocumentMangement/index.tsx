@@ -3,6 +3,8 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { useTranslation } from 'react-i18next';
+import { EmbedDocument, UnembedDocument } from '..';
+import { Stack, Typography } from '@mui/material';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -33,7 +35,7 @@ function a11yProps(index: number) {
   };
 }
 
-export default function UseGuidePage() {
+export default function DocumentManagementPage() {
   const { t } = useTranslation();
   const [value, setValue] = React.useState(0);
 
@@ -42,20 +44,22 @@ export default function UseGuidePage() {
   };
 
   return (
-    <Box sx={{ width: '100%' }}>
-      <Box sx={{ borderColor: 'divider' }}>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          aria-label="basic tabs example"
-          centered
-        >
-          <Tab label={t('agentCreationGuide')} {...a11yProps(0)} />
-          <Tab label={t('fileConfigCreationGuide')} {...a11yProps(1)} />
-        </Tabs>
-      </Box>
-      <CustomTabPanel value={value} index={0}></CustomTabPanel>
-      <CustomTabPanel value={value} index={1}></CustomTabPanel>
-    </Box>
+    <Stack spacing={2} direction={'column'}>
+      <Typography variant="h4" textAlign={'center'}>
+        {t('documentList')}
+      </Typography>
+
+      <Tabs value={value} onChange={handleChange} centered variant="fullWidth">
+        <Tab label={t('unused')} {...a11yProps(0)} />
+        <Tab label={t('using')} {...a11yProps(1)} />
+      </Tabs>
+
+      <CustomTabPanel value={value} index={0}>
+        <UnembedDocument />
+      </CustomTabPanel>
+      <CustomTabPanel value={value} index={1}>
+        <EmbedDocument />
+      </CustomTabPanel>
+    </Stack>
   );
 }

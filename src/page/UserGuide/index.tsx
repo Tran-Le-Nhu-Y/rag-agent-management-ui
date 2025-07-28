@@ -3,7 +3,6 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { useTranslation } from 'react-i18next';
-import { EmbedDocumentPage, UnembeddedDocumentPage } from '..';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -34,7 +33,7 @@ function a11yProps(index: number) {
   };
 }
 
-export default function UpdateKnowledgePage() {
+export default function UserGuidePage() {
   const { t } = useTranslation();
   const [value, setValue] = React.useState(0);
 
@@ -51,16 +50,12 @@ export default function UpdateKnowledgePage() {
           aria-label="basic tabs example"
           centered
         >
-          <Tab label={t('unused')} {...a11yProps(0)} />
-          <Tab label={t('using')} {...a11yProps(1)} />
+          <Tab label={t('agentCreationGuide')} {...a11yProps(0)} />
+          <Tab label={t('fileConfigCreationGuide')} {...a11yProps(1)} />
         </Tabs>
       </Box>
-      <CustomTabPanel value={value} index={0}>
-        <UnembeddedDocumentPage />
-      </CustomTabPanel>
-      <CustomTabPanel value={value} index={1}>
-        <EmbedDocumentPage />
-      </CustomTabPanel>
+      <CustomTabPanel value={value} index={0}></CustomTabPanel>
+      <CustomTabPanel value={value} index={1}></CustomTabPanel>
     </Box>
   );
 }
