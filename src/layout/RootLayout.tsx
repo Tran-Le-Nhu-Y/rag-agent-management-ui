@@ -26,6 +26,7 @@ import Menu from '@mui/material/Menu';
 import { Outlet, useLocation, useNavigate } from 'react-router';
 import { Stack } from '@mui/material';
 import { Path } from '../util';
+import { HealthDialog } from '../page';
 
 const drawerWidth = 240;
 
@@ -94,6 +95,8 @@ const RootLayout = () => {
   const navigate = useNavigate();
   const [open, setOpen] = React.useState(false);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [openHealthDialog, setOpenHealthDialog] =
+    React.useState<boolean>(false);
 
   const location = useLocation();
   const getSelectedIndexFromPath = (pathname: string) => {
@@ -102,7 +105,6 @@ const RootLayout = () => {
       return 1;
     if (pathname === Path.LABEL) return 2;
     if (pathname === Path.USER_GUIDE) return 3;
-    if (pathname === Path.HEALTH) return 4;
     return 0; // fallback
   };
   React.useEffect(() => {
@@ -177,7 +179,9 @@ const RootLayout = () => {
               open={Boolean(anchorEl)}
               onClose={handleClose}
             >
-              <MenuItem onClick={handleClose}>{t('logout')}</MenuItem>
+              <MenuItem onClick={() => setOpenHealthDialog(true)}>
+                {t('agentStatus')}
+              </MenuItem>
             </Menu>
           </div>
         </Toolbar>
@@ -274,24 +278,12 @@ const RootLayout = () => {
           </ListItem>
         </List>
         <Divider /> */}
-        <List>
-          <ListItem key={t('agentStatus')} disablePadding>
-            <ListItemButton
-              selected={selectedIndex === 4}
-              onClick={(event) => {
-                handleListItemClick(event, 4);
-                navigate(Path.HEALTH);
-              }}
-            >
-              <ListItemIcon>
-                <InboxIcon />
-              </ListItemIcon>
-              <ListItemText primary={t('agentStatus')} />
-            </ListItemButton>
-          </ListItem>
-        </List>
       </Drawer>
       <Main open={open}>
+        <HealthDialog
+          open={openHealthDialog}
+          onClose={() => setOpenHealthDialog(false)}
+        />
         <DrawerHeader />
         <Outlet />
       </Main>

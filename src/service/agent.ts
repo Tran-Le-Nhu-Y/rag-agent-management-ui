@@ -29,6 +29,7 @@ export const agentApi = createApi({
       },
       transformResponse(rawResult: AgentStatusResponse) {
         return {
+          ...rawResult,
           status: rawResult.status as AgentStatus['status'],
           available_vector_stores: rawResult.available_vector_stores,
           bm25_last_sync: rawResult.bm25_last_sync,

@@ -51,6 +51,7 @@ export default function ImageTaggingPage() {
           onChange={handleChange}
           aria-label="basic tabs example"
           centered
+          variant="fullWidth"
         >
           <Tab label={t('untaggedImage')} {...a11yProps(0)} />
           <Tab label={t('taggedImage')} {...a11yProps(1)} />

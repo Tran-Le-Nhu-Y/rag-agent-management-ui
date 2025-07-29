@@ -27,7 +27,6 @@ export const Path = {
   LABEL: `/${PathHolder.LABEL}`,
 
   USER_GUIDE: '/guide',
-  HEALTH: '/health',
 };
 
 export const HideDuration = {

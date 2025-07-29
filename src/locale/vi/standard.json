@@ -92,6 +92,8 @@
   "deleteImageSuccess": "Xóa hình ảnh thành công",
 
   "documentList": "Danh sách tài liệu",
+  "agentName": "Tên AI Agent",
+  "agentDescription": "Mô tả AI Agent",
 
   "imageUploadError": "Lỗi tải lên hình ảnh",
   "imageUploadSuccess": "Tải lên hình ảnh thành công",

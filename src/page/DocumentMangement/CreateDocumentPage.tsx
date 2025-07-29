@@ -74,6 +74,7 @@ const CreateDocumentPage = () => {
             {t('addTextRecommendationFile')}:
           </Typography>
           <InputFileUpload
+            files={uploadedFile && [uploadedFile]}
             disabled={uploadDocument.isLoading || uploadedFile !== undefined}
             onFilesChange={(files) => setUploadedFile(files[0])}
             acceptedFileTypes={acceptedFileTypes}

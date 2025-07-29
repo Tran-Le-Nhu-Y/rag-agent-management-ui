@@ -1,13 +1,13 @@
 import UntaggedImagePage from './ImageTaggingPage/UntaggedImage';
 import TaggedImagePage from './ImageTaggingPage/TaggedImage';
-import ImageTaggingPage from './ImageTaggingPage/ImageTagging';
+import ImageTaggingPage from './ImageTaggingPage';
 import EmbedDocument from './DocumentMangement/EmbedDocument';
 import UnembedDocument from './DocumentMangement/UnembedDocument';
 import DocumentManagementPage from './DocumentMangement';
 import CreateDocumentPage from './DocumentMangement/CreateDocumentPage';
 import UserGuidePage from './UserGuide';
 import LabelManagementPage from './LabelManagement';
-import HealthPage from './HealthPage';
+import HealthDialog from './HealthDialog';
 
 export {
   UntaggedImagePage,
@@ -19,5 +19,5 @@ export {
   CreateDocumentPage,
   UserGuidePage,
   LabelManagementPage,
-  HealthPage,
+  HealthDialog,
 };

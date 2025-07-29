@@ -40,6 +40,8 @@ declare interface VectorStore {
 }
 
 declare interface AgentStatus {
+  name: string;
+  description?: string | null;
   status: 'ON' | 'OFF' | 'RESTART' | 'EMBED_DOCUMENT';
   available_vector_stores: string[];
   bm25_last_sync: string | null;

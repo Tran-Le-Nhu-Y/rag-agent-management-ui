@@ -36,6 +36,8 @@ declare interface DocumentResponse {
 }
 
 declare interface AgentStatusResponse {
+  name: string;
+  description: string | null;
   status: string;
   available_vector_stores: string[];
   bm25_last_sync: string | null;
