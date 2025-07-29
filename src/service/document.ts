@@ -139,12 +139,12 @@ export const documentApi = createApi({
         url: `/${EXTENSION_URL}/${storeName}/embed/${documentId}`,
         method: 'POST',
       }),
-      invalidatesTags() {
-        return [
-          { type: 'PagingUnembeddedDocument' } as const,
-          { type: 'PagingEmbeddedDocument' } as const,
-        ];
-      },
+      // invalidatesTags() {
+      //   return [
+      //     { type: 'PagingUnembeddedDocument' } as const,
+      //     { type: 'PagingEmbeddedDocument' } as const,
+      //   ];
+      // },
       transformResponse: (response: string) => response,
       transformErrorResponse(baseQueryReturnValue) {
         return baseQueryReturnValue.status;

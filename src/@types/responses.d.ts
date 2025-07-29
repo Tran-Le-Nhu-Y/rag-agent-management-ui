@@ -42,3 +42,8 @@ declare interface AgentStatusResponse {
   available_vector_stores: string[];
   bm25_last_sync: string | null;
 }
+
+declare interface Progress {
+  status: 'string';
+  percentage: number;
+}

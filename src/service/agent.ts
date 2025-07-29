@@ -36,9 +36,45 @@ export const agentApi = createApi({
         };
       },
     }),
+    postAgentStatus: builder.mutation<void, 'ON' | 'OFF'>({
+      query: (status) => ({
+        url: `/${EXTENSION_URL}/status`,
+        method: 'POST',
+        params: {
+          new_status: status,
+        },
+      }),
+      transformErrorResponse(baseQueryReturnValue) {
+        return baseQueryReturnValue.status;
+      },
+    }),
+
+    restartAgent: builder.mutation<void, void>({
+      query: () => ({
+        url: `/${EXTENSION_URL}/restart`,
+        method: 'POST',
+      }),
+      invalidatesTags(_result, error) {
+        return error?.status === 500
+          ? [
+              {
+                type: 'Status',
+                id: 'current-status',
+              } as const,
+            ]
+          : [];
+      },
+      transformErrorResponse(baseQueryReturnValue) {
+        return baseQueryReturnValue.status;
+      },
+    }),
   }),
 });
 
 // Export hooks for usage in functional components, which are
 // auto-generated based on the defined endpoints
-export const { useGetAgentStatusQuery } = agentApi;
+export const {
+  useGetAgentStatusQuery,
+  usePostAgentStatusMutation,
+  useRestartAgentMutation,
+} = agentApi;

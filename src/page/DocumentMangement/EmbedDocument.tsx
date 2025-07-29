@@ -34,14 +34,6 @@ const EmbedDocument = () => {
       field: 'name',
       headerName: t('documentName'),
       width: 250,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    {
-      field: 'description',
-      headerName: t('documentDescription'),
-      width: 300,
-      align: 'center',
       headerAlign: 'center',
     },
     {
@@ -63,7 +55,7 @@ const EmbedDocument = () => {
       field: 'source',
       headerName: t('source'),
       type: 'string',
-      width: 130,
+      width: 150,
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => {

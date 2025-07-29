@@ -4,13 +4,17 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
+  IconButton,
+  LinearProgress,
   Stack,
+  Tooltip,
   Typography,
 } from '@mui/material';
-import { useGetAgentStatus } from '../../service';
+import { useGetAgentStatus, useRestartAgent } from '../../service';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useMemo } from 'react';
+import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 interface HealthDialogProps {
   open: boolean;
@@ -52,12 +56,19 @@ const HealthDialog: React.FC<HealthDialogProps> = ({ open, onClose }) => {
     };
   }, [agentStatusQuery.data, t]);
 
+  const [restartAgentTrigger, restartAgentStatus] = useRestartAgent();
+  const restartAgentHandler = async () => {
+    try {
+      await restartAgentTrigger().unwrap();
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Dialog open={open} onClose={onClose}>
-      <DialogTitle>
-        <Typography variant="h4" textAlign={'center'}>
-          {t('agentStatus')}
-        </Typography>
+      <DialogTitle variant="h4" textAlign={'center'}>
+        {t('agentStatus')}
       </DialogTitle>
 
       <DialogContent>
@@ -73,7 +84,9 @@ const HealthDialog: React.FC<HealthDialogProps> = ({ open, onClose }) => {
             <Typography variant="body1" fontWeight={'bold'}>
               {t('agentDescription')}:
             </Typography>
-            <Typography>{agentStatus.description}</Typography>
+            <Typography textOverflow={'clip'}>
+              {agentStatus.description}
+            </Typography>
           </Stack>
 
           <Stack direction={'row'} spacing={1} alignItems={'center'}>
@@ -96,6 +109,23 @@ const HealthDialog: React.FC<HealthDialogProps> = ({ open, onClose }) => {
             </Typography>
             <Typography>{agentStatus.syncBM25}</Typography>
           </Stack>
+
+          <Stack direction={'row'} spacing={1} alignItems={'center'}>
+            <Typography variant="body1" fontWeight={'bold'}>
+              {t('restartAgent')}:
+            </Typography>
+            <Tooltip title={t('restartAgent')}>
+              <IconButton
+                color="primary"
+                disabled={restartAgentStatus.isLoading}
+                onClick={restartAgentHandler}
+              >
+                <RestartAltIcon />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+
+          {restartAgentStatus.isLoading && <LinearProgress />}
         </Stack>
       </DialogContent>
 

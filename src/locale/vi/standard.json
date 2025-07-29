@@ -49,6 +49,8 @@
   "configuredVectorStores": "Các Vector Store đã cấu hình",
   "lastSyncBM25": "Thời điểm đồng bộ BM25 lần cuối",
 
+  "restartAgent": "Khởi động lại AI Agent",
+
   "agentStatus": "Trạng thái AI Agent",
   "labelManagement": "Quản lý nhãn",
   "labelList": "Danh sách nhãn",

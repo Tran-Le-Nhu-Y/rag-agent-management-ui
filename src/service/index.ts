@@ -52,5 +52,13 @@ export {
   useUpdateLabel,
 };
 
-import { useGetAgentStatusQuery } from './agent';
-export { useGetAgentStatusQuery as useGetAgentStatus };
+import {
+  useGetAgentStatusQuery,
+  usePostAgentStatusMutation,
+  useRestartAgentMutation,
+} from './agent';
+export {
+  useGetAgentStatusQuery as useGetAgentStatus,
+  usePostAgentStatusMutation as usePostAgentStatus,
+  useRestartAgentMutation as useRestartAgent,
+};

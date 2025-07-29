@@ -47,18 +47,9 @@ const UnembedDocument = () => {
     {
       field: 'name',
       headerName: t('documentName'),
-      width: 250,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    {
-      field: 'description',
-      headerName: t('documentDescription'),
       width: 300,
-      align: 'center',
       headerAlign: 'center',
     },
-
     {
       field: 'created_at',
       headerName: t('createAt'),
@@ -71,7 +62,7 @@ const UnembedDocument = () => {
       field: 'source',
       headerName: t('source'),
       type: 'string',
-      width: 130,
+      width: 150,
       align: 'center',
       headerAlign: 'center',
       renderCell: (params) => {
@@ -95,7 +86,7 @@ const UnembedDocument = () => {
       field: 'actions',
       headerName: t('actions'),
       type: 'actions',
-      width: 200,
+      width: 250,
       getActions: (params) => {
         const isUploaded = params.row.source === 'UPLOADED';
 
