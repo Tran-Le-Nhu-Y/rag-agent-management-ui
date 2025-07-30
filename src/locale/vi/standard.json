@@ -54,6 +54,7 @@
   "agentStatus": "Trạng thái AI Agent",
   "labelManagement": "Quản lý nhãn",
   "labelList": "Danh sách nhãn",
+  "blankLabelName": "Tên nhãn không được để trống",
   "createLabel": "Tạo nhãn",
   "createLabelSuccess": "Tạo nhãn thành công",
   "createLabelError": "Tạo nhãn thất bại",
@@ -102,6 +103,7 @@
   "assignLabelsError": "Lỗi trong việc gán nhãn hình ảnh",
   "assignLabelsSuccess": "Gán nhãn hình ảnh thành công",
   "imageExportError": "Lỗi trong việc tải xuống hình ảnh",
+  "noAssginedImages": "Không có ảnh được gán nhãn.",
 
   "documentDetail": "Chi tiết tài liệu",
   "documentName": "Tên tài liệu",

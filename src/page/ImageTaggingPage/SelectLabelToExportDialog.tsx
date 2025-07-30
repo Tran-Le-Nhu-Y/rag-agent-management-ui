@@ -12,6 +12,7 @@ import { Stack } from '@mui/material';
 import type { Label } from '../../@types/entities';
 import { downloadFile, getExportingTokenByLabelId } from '../../service/api';
 import { useSnackbar } from '../../hook';
+import type { AxiosError } from 'axios';
 
 type FormDialogProps = {
   open: boolean;
@@ -50,12 +51,27 @@ export default function SelectLabelToExportDialog({
 
         // clean up "a" element
         document.body.removeChild(link);
-      } catch (error) {
+      } catch (err) {
+        const error = err as AxiosError;
+        const msgErrorData = error.response?.data as
+          | { message: string }
+          | undefined;
+        if (
+          msgErrorData?.message?.includes(
+            'No assigned images has label with id'
+          )
+        ) {
+          snackbar.show({
+            message: t('noAssginedImages'),
+            severity: 'error',
+          });
+        } else {
+          snackbar.show({
+            message: t('imageExportError'),
+            severity: 'error',
+          });
+        }
         console.error(error);
-        snackbar.show({
-          message: t('imageExportError'),
-          severity: 'error',
-        });
       }
     },
     [snackbar, t]

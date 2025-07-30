@@ -1,5 +1,5 @@
 import { Box, Button, Stack, Tooltip, Typography } from '@mui/material';
-import { DataGridTable, Loading } from '../../component';
+import { DataGridTable } from '../../component';
 import { GridActionsCellItem, type GridColDef } from '@mui/x-data-grid';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import FileDownloadIcon from '@mui/icons-material/FileDownload';
@@ -24,7 +24,7 @@ import {
 } from '../../service/api/file';
 import { useSnackbar } from '../../hook';
 
-const UnembedDocument = () => {
+const UnembedDocumentSection = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const snackbar = useSnackbar();
@@ -42,167 +42,6 @@ const UnembedDocument = () => {
   const [documentIdToEmbed, setDocumentIdToEmbed] = useState<string | null>(
     null
   );
-
-  const columns: GridColDef<DocumentInfo>[] = [
-    {
-      field: 'name',
-      headerName: t('documentName'),
-      width: 300,
-      headerAlign: 'center',
-    },
-    {
-      field: 'created_at',
-      headerName: t('createAt'),
-      type: 'string',
-      width: 250,
-      align: 'center',
-      headerAlign: 'center',
-    },
-    {
-      field: 'source',
-      headerName: t('source'),
-      type: 'string',
-      width: 150,
-      align: 'center',
-      headerAlign: 'center',
-      renderCell: (params) => {
-        return (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-            }}
-          >
-            <Typography>
-              {params.value === 'UPLOADED' ? t('uploaded') : t('external')}
-            </Typography>
-          </Box>
-        );
-      },
-    },
-    {
-      field: 'actions',
-      headerName: t('actions'),
-      type: 'actions',
-      width: 250,
-      getActions: (params) => {
-        const isUploaded = params.row.source === 'UPLOADED';
-
-        return [
-          <GridActionsCellItem
-            icon={
-              <Tooltip title={t('embeddingIntoAgent')}>
-                <FileOpenIcon />
-              </Tooltip>
-            }
-            color="primary"
-            label={t('embeddingIntoAgent')}
-            onClick={() => {
-              setDocumentIdToEmbed(params.row.id);
-              setOpenStoreToEmbedDialog(true);
-            }}
-          />,
-          <GridActionsCellItem
-            icon={
-              <Tooltip title={t('see')}>
-                <RemoveRedEyeIcon />
-              </Tooltip>
-            }
-            color="primary"
-            label={t('see')}
-            onClick={() => {
-              setViewedDocument({
-                id: params.row.id,
-                name: params.row.name,
-                description: params.row.description,
-                created_at: params.row.created_at,
-                mime_type: params.row.mime_type,
-                source: params.row.source,
-              });
-              setOpenDetailDialog(true);
-            }}
-          />,
-          ...(isUploaded
-            ? [
-                <GridActionsCellItem
-                  icon={
-                    <Tooltip title={t('download')}>
-                      <FileDownloadIcon />
-                    </Tooltip>
-                  }
-                  color="primary"
-                  label={t('download')}
-                  onClick={() => handleDownload(params.row.id)}
-                />,
-              ]
-            : []),
-          <GridActionsCellItem
-            icon={
-              <Tooltip title={t('delete')}>
-                <DeleteIcon color="error" />
-              </Tooltip>
-            }
-            label={t('delete')}
-            onClick={() => setDocumentIdToDelete(params.row.id)}
-          />,
-        ];
-      },
-    },
-  ];
-
-  // Get all unembedded document
-  const [documentQuery, setDocumentQuery] =
-    useState<GetUnembeddedDocumentsQuery>({
-      offset: 0,
-      limit: 6,
-    });
-
-  const documentResults = useGetUnembeddedDocuments(documentQuery, {
-    skip: !documentQuery,
-  });
-  useEffect(() => {
-    if (documentResults.isError)
-      snackbar.show({
-        message: t('createDocumentError'),
-        severity: 'error',
-      });
-  }, [documentResults.isError, snackbar, t]);
-
-  const rows = useMemo(() => {
-    if (documentResults.isFetching) return [];
-    if (!documentResults.data) return [];
-    return documentResults.data.content.map(
-      (doc) =>
-        ({
-          id: doc.id,
-          name: doc.name,
-          description: doc.description,
-          created_at: parseDay(doc.created_at),
-          mime_type: doc.mime_type,
-          source: doc.source,
-        } as DocumentInfo)
-    );
-  }, [documentResults.data, documentResults.isFetching]);
-
-  //Delete doucment
-  const [deleteDocumentTrigger] = useDeleteDocument();
-  const handleDeleteDocument = async (documentId: string) => {
-    try {
-      await deleteDocumentTrigger(documentId).unwrap();
-      snackbar.show({
-        message: t('deleteDocumentSuccess'),
-        severity: 'success',
-      });
-    } catch (error) {
-      console.error(error);
-      snackbar.show({
-        message: t('deleteDocumentFailed'),
-        severity: 'error',
-      });
-    }
-  };
 
   //Download document
   const handleDownload = useCallback(
@@ -229,6 +68,161 @@ const UnembedDocument = () => {
     },
     [snackbar, t]
   );
+
+  const columns: GridColDef<DocumentInfo>[] = useMemo(
+    () => [
+      {
+        field: 'name',
+        headerName: t('documentName'),
+        width: 300,
+        headerAlign: 'center',
+      },
+      {
+        field: 'created_at',
+        headerName: t('createAt'),
+        type: 'string',
+        width: 250,
+        align: 'center',
+        headerAlign: 'center',
+      },
+      {
+        field: 'source',
+        headerName: t('source'),
+        type: 'string',
+        width: 150,
+        align: 'center',
+        headerAlign: 'center',
+        renderCell: (params) => {
+          return (
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+              }}
+            >
+              <Typography>
+                {params.value === 'UPLOADED' ? t('uploaded') : t('external')}
+              </Typography>
+            </Box>
+          );
+        },
+      },
+      {
+        field: 'actions',
+        headerName: t('actions'),
+        type: 'actions',
+        width: 250,
+        getActions: (params) => {
+          const isUploaded = params.row.source === 'UPLOADED';
+
+          return [
+            <GridActionsCellItem
+              icon={
+                <Tooltip title={t('embeddingIntoAgent')}>
+                  <FileOpenIcon />
+                </Tooltip>
+              }
+              color="primary"
+              label={t('embeddingIntoAgent')}
+              onClick={() => {
+                setDocumentIdToEmbed(params.row.id);
+                setOpenStoreToEmbedDialog(true);
+              }}
+            />,
+            <GridActionsCellItem
+              icon={
+                <Tooltip title={t('see')}>
+                  <RemoveRedEyeIcon />
+                </Tooltip>
+              }
+              color="primary"
+              label={t('see')}
+              onClick={() => {
+                setViewedDocument({
+                  id: params.row.id,
+                  name: params.row.name,
+                  description: params.row.description,
+                  created_at: params.row.created_at,
+                  mime_type: params.row.mime_type,
+                  source: params.row.source,
+                });
+                setOpenDetailDialog(true);
+              }}
+            />,
+            ...(isUploaded
+              ? [
+                  <GridActionsCellItem
+                    icon={
+                      <Tooltip title={t('download')}>
+                        <FileDownloadIcon />
+                      </Tooltip>
+                    }
+                    color="primary"
+                    label={t('download')}
+                    onClick={() => handleDownload(params.row.id)}
+                  />,
+                ]
+              : []),
+            <GridActionsCellItem
+              icon={
+                <Tooltip title={t('delete')}>
+                  <DeleteIcon color="error" />
+                </Tooltip>
+              }
+              label={t('delete')}
+              onClick={() => setDocumentIdToDelete(params.row.id)}
+            />,
+          ];
+        },
+      },
+    ],
+    [handleDownload, t]
+  );
+
+  // Get all unembedded document
+  const [documentQuery, setDocumentQuery] =
+    useState<GetUnembeddedDocumentsQuery>({
+      offset: 0,
+      limit: 6,
+    });
+
+  const documentResults = useGetUnembeddedDocuments(documentQuery, {
+    skip: !documentQuery,
+  });
+  useEffect(() => {
+    if (documentResults.isError)
+      snackbar.show({
+        message: t('createDocumentError'),
+        severity: 'error',
+      });
+  }, [documentResults.isError, snackbar, t]);
+  const rows = useMemo(() => {
+    if (!documentResults.data) return [];
+    return documentResults.data.content.map((doc) => ({
+      ...doc,
+      created_at: parseDay(doc.created_at),
+    }));
+  }, [documentResults.data]);
+
+  //Delete doucment
+  const [deleteDocumentTrigger] = useDeleteDocument();
+  const handleDeleteDocument = async (documentId: string) => {
+    try {
+      await deleteDocumentTrigger(documentId).unwrap();
+      snackbar.show({
+        message: t('deleteDocumentSuccess'),
+        severity: 'success',
+      });
+    } catch (error) {
+      console.error(error);
+      snackbar.show({
+        message: t('deleteDocumentFailed'),
+        severity: 'error',
+      });
+    }
+  };
 
   //Embedded doucment
   const [embedDocumentTrigger, embedDocument] = useEmbedDocument();
@@ -299,28 +293,27 @@ const UnembedDocument = () => {
           {t('createDocument')}
         </Button>
       </Box>
-      {documentResults.isLoading ||
-      documentResults.isFetching ||
-      embedDocument.isLoading ? (
-        <Loading />
-      ) : (
-        <Box sx={{ height: 400, width: '90%' }}>
-          <DataGridTable
-            rows={rows}
-            columns={columns}
-            total={documentResults.data?.total_elements ?? 0}
-            page={documentQuery.offset ?? 0}
-            pageSize={documentQuery?.limit ?? 6}
-            onPageChange={(newPage) =>
-              setDocumentQuery((prev) => {
-                return { ...prev, offset: newPage };
-              })
-            }
-          />
-        </Box>
-      )}
+      <Box sx={{ height: 400, width: '90%' }}>
+        <DataGridTable
+          loading={
+            documentResults.isLoading ||
+            documentResults.isFetching ||
+            embedDocument.isLoading
+          }
+          rows={rows}
+          columns={columns}
+          total={documentResults.data?.total_elements ?? 0}
+          page={documentQuery.offset ?? 0}
+          pageSize={documentQuery?.limit ?? 6}
+          onPageChange={(newPage) =>
+            setDocumentQuery((prev) => {
+              return { ...prev, offset: newPage };
+            })
+          }
+        />
+      </Box>
     </Stack>
   );
 };
 
-export default UnembedDocument;
+export default UnembedDocumentSection;

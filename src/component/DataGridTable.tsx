@@ -1,8 +1,13 @@
 import Box from '@mui/material/Box';
-import { DataGrid, type GridColDef, type GridRowsProp } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  type DataGridProps,
+  type GridColDef,
+  type GridRowsProp,
+} from '@mui/x-data-grid';
 import { viVN } from '@mui/x-data-grid/locales';
 
-interface DataGridTableProps {
+interface DataGridTableProps extends DataGridProps {
   rows: GridRowsProp;
   columns: GridColDef[];
   height?: number;
@@ -20,10 +25,12 @@ const DataGridTable: React.FC<DataGridTableProps> = ({
   pageSize = 6,
   total,
   onPageChange,
+  ...props
 }) => {
   return (
     <Box sx={{ height: height, width: '100%' }}>
       <DataGrid
+        {...props}
         localeText={viVN.components.MuiDataGrid.defaultProps.localeText}
         rows={rows}
         columns={columns}

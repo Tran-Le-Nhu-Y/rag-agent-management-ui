@@ -10,7 +10,7 @@ import {
 import { InputFileUpload } from './InputFileUpload';
 import AppSnackbar from './AppSnackbar';
 import Loading from './Loading';
-import CreateLabelDialog from './CreateLabelDialog';
+import CreateLabelDialog from '../page/LabelManagement/CreateLabelDialog';
 export {
   DataGridTable,
   Tags,

@@ -3,8 +3,9 @@ import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { useTranslation } from 'react-i18next';
-import { EmbedDocument, UnembedDocument } from '..';
 import { Stack, Typography } from '@mui/material';
+import UnembedDocumentSection from './UnembedDocumentSection';
+import EmbedDocumentSection from './EmbedDocumentSection';
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -55,10 +56,10 @@ export default function DocumentManagementPage() {
       </Tabs>
 
       <CustomTabPanel value={value} index={0}>
-        <UnembedDocument />
+        <UnembedDocumentSection />
       </CustomTabPanel>
       <CustomTabPanel value={value} index={1}>
-        <EmbedDocument />
+        <EmbedDocumentSection />
       </CustomTabPanel>
     </Stack>
   );

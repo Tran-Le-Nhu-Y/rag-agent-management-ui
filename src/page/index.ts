@@ -1,8 +1,8 @@
 import UntaggedImagePage from './ImageTaggingPage/UntaggedImage';
 import TaggedImagePage from './ImageTaggingPage/TaggedImage';
 import ImageTaggingPage from './ImageTaggingPage';
-import EmbedDocument from './DocumentMangement/EmbedDocument';
-import UnembedDocument from './DocumentMangement/UnembedDocument';
+import EmbedDocumentSection from './DocumentMangement/EmbedDocumentSection';
+import UnembedDocumentSection from './DocumentMangement/UnembedDocumentSection';
 import DocumentManagementPage from './DocumentMangement';
 import CreateDocumentPage from './DocumentMangement/CreateDocumentPage';
 import UserGuidePage from './UserGuide';
@@ -13,8 +13,8 @@ export {
   UntaggedImagePage,
   TaggedImagePage,
   ImageTaggingPage,
-  EmbedDocument,
-  UnembedDocument,
+  EmbedDocumentSection,
+  UnembedDocumentSection,
   DocumentManagementPage,
   CreateDocumentPage,
   UserGuidePage,

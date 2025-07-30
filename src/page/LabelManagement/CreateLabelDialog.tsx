@@ -9,21 +9,22 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { isValidLength, TextLength } from '../util';
+import { isValidLength, TextLength } from '../../util';
+import { useCreateLabel } from '../../service';
+import { useSnackbar } from '../../hook';
+import { LabelError } from '../../util/errors';
 
 type CreateLabelDialogProps = {
   open: boolean;
   onClose: () => void;
-  onSubmit: (label: { name: string; description: string }) => void;
 };
 
-const CreateLabelDialog = ({
-  open,
-  onClose,
-  onSubmit,
-}: CreateLabelDialogProps) => {
+const DEFAULT_VALUE = { name: '', description: '' };
+
+const CreateLabelDialog = ({ open, onClose }: CreateLabelDialogProps) => {
   const { t } = useTranslation();
-  const [labelInfo, setLabelInfo] = useState({ name: '', description: '' });
+  const [labelInfo, setLabelInfo] = useState(DEFAULT_VALUE);
+  const snackbar = useSnackbar();
 
   const handleChange =
     (field: 'name' | 'description') =>
@@ -41,13 +42,58 @@ const CreateLabelDialog = ({
     resetForm();
     onClose();
   };
-  const handleSubmit = () => {
-    if (
-      isValidLength(labelInfo.name, TextLength.LONG) &&
-      isValidLength(labelInfo.description, TextLength.VERY_LONG)
-    ) {
-      onSubmit(labelInfo);
-      resetForm();
+
+  const [createLabelTrigger, createLabel] = useCreateLabel();
+  const handleCreateLabelSubmit = async () => {
+    const validateFields = () => {
+      if (labelInfo.name.trim().length === 0) {
+        snackbar.show({
+          message: t('blankLabelName'),
+          severity: 'warning',
+        });
+        return false;
+      }
+
+      if (!isValidLength(labelInfo.name, TextLength.LONG)) {
+        return false;
+      }
+
+      if (!isValidLength(labelInfo.description, TextLength.VERY_LONG)) {
+        return false;
+      }
+
+      return true;
+    };
+
+    if (!validateFields()) return;
+
+    try {
+      await createLabelTrigger(labelInfo).unwrap();
+      snackbar.show({
+        message: t('createLabelSuccess'),
+        severity: 'success',
+      });
+    } catch (error) {
+      switch (error) {
+        case LabelError.DUPLICATE_LABEL_NAME: {
+          snackbar.show({
+            message: t('duplicateLabelNameError'),
+            severity: 'warning',
+          });
+          break;
+        }
+        case LabelError.UNKNOWN_ERROR: {
+          snackbar.show({
+            message: t('createLabelError'),
+            severity: 'error',
+          });
+          break;
+        }
+      }
+      console.error(error);
+    } finally {
+      setLabelInfo(DEFAULT_VALUE);
+      onClose();
     }
   };
 
@@ -86,15 +132,20 @@ const CreateLabelDialog = ({
         <Button
           size="small"
           variant="contained"
-          onClick={handleSubmit}
+          onClick={handleCreateLabelSubmit}
           disabled={
             !isValidLength(labelInfo.name, TextLength.LONG) ||
             !isValidLength(labelInfo.description, TextLength.VERY_LONG)
           }
+          loading={createLabel.isLoading}
         >
           {t('confirm')}
         </Button>
-        <Button size="small" onClick={handleClose}>
+        <Button
+          size="small"
+          onClick={handleClose}
+          disabled={createLabel.isLoading}
+        >
           {t('close')}
         </Button>
       </DialogActions>

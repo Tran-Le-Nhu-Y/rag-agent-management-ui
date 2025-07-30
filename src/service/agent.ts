@@ -55,7 +55,7 @@ export const agentApi = createApi({
         method: 'POST',
       }),
       invalidatesTags(_result, error) {
-        return error?.status === 500
+        return error?.status !== 500
           ? [
               {
                 type: 'Status',
