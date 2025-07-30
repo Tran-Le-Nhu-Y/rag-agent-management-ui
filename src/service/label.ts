@@ -28,7 +28,8 @@ export const labelApi = createApi({
         const { message } = baseQueryReturnValue.data as { message: string };
         if (
           status === 400 &&
-          message.localeCompare('Label with name a already exists.') === 0
+          message.includes('Label with name') &&
+          message.includes('already exists.')
         )
           return LabelError.DUPLICATE_LABEL_NAME;
         return LabelError.UNKNOWN_ERROR;

@@ -124,7 +124,8 @@ export function getFileSize(bytes: number) {
 // };
 
 export const parseDay = (date: string) => {
-  return new Date(`${date}+00:00`).toLocaleString();
+  const utcDate = date.endsWith('Z') ? date : date + 'Z';
+  return new Date(utcDate).toLocaleString();
 };
 
 export type TextLengthValue = (typeof TextLength)[keyof typeof TextLength];

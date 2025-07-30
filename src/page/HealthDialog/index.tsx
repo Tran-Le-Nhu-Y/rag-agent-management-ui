@@ -12,9 +12,9 @@ import {
 } from '@mui/material';
 import { useGetAgentStatus, useRestartAgent } from '../../service';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
 import { useMemo } from 'react';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
+import { parseDay } from '../../util';
 
 interface HealthDialogProps {
   open: boolean;
@@ -51,7 +51,7 @@ const HealthDialog: React.FC<HealthDialogProps> = ({ open, onClose }) => {
       status: statusMap[data.status],
       stores: data.available_vector_stores,
       syncBM25: data.bm25_last_sync
-        ? dayjs(data.bm25_last_sync).toDate().toLocaleString()
+        ? parseDay(data.bm25_last_sync)
         : t('undefined'),
     };
   }, [agentStatusQuery.data, t]);
