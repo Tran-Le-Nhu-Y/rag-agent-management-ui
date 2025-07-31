@@ -1,0 +1,11 @@
+node_modules/
+.env
+*.development
+.eslintrc.cjs
+.eslint.config.js
+README.md
+.gitignore
+.git/
+.prettierrc
+.prettierignore
+.vscode/
