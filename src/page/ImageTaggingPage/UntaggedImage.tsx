@@ -17,7 +17,6 @@ import { useTranslation } from 'react-i18next';
 import { useEffect, useMemo, useState } from 'react';
 import {
   useAssignLabelToImage,
-  useCreateLabel,
   useDeleteImage,
   useGetAllLabel,
   useGetUnlabeledImages,
@@ -26,7 +25,6 @@ import {
 import type { Label } from '../../@types/entities';
 import { getImageUrl } from '../../service/api';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import { LabelError } from '../../util/errors';
 import ArrowDownwardIcon from '@mui/icons-material/ArrowDownward';
 import { useSnackbar } from '../../hook';
 
@@ -181,45 +179,11 @@ const UntaggedImagePage = () => {
     }
   };
 
-  //Create Label
-  const [createLabelTrigger] = useCreateLabel();
-  const handleCreateLabelSubmit = async (label: {
-    name: string;
-    description: string;
-  }) => {
-    try {
-      await createLabelTrigger(label).unwrap();
-      snackbar.show({
-        message: t('createLabelSuccess'),
-        severity: 'success',
-      });
-      setCreateLabelDialogOpen(false);
-    } catch (error) {
-      switch (error) {
-        case LabelError.DUPLICATE_LABEL_NAME: {
-          snackbar.show({
-            message: t('duplicateLabelNameError'),
-            severity: 'warning',
-          });
-          break;
-        }
-        case LabelError.UNKNOWN_ERROR: {
-          snackbar.show({
-            message: t('createLabelError'),
-            severity: 'error',
-          });
-          break;
-        }
-      }
-    }
-  };
-
   return (
     <Stack justifyContent={'center'} alignItems="center">
       <CreateLabelDialog
         open={createLabelDialogOpen}
         onClose={() => setCreateLabelDialogOpen(false)}
-        onSubmit={handleCreateLabelSubmit}
       />
       {uploadImage.isLoading ||
       labels.isLoading ||
