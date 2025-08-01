@@ -9,28 +9,55 @@ import {
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { Tags } from '../../component';
-import type { VectorStore } from '../../@types/entities';
+import { useEmbedDocument, useGetAgentStatus } from '../../service';
+import { useSnackbar } from '../../hook';
 import { useState } from 'react';
-import { useGetAgentStatus } from '../../service';
 
 interface SelectStoreToEmbedDialogProps {
-  open: boolean;
+  documentId: string | null;
   onClose: () => void;
-  onSubmit: (store: VectorStore) => void;
 }
 
 const SelectStoreToEmbedDialog = ({
-  open,
+  documentId,
   onClose,
-  onSubmit,
 }: SelectStoreToEmbedDialogProps) => {
   const { t } = useTranslation();
-  const [selectedStore, setSelectedStore] = useState<string | null>(null);
-
+  const snackbar = useSnackbar();
   const agentStatusQuery = useGetAgentStatus();
 
+  const [selectedStore, setSelectedStore] = useState<string | null>(null);
+  const [embedDocumentTrigger, embedDocument] = useEmbedDocument();
+  const embedDocumentHandler = async () => {
+    if (!documentId || !selectedStore) return;
+
+    try {
+      await embedDocumentTrigger({
+        documentId: documentId,
+        storeName: selectedStore,
+      }).unwrap();
+      snackbar.show({
+        message: t('embedDocumentSuccess'),
+        severity: 'success',
+      });
+    } catch (err) {
+      console.error(err);
+      snackbar.show({
+        message: t('embedDocumentFailed'),
+        severity: 'error',
+      });
+    } finally {
+      onClose();
+    }
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
+    <Dialog
+      open={documentId !== null}
+      onClose={onClose}
+      maxWidth="sm"
+      fullWidth
+    >
       <DialogTitle align="center">
         <strong>{t('selectStore')}</strong>
       </DialogTitle>
@@ -59,18 +86,16 @@ const SelectStoreToEmbedDialog = ({
       </DialogContent>
       <DialogActions>
         <Button
-          onClick={() => {
-            if (selectedStore) {
-              onSubmit({ id: selectedStore, name: selectedStore });
-              agentStatusQuery.refetch();
-            }
-          }}
+          onClick={embedDocumentHandler}
           variant="contained"
           color="primary"
+          loading={embedDocument.isLoading}
         >
           {t('confirm')}
         </Button>
-        <Button onClick={onClose}>{t('close')}</Button>
+        <Button onClick={onClose} disabled={embedDocument.isLoading}>
+          {t('close')}
+        </Button>
       </DialogActions>
     </Dialog>
   );

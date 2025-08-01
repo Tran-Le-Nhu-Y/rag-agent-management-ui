@@ -9,14 +9,10 @@ import { useNavigate } from 'react-router';
 import FileOpenIcon from '@mui/icons-material/FileOpen';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import DocumentDetailDialog from './DocumentDetailDialog';
-import {
-  useDeleteDocument,
-  useEmbedDocument,
-  useGetUnembeddedDocuments,
-} from '../../service';
+import { useDeleteDocument, useGetUnembeddedDocuments } from '../../service';
 import { parseDay, Path } from '../../util';
 import SelectStoreToEmbedDialog from './SelectStoreToEmbedDialog';
-import type { DocumentInfo, VectorStore } from '../../@types/entities';
+import type { DocumentInfo } from '../../@types/entities';
 import ConfirmDialog from '../../component/ConfirmDialog';
 import {
   downloadFile,
@@ -30,7 +26,6 @@ const UnembedDocumentSection = () => {
   const snackbar = useSnackbar();
 
   const [openDetailDialog, setOpenDetailDialog] = useState(false);
-  const [openStoreToEmbedDialog, setOpenStoreToEmbedDialog] = useState(false);
 
   const [viewedDocument, setViewedDocument] = useState<DocumentInfo | null>(
     null
@@ -38,7 +33,6 @@ const UnembedDocumentSection = () => {
   const [documentIdToDelete, setDocumentIdToDelete] = useState<string | null>(
     null
   );
-  const [, setSelectedStoreToEmbed] = useState<VectorStore | null>(null);
   const [documentIdToEmbed, setDocumentIdToEmbed] = useState<string | null>(
     null
   );
@@ -128,7 +122,6 @@ const UnembedDocumentSection = () => {
               label={t('embeddingIntoAgent')}
               onClick={() => {
                 setDocumentIdToEmbed(params.row.id);
-                setOpenStoreToEmbedDialog(true);
               }}
             />,
             <GridActionsCellItem
@@ -224,30 +217,6 @@ const UnembedDocumentSection = () => {
     }
   };
 
-  //Embedded doucment
-  const [embedDocumentTrigger, embedDocument] = useEmbedDocument();
-  const embedDocumentHandler = async (
-    documentId: string,
-    storeName: string
-  ) => {
-    try {
-      await embedDocumentTrigger({
-        documentId: documentId,
-        storeName: storeName,
-      }).unwrap();
-      snackbar.show({
-        message: t('embedDocumentSuccess'),
-        severity: 'success',
-      });
-    } catch (err) {
-      console.error(err);
-      snackbar.show({
-        message: t('embedDocumentFailed'),
-        severity: 'error',
-      });
-    }
-  };
-
   return (
     <Stack justifyContent={'center'} alignItems="center" spacing={2}>
       <DocumentDetailDialog
@@ -256,17 +225,8 @@ const UnembedDocumentSection = () => {
         document={viewedDocument}
       />
       <SelectStoreToEmbedDialog
-        open={openStoreToEmbedDialog}
-        onClose={() => setOpenStoreToEmbedDialog(false)}
-        onSubmit={async (selectedStore) => {
-          setOpenStoreToEmbedDialog(false);
-          setSelectedStoreToEmbed(selectedStore);
-
-          if (documentIdToEmbed && selectedStore) {
-            await embedDocumentHandler(documentIdToEmbed, selectedStore.name);
-            setDocumentIdToEmbed(null);
-          }
-        }}
+        documentId={documentIdToEmbed}
+        onClose={() => setDocumentIdToEmbed(null)}
       />
       {documentIdToDelete && (
         <ConfirmDialog
@@ -295,11 +255,7 @@ const UnembedDocumentSection = () => {
       </Box>
       <Box sx={{ height: 400, width: '90%' }}>
         <DataGridTable
-          loading={
-            documentResults.isLoading ||
-            documentResults.isFetching ||
-            embedDocument.isLoading
-          }
+          loading={documentResults.isLoading || documentResults.isFetching}
           rows={rows}
           columns={columns}
           total={documentResults.data?.total_elements ?? 0}
